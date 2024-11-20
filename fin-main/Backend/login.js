@@ -3,7 +3,7 @@ const router = express.Router();
 const CustomerModel = require('./Model/Customer');
 const EmployeeModel = require('./Model/Employee');
 
-// Hàm đăng nhập kiểm tra trong cả Employee và Customer
+
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
@@ -12,7 +12,7 @@ router.post('/login', async (req, res) => {
     }
 
     try {
-        // Kiểm tra trong model Employee (Admin)
+        // Kiểm tra trong model Employee 
         const admin = await EmployeeModel.findOne({ _id: username });
 
         if (admin) {
@@ -30,7 +30,7 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // Nếu không phải Admin, kiểm tra trong model Customer
+        // Nếu không phải Employee
         const customer = await CustomerModel.findOne({ "Cust ID": username });
 
         if (customer) {
