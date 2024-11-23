@@ -1,0 +1,20 @@
+.layout-wrapper {
+    
+}
+
+.layout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+}
+
+.layout-body {
+    display: flex;
+    align-items: center;
+
+}
+
+.children {
+    flex: 1;
+}
