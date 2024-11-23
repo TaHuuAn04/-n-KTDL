@@ -15,7 +15,7 @@ const ProductSchema = new mongoose.Schema(
         "SupplierID": { type: Number, required: true },
         "Supplier Code": { type: String, required: false },
         "Supplier": { type: String, required: false }
-    }, {collection: 'Product'}
+    }, {collection: 'Product', timestamps: true}
 );
 const ProductModel= mongoose.model("Product", ProductSchema)
 module.exports = ProductModel;
