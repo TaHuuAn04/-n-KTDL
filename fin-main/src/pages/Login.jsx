@@ -52,7 +52,7 @@ const Login = () => {
         //Thực hiện kiểm tra thông tin đăng nhập, ví dụ: tạm thời kiểm tra username và password là "admin"
         if (formData.username === 'admin' && formData.password === 'admin') {
             // Đăng nhập thành công, chuyển hướng đến trang dashboard
-            navigate('/dashboard');
+            navigate('/product');
         } else {
             // Đăng nhập không thành công, xử lý tại đây (ví dụ: hiển thị thông báo lỗi)
             alert('Bạn nhập sai Tài khoản hoặc Mật khẩu');

@@ -20,11 +20,11 @@ function Content() {
         <div className="card-wrapper">
             {/* <div className='main-cards'> */}
             {/* <Link to="/doctor" style={{ textDecoration: 'none', color: 'inherit' }}> */}
-            <Link to="/doctor" className="card">
+            <Link to="/employee" className="card">
                 <h3 className="card-title">Nhân viên hiện có</h3>
                 <div className="card-body">
                     <div className="card-icon">
-                        <img src="src/assets/doctor.png"></img>
+                        {/*<img src="src/assets/doctor.png"></img>*/}
                     </div>
                     <div className="card-quantity">
                         <p className="card-quantity-title">Tổng</p>

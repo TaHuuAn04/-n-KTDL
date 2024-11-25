@@ -16,8 +16,8 @@ function App() {
             <SearchProvider>
                 <Routes>
                     <Route path="/" element={<Login />} />
-                    <Route path="/dashboard" index element={<Product />} />
-                    <Route path="/doctor" index element={<Employee />} />
+                    <Route path="/product" index element={<Product />} />
+                    <Route path="/employee" index element={<Employee />} />
                     <Route path="/medicine" index element={<Product />} />
                     <Route path="/patient" index element={<Customer />} />
                     <Route path="/patient-detail" element={<PatientDetail />} />

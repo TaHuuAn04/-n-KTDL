@@ -7,14 +7,14 @@ function Sidebar() {
     return (
         
             <ul className="sidebar-list">
-                <Link to="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link to="/product" style={{ textDecoration: 'none', color: 'inherit' }}>
                     <li className="sidebar-list-item">
-                        <div className={location.pathname === '/dashboard' ? 'active' : ''}>Sản phẩm</div>
+                        <div className={location.pathname === '/product' ? 'active' : ''}>Sản phẩm</div>
                     </li>
                 </Link>
-                <Link to="/doctor" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link to="/employee" style={{ textDecoration: 'none', color: 'inherit' }}>
                     <li className="sidebar-list-item">
-                        <div className={location.pathname === '/doctor' ? 'active' : ''}>Nhân viên</div>
+                        <div className={location.pathname === '/employee' ? 'active' : ''}>Nhân viên</div>
                     </li>
                 </Link>
                 <Link to="/nurse" style={{ textDecoration: 'none', color: 'inherit' }}>
