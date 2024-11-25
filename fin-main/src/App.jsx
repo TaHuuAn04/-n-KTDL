@@ -10,7 +10,6 @@ import PatientSchedule from './components/CustomerSchedule';
 import Login from './pages/Login';
 import Customer from './pages/Customer.jsx';
 import { SearchProvider } from './SearchContext';
-// import Yta from './pages/Yta'
 function App() {
     return (
         <AuthProvider>

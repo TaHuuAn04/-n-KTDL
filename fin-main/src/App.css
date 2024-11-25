@@ -385,7 +385,7 @@ body {
     margin-left: 16px;
     grid-area: main;
     overflow-y: hidden;
-    padding: 20px 20px;
+    padding: 5px 20px;
     color: #006b82;
     margin-right: 16px;
 }
@@ -474,13 +474,13 @@ body {
 /* End Main  */
 
 /* Main  */
-.medicine-main-container {
+.product-main-container {
     display: flex;
     justify-content: center;
     margin-top: 60px;
     background-color: white;
-    width: 85%;
-    height: 80%;
+    width: 90%;
+    height: 100%;
     top: 154px;
     left: 394px;
     border-radius: 32px;
