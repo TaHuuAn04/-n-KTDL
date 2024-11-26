@@ -1,0 +1,219 @@
+.backgr-orderdetail {
+    width: 1296px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.order-detail-title {
+    font-family: unicaone;
+    font-size: 50px;
+    justify-self: center;
+    margin-bottom: 20px;
+    margin-top: 40px;
+}
+
+.order-add-cons {
+    display: flex;
+}
+
+.add-cons {
+    font-family: montser;
+    font-size: 30px;
+    width: 648px;
+    word-wrap: break-word;
+    margin-left: 30px;
+    margin-top: 20px;
+}
+
+.order-detail-box {
+    background: #d9d9d9;
+    margin-left: auto;
+    width: 1296px;
+    margin-right: auto;
+    margin-bottom: -40px;
+}
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper .order-ship-phone ul li{
+    list-style-type: none;
+    margin-left: 10px;
+}
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper .order-ship-phone ul {
+    display: flex;
+    width: 650px;
+    word-wrap: break-word;
+    margin-left: 30px;
+}
+
+.order-ship-phone {
+    display: flex;
+}
+
+.order-detail-box {
+    font-family: montser;
+}
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper .order-ship-email ul li{
+    list-style-type: none;
+    margin-left: 10px;
+}
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper .order-ship-email ul {
+    display: flex;
+    width: 650px;
+    word-wrap: break-word;
+    margin-left: 30px;
+}
+
+.order-ship-email {
+    display: flex;
+    margin-top: -20px;
+}
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper .order-detail .name-infor {
+    display: flex;
+    justify-content: space-between;
+    margin-right: 320px;
+}
+
+
+.name-order {
+    margin-left: 30px;
+}
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper ,.order-detail .name-infor p {
+    font-family: montser;
+    font-size: 25px;
+}
+
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper .order-detail .name-infor .name-right {
+    display: flex;
+}
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper .order-detail .name-infor .name-right p {
+    margin-left: 20%;
+}
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper .order-detail .infor-detail {
+    display: flex;
+    justify-content: space-between;
+}
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper .order-detail .infor-detail p {
+    font-family: montser;
+    font-size: 25px;
+}
+
+.name-right-detail {
+    margin-right: -100px;
+}
+
+.name-order-detail {
+    width: 650px;
+    word-wrap: break-word;
+    margin-left: 30px;
+}
+
+.name-branch {
+    margin-right: -25px;
+}
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper .order-detail .infor-detail .name-right-detail {
+    display: flex;
+}
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper .order-detail .infor-detail .name-right-detail p {
+    margin-right: 130px;
+}
+
+.order-total {
+    font-family: montser;
+    font-size: 30px;
+    color: #ffffff;
+    margin-bottom: 30px;
+    margin-right: 50px;
+}
+
+.order-total {
+    width: 294px;
+    height: 73px;
+    
+    background: rgba(35, 150, 174, 0.8);
+    border-radius: 10px;
+    justify-content: center;
+}
+
+.my-order-total {
+    justify-self: center;
+    margin-top: 18px;
+}
+
+.order-detail-button {
+    display: flex;
+    justify-content: space-between;
+}
+
+.button-buy-again {
+    box-sizing: border-box;
+
+background: linear-gradient(130.8deg, rgba(231, 218, 244, 0.8) 23%, rgba(35, 150, 174, 0.64) 73.16%);
+border: 1px solid #2B2222;
+box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+border-radius: 10px;
+width: 294px;
+height: 73px;
+cursor: pointer;
+}
+
+.button-canceled {
+    box-sizing: border-box;
+
+background: linear-gradient(130.8deg, rgba(231, 218, 244, 0.8) 23%, rgba(35, 150, 174, 0.64) 73.16%);
+border: 1px solid #2B2222;
+box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+border-radius: 10px;
+width: 294px;
+height: 73px;
+cursor: pointer;
+}
+
+.buy-again {
+    justify-self: center;
+    margin-top: 18px;
+    color: #ffffff;
+    font-size: 30px;
+}
+
+.canceled {
+    justify-self: center;
+    margin-top: 18px;
+    color: #ffffff;
+    font-size: 30px;
+}
+
+.orderdetail-main .backgr-orderdetail .order-detail-wrapper .order-detail-button a {
+    text-decoration: none;
+}
+
+.button-buy-again {
+    margin-left: 50px;
+    margin-right: -250px;
+}
+
+.name-infor {
+    margin-top: -20px;
+}
+
+.backgr-order-edit {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.button-buy-again-detail {
+    flex: 0.5;
+}
+
+.detail-button-order {
+    flex: 8;
+}
