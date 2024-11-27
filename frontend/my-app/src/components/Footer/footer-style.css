@@ -1,0 +1,77 @@
+.back-gr {
+    background: linear-gradient(to bottom, #FFFFFF, #C3ABD8);
+    width: 100%;
+    width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+}
+
+.footer-main .inner-wrap {
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer-main .inner-logo img {
+    width: 200px;
+    height: 70px;
+}
+
+.my-logo {
+    margin-top: 40px;
+    margin-left: 30px;
+}
+
+
+.footer-main .inner-info ul {
+    list-style-type: none;
+    justify-items: center;
+}
+
+.footer-main .inner-info ul li span {
+    font-size: 20px;
+}
+
+.footer-main .inner-info p {
+    font-size: 20px;
+}
+
+.footer-main .inner-constact ul {
+    list-style-type: none;
+    justify-items: center;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.footer-main .inner-constact p {
+    font-size: 20px;
+}
+
+.my-icon-cons {
+    width: 20px;
+    height: 20px;
+}
+
+.email {
+    margin-right: 10px;
+}
+
+.tiktok {
+    margin-left: -1px;
+    margin-right: 10px;
+}
+
+.facebook {
+    margin-left: 88px;
+    margin-right: 10px;
+}
+
+
+.phone {
+    margin-left: 20px;
+    margin-right: 10px;
+}
+
+.footer-main .inner-constact {
+    margin-right: 30px;
+}
