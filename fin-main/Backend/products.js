@@ -6,6 +6,7 @@ const ProductModel = require('./Model/Product');
 //Trả về toàn bộ sản phẩm
 router.get('/all', async (req, res) => {
     try {
+      console.log("Get all products");
       let { page, limit } = req.query;
       page = parseInt(page) || 1;  
       limit = parseInt(limit) || 10;  

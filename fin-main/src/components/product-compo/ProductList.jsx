@@ -3,7 +3,8 @@ import { Button, Modal } from 'antd';
 import AddProductForm from './AddProductForm.jsx';
 import EditProductForm from './EditProductForm.jsx';
 import Filter from './Filter';
-// Khai báo danh sách thuốc
+import axios from 'axios';
+//Khai báo danh sách thuốc
 const initialProducts = [
     {
         ID: '1',
@@ -101,10 +102,10 @@ const initialProducts = [
 const ProductList = () => {
     const [searchVal, setSearchVal] = useState('');
     const [searchResults, setSearchResults] = useState([]);
-    const [products, setProducts] = useState(initialProducts);
+    const [products, setProducts] = useState([]);
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-
+    const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -124,11 +125,37 @@ const ProductList = () => {
         setSearchVal(event.target.value);
     };
     useEffect(() => {
-        const results = initialProducts.filter((product) =>
-            product.name.toLowerCase().includes(searchVal.toLowerCase()),
-        );
-        setSearchResults(results);
-        setProducts(results); // tự thêm
+        // const results = initialProducts.filter((product) =>
+        //     product.name.toLowerCase().includes(searchVal.toLowerCase()),
+        // );
+        // setSearchResults(results);
+        // setProducts(results); // tự thêm
+
+        const fetchData = async () => {
+            try {
+                const response = await
+                    axios.get('http://localhost:3000/products/all', {
+                        params: {
+                            page: 1,
+                            limit: 10,
+                        }
+                    }).then(response => {
+                        console.log('Response data:', response.data);
+                        // Xử lý dữ liệu nhận được từ backend
+                    })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            // Xử lý lỗi nếu có
+                        });
+                setProducts(response.data.products);
+            } catch (error) {
+                setError(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, [searchVal]);
 
     const handleAddProduct = (values) => {
