@@ -31,8 +31,10 @@ router.get('/all', async (req, res) => {
 //Tạo 1 sản phẩm mới
 router.post('/add', async (req, res) => {
     try {
+      console.log("Add new product!!");
       const productData = req.body;
       const newProduct = new ProductModel(productData);
+      console.log("newProduct", newProduct);
       await newProduct.save();
       res.status(201).json({
         message: 'Thêm sản phẩm mới thành công',
@@ -83,23 +85,24 @@ router.patch('/update/:id', async (req, res) => {
   });
 
 // Tìm kiếm 1 sản phẩm
-router.get('/product/:id', async (req, res) => {
-    try {
-      const productId = req.params.id;
-      if (!mongoose.Types.ObjectId.isValid(productId)) {
-        return res.status(400).json({ message: 'ID không hợp lệ' }); 
-      }
-      const product = await ProductModel.findById(productId);
-      if (!product) {
-        return res.status(404).json({ message: 'Sản phẩm không tồn tại!' });
-      }
-      res.status(200).json({
-        message: 'Tìm kiếm thành công',
-        product: product
-      });
-    } catch (err) {
-      res.status(500).json({ message: 'Đã xảy ra lỗi!', error: err.message });
+router.get('/id/:skuCode', async (req, res) => { // Thay đổi :id thành :skuCode
+  try {
+    console.log("skuCode", req.params.skuCode);
+    const skuCode = req.params.skuCode; // Lấy skuCode từ params
+
+    // Tìm kiếm sản phẩm theo trường 'SKU Code'
+    const product = await ProductModel.findOne({ 'SKU Code': skuCode });
+
+    if (!product) {
+      return res.status(404).json({ message: 'Sản phẩm không tồn tại!' });
     }
+    res.status(200).json({
+      message: 'Tìm kiếm thành công',
+      product: product
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Đã xảy ra lỗi!', error: err.message });
+  }
 });
 
 router.get('/filter', async (req, res) => {
@@ -109,11 +112,15 @@ router.get('/filter', async (req, res) => {
       limit = parseInt(limit) || 10;
       const skip = (page - 1) * limit;
       let filter = {};
+      console.log("Get  products type");
+      console.log("Category: ", category);
+      console.log("SupplierID ", supplierID);
+      console.log("SortBy: ", sortBy);
       if (category) {
         filter.Category = category;  
       }
       if (supplierID) {
-        filter.SupplierID = supplierID; 
+        filter.SupplierID = supplierID;
       }
       if (priceMin || priceMax) {
         filter.Price = {};  

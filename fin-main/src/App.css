@@ -189,6 +189,7 @@ body {
     justify-content: space-between;
     padding: 0 30px 0 30px;
     margin-left: 120px;
+
 }
 
 .menu-icon {
@@ -407,11 +408,14 @@ body {
 }
 
 .search-input {
-    width: 90%;
-    padding: 10px;
+    flex: 1;
+    width: 80%;
+    height: 25px;
+    padding: 4px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
+    margin-right: 5px;
 }
 
 .add-button {
@@ -495,6 +499,7 @@ body {
 
 .medicine-header {
     display: flex;
+    justify-content: space-around;
     flex-direction: column;
     grid-template-columns: auto 1fr auto; /* Tổng số bác sĩ và h1 chiếm không gian tự nhiên, thanh tìm kiếm chiếm phần còn lại, nút thêm bác sĩ chiếm không gian tự nhiên */
     align-items: center;
@@ -504,6 +509,8 @@ body {
     grid-template-columns: auto 1fr auto;
     justify-items: start; /* Căn lề nội dung sang trái */
     margin-left: 0px; /* Không cần thiết nếu bạn muốn căn lề sát trái */
+    justify-content: space-between;
+    align-items: center;
 }
 .medicine-header .search-input {
     width: 90%;
@@ -521,11 +528,13 @@ body {
 
 .filter {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
 }
 
 .filter label {
-    font-size: 14px;
+    font-size: 15px;
+    align-items: center;
     margin-right: 10px;
 }
 

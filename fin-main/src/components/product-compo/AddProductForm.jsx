@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Button, Cascader, DatePicker, Form, Input, InputNumber, Mentions, Select, TreeSelect } from 'antd';
+import { Button, Cascader, DatePicker, Form, Input, InputNumber, Mentions, Select, TreeSelect, Space } from 'antd';
+import './ProductList.jsx'
 const { RangePicker } = DatePicker;
 const formItemLayout = {
     labelCol: {
@@ -44,9 +45,10 @@ const AddProductForm = ({ onAddProduct }) => {
             form={form}
             onFinish={onFinish}
         >
-            {/* <Form.Item
-                label="ID"
-                name="id"
+
+            <Form.Item
+                label="SKU Code"
+                name="SKU Code"
                 rules={[
                     {
                         required: true,
@@ -54,17 +56,14 @@ const AddProductForm = ({ onAddProduct }) => {
                     },
                 ]}
             >
-                <InputNumber
-                    // name="id"
-                    style={{
-                        width: '100%',
-                    }}
+                <Input
+                    // name="name"
                 />
-            </Form.Item> */}
+            </Form.Item>
 
             <Form.Item
                 label="Tên sản phẩm"
-                name="name"
+                name="Name"
                 rules={[
                     {
                         required: true,
@@ -78,8 +77,37 @@ const AddProductForm = ({ onAddProduct }) => {
             </Form.Item>
 
             <Form.Item
+                label="Mã thiết kế"
+                name="Design No"
+                rules={[
+                    {
+                        required: true,
+                        message: 'Please input!',
+                    },
+                ]}
+            >
+                <Input
+                    // name="name"
+                />
+            </Form.Item>
+
+            <Form.Item
                 label="Loại"
-                name={'type'}
+                name={'Category'}
+                rules={[
+                    {
+                        required: true,
+                        message: 'Please input!',
+                    },
+                ]}
+            >
+                <Input
+                />
+            </Form.Item>
+
+            <Form.Item
+                label="Màu"
+                name={'Color'}
                 rules={[
                     {
                         required: true,
@@ -93,7 +121,7 @@ const AddProductForm = ({ onAddProduct }) => {
 
             <Form.Item
                 label="Giá"
-                name={'unitPrice'}
+                name={'Price'}
                 rules={[
                     {
                         required: true,
@@ -109,27 +137,26 @@ const AddProductForm = ({ onAddProduct }) => {
                 />
             </Form.Item>
 
-            <Form.Item
-                label="Số lượng"
-                name={'quantityInStock'}
-                rules={[
-                    {
-                        required: true,
-                        message: 'Please input!',
-                    },
-                ]}
-            >
-                <InputNumber
-                    // name="quantity"
-                    style={{
-                        width: '100%',
-                    }}
-                />
+            <Form.Item label="Số lượng">
+                <Space>
+                    <Form.Item name="stock in B1" rules={[{ required: true, message: 'Vui lòng nhập số lượng B1!' }]}>
+                        <InputNumber placeholder="B1" style={{ width: '100%' }} />
+                    </Form.Item>
+                    <Form.Item name="stock in B2" rules={[{ required: true, message: 'Vui lòng nhập số lượng B2!' }]}>
+                        <InputNumber placeholder="B2" style={{ width: '100%' }} />
+                    </Form.Item>
+                    <Form.Item name="stock in B3" rules={[{ required: true, message: 'Vui lòng nhập số lượng B3!' }]}>
+                        <InputNumber placeholder="B3" style={{ width: '100%' }} />
+                    </Form.Item>
+                    <Form.Item name="stock in B4" rules={[{ required: true, message: 'Vui lòng nhập số lượng B4!' }]}>
+                        <InputNumber placeholder="B4" style={{ width: '100%' }} />
+                    </Form.Item>
+                </Space>
             </Form.Item>
 
             <Form.Item
                 label="Size"
-                name={'size'}
+                name={'Size'}
                 rules={[
                     {
                         required: true,
@@ -143,7 +170,7 @@ const AddProductForm = ({ onAddProduct }) => {
 
             <Form.Item
                 label="Nhà cung cấp"
-                name={'supplier'}
+                name={'Supplier'}
                 rules={[
                     {
                         required: true,
@@ -157,20 +184,6 @@ const AddProductForm = ({ onAddProduct }) => {
             </Form.Item>
 
             <Form.Item
-                label="Ghi chú"
-                name={'note'}
-                rules={[
-                    {
-                        required: true,
-                        message: 'Please input!',
-                    },
-                ]}
-            >
-                <Input
-                // name="medType"
-                />
-            </Form.Item>
-            <Form.Item
                 wrapperCol={{
                     offset: 6,
                     span: 16,
@@ -182,7 +195,7 @@ const AddProductForm = ({ onAddProduct }) => {
                     // onFinish={onFinish}
                     // onClick={() => form.resetFields({})}
                 >
-                    Lưu
+                    <div>Lưu</div>
                 </Button>
             </Form.Item>
         </Form>

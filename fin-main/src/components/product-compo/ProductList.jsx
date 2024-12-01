@@ -5,99 +5,6 @@ import EditProductForm from './EditProductForm.jsx';
 import Filter from './Filter';
 import axios from 'axios';
 //Khai báo danh sách thuốc
-const initialProducts = [
-    {
-        ID: '1',
-        name: '2',
-        type: '1',
-        unitPrice: 5000,
-        quantityInStock: 50,
-        expirationDate: '2025-12-31',
-        supplier: 'Nhà A',
-        note: 'Không',
-    },
-    {
-        ID: '1',
-        name: '2',
-        type: '1',
-        unitPrice: 5000,
-        quantityInStock: 50,
-        expirationDate: '2025-12-31',
-        supplier: 'Nhà B',
-        note: 'Không',
-    },
-    {
-        ID: '1',
-        name: '1',
-        type: '1',
-        unitPrice: 5000,
-        quantityInStock: 50,
-        expirationDate: '2025-12-31',
-        supplier: 'Nhà C',
-        note: 'Không',
-    },
-    {
-        ID: '1',
-        name: '1',
-        type: '1',
-        unitPrice: 5000,
-        quantityInStock: 50,
-        expirationDate: '2025-12-31',
-        supplier: 'Nhà D',
-        note: 'Không',
-    },
-    {
-        ID: 5,
-        name: 'Áo vải',
-        type: 'Đồ may đại',
-        unitPrice: 10000,
-        quantityInStock: 30,
-        expirationDate: '2028-06-30',
-        supplier: 'Nhà E',
-        note: 'Không',
-    },
-    {
-        ID: 6,
-        name: 'Quần thủng đít',
-        type: 'Đồ cũ',
-        unitPrice: 7000,
-        quantityInStock: 20,
-        expirationDate: '2025-08-15',
-        supplier: 'Nhà F',
-        note: 'Không',
-    },
-    {
-        ID: 7,
-        name: 'Paracetamol',
-        type: '1',
-        unitPrice: 5000,
-        quantityInStock: 50,
-        expirationDate: '2026-12-31',
-        supplier: 'Nhà G',
-        note: 'Không',
-    },
-    {
-        ID: 8,
-        name: 'Amoxicillin',
-        type: 'Thuốc vô sinh',
-        unitPrice: 10000,
-        quantityInStock: 30,
-        expirationDate: '2027-06-30',
-        supplier: 'Nhà ABC',
-        note: 'Không',
-    },
-    {
-        ID: 9,
-        name: 'Aspirin',
-        type: 'Áo vải',
-        unitPrice: 7000,
-        quantityInStock: 20,
-        expirationDate: '2027-08-15',
-        supplier: 'Nhà DEF',
-        note: 'Không',
-    },
-    // Thêm các thuốc khác vào đây
-];
 
 const ProductList = () => {
     const [searchVal, setSearchVal] = useState('');
@@ -108,22 +15,50 @@ const ProductList = () => {
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
-
-    const [loaiFilter, setLoaiFilter] = useState('');
-    const [tonKhoFilter, setTonKhoFilter] = useState('');
-
-    const handleLoaiChange = (event) => {
-        setLoaiFilter(event.target.value);
+    const [error, setError] = useState(null);
+    // const [loaiFilter, setLoaiFilter] = useState('');
+    // const [tonKhoFilter, setTonKhoFilter] = useState('');
+    const [filters, setFilters] = useState({
+        category: null,
+        supplierID: null,
+        sortBy: null,
+        // ...
+    });
+    const handleLoaiChange = (category) => {
+        setFilters({ ...filters, category });
+        console.log('Category:', category);
     };
 
-    const handleTonKhoChange = (event) => {
-        setTonKhoFilter(event.target.value);
+    const handleNhaCungCapChange = (supplierID) => {
+        setFilters({ ...filters, supplierID });
+        console.log('Supplier:', supplierID);
+    };
+
+    const handleSapXepChange = (sortBy) => {
+        setFilters({ ...filters, sortBy });
+        console.log('Sort:', sortBy);
     };
     const itemsPerPage = 6;
 
-    const handleChange = (event) => {
+    const handleChange = async (event) => {
         setSearchVal(event.target.value);
+
+        // try {
+        //     console.log('Search value:', event.target.value);
+        //     // Gọi API để tìm kiếm sản phẩm theo SKU Code
+        //     const encodedSkuCode = encodeURIComponent(event.target.value);
+        //     const response = await axios.get('http://localhost:3000/products/' + encodedSkuCode);
+        //     setSearchResults(response.data.products);
+        // } catch (error) {
+        //     console.error('Lỗi khi tìm kiếm sản phẩm:', error);
+        //     // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+        //     if (error.response && error.response.status === 404) {
+        //         setSearchResults(null); // Hoặc hiển thị thông báo "Không tìm thấy sản phẩm"
+        //     }
+        // }
     };
+
+
     useEffect(() => {
         // const results = initialProducts.filter((product) =>
         //     product.name.toLowerCase().includes(searchVal.toLowerCase()),
@@ -133,22 +68,40 @@ const ProductList = () => {
 
         const fetchData = async () => {
             try {
-                const response = await
-                    axios.get('http://localhost:3000/products/all', {
+                console.log('Filters:', filters);
+
+                // Kiểm tra xem có filter nào được áp dụng hay không
+                if (Object.values(filters).some(value => value !== null)) {
+                    // Có filter được áp dụng, gọi API với filters
+                    const response = await axios.get('http://localhost:3000/products/filter', {
                         params: {
                             page: 1,
-                            limit: 10,
+                            limit: 5,
+                            ...filters, // Truyền filters vào params
                         }
-                    }).then(response => {
-                        console.log('Response data:', response.data);
-                        // Xử lý dữ liệu nhận được từ backend
-                    })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            // Xử lý lỗi nếu có
-                        });
-                setProducts(response.data.products);
+                    });
+                    console.log('Response data (filtered):', response.data);
+                    setProducts(response.data.products);
+                }else if (searchVal) { // Kiểm tra nếu có searchVal
+                    const encodedSkuCode = encodeURIComponent(searchVal);
+                    const response = await axios.get(`http://localhost:3000/products/id/${encodedSkuCode}`);
+                    setProducts([response.data.product]);
+                    console.log('Response data (search):', response.data);
+
+                } else {
+                    // Không có filter, gọi API lấy tất cả sản phẩm
+                    const response = await axios.get('http://localhost:3000/products/all', {
+                        params: {
+                            page: 1,
+                            limit: 5,
+                        }
+                    });
+                    console.log('Response data (all):', response.data);
+                    setProducts(response.data.products);
+                }
+
             } catch (error) {
+                console.error('Error:', error);
                 setError(error);
             } finally {
                 setLoading(false);
@@ -156,24 +109,60 @@ const ProductList = () => {
         };
 
         fetchData();
-    }, [searchVal]);
+    }, [filters, searchVal]);
 
-    const handleAddProduct = (values) => {
-        const newProduct = {
-            // id: values.id,
-            ID: values.ID,
-            name: values.name,
-            type: values.type,
-            unitPrice: values.unitPrice,
-            quantityInStock: values.quantityInStock,
-            Size: values.size,
-            supplier: values.supplier,
-            note: values.note,
-        };
+    function getSupplierInfo(supplier) {
+        switch (supplier) {
+            case 'Nhà cung cấp A':
+                return { SupplierID: 1, ['Supplier Code']: 'NCC_A' };
+            case 'Nhà cung cấp B':
+                return { SupplierID: 2, ['Supplier Code']: 'NCC_B' };
+            case 'Nhà cung cấp C':
+                return { SupplierID: 3, ['Supplier Code']: 'NCC_C' };
+            case 'Nhà cung cấp D':
+                return { SupplierID: 4, ['Supplier Code']: 'NCC_D' };
+            case 'Nhà cung cấp E':
+                return { SupplierID: 5, ['Supplier Code']: 'NCC_E' };
+            default:
+                return { SupplierID: null, ['Supplier Code']: null };
+        }
+    }
+    const handleAddProduct = async (values) => {
+        try{
+            const newProduct = {
+                // id: values.id,
+                ['SKU Code']: values['SKU Code'],
+                Name: values.Name,
+                ['Design No']: values['Design No'],
+                Category: values.Category,
+                Price: values.Price,
+                Stock: values['stock in B1'] + values['stock in B2'] + values['stock in B3'] + values['stock in B4'],
+                ['stock in B1']: values['stock in B1'],
+                ['stock in B2']: values['stock in B2'],
+                ['stock in B3']: values['stock in B3'],
+                ['stock in B4']: values['stock in B4'],
+                Size: values.Size,
+                Supplier: values.Supplier,
+                ...getSupplierInfo(values.Supplier),
+                Color: values.Color,
+            };
+            const response = await axios.post('http://localhost:3000/products/add', newProduct);
 
-        setProducts([...products, newProduct]);
-        // Close the modal
-        setVisible(false);
+            // Xử lý response từ API
+            if (response.status === 201) { // 201 Created
+                console.log('Response:', response); // In ra toàn bộ response
+                console.log('Message:', response.data.message); // In ra message
+                console.log('Thêm sản phẩm thành công:', response.data);
+                setProducts([...products, newProduct]); // Cập nhật state products
+                setVisible(false); // Đóng modal
+            } else {
+                console.error('Lỗi khi thêm sản phẩm:', response.data);
+                // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+            }
+        }catch (error) {
+            console.error('Lỗi khi thêm sản phẩm:', error);
+            // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+        }
     };
 
 
@@ -182,7 +171,7 @@ const ProductList = () => {
     };
 
     const handleOk = () => {
-        // console.log("handle ok");
+        console.log("handle ok");
         setVisible(false);
     };
 
@@ -232,15 +221,15 @@ const ProductList = () => {
     const currentItems = products.slice(indexOfFirstItem, indexOfLastItem);
 
     const renderProductRows = currentItems.map((product, id) => (
-        <tr key={product.ID}>
-            <td>{product.ID}</td>
-            <td>{product.name}</td>
-            <td>{product.type}</td>
-            <td>{product.unitPrice}</td>
-            <td>{product.quantityInStock}</td>
-            <td>{product.size}</td>
-            <td>{product.supplier}</td>
-            <td>{product.note}</td>
+        <tr key={product._id}>
+            <td>{product['SKU Code']}</td>
+            <td>{product.Name}</td>
+            <td>{product.Category}</td>
+            <td>{product.Price}</td>
+            <td>{product.Stock}</td>
+            <td>{product.Size}</td>
+            <td>{product.Supplier}</td>
+            <td>{product.Color}</td>
             <td>
                 <button className="edit-btn" onClick={() => handleEdit(product)}>
                     Sửa
@@ -264,7 +253,7 @@ const ProductList = () => {
                 <h1>Sản phẩm</h1>
             </div>
             <div className="header">
-                <div>
+                <strong style={{ display: 'flex' }}>
                     <input
                         className="search-input"
                         type="text"
@@ -273,25 +262,26 @@ const ProductList = () => {
                         onChange={handleChange}
                         // onChange={e => { setSearchVal(e.target.value); handleSearchClick(); }}
                     />
-                </div>
-                <div className="filter-section">
+
                     {/*<SearchBar/>*/}
                     <Filter
                         onLoaiChange={handleLoaiChange}
-                        onTonKhoChange={handleTonKhoChange}
+                        onNhaCungCapChange={handleNhaCungCapChange}
+                        onSapXepChange={handleSapXepChange}
                         // ... (Các props khác cho các bộ lọc) ...
                     />
-                </div>
-                <Button className="add-button" type="primary" onClick={showModal}>
-                    <div className="roboto-font">Thêm sản phẩm</div>
-                </Button>
-                <Modal title="Thêm Thuốc mới" visible={visible} onOk={handleOk} onCancel={handleCancel} footer={null}>
+
+                    <Button className="add-button" type="primary" onClick={showModal}>
+                        <span className="roboto-font">Thêm sản phẩm</span>
+                    </Button>
+                </strong>
+                <Modal title="Thêm sản phẩm mới" visible={visible} onOk={handleOk} onCancel={handleCancel} footer={null}>
                     <AddProductForm onAddProduct={handleAddProduct}/>
                 </Modal>
 
                 {editMode && selectedProduct && (
                     <Modal
-                        title="Chỉnh sửa thông tin Thuốc"
+                        title="Chỉnh sửa thông tin sản phẩm"
                         open={editMode}
                         onCancel={handleCancelEdit}
                         footer={null}
@@ -311,14 +301,14 @@ const ProductList = () => {
             <table className="medicine-table">
                 <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>SKU Code</th>
                     <th>Tên</th>
                     <th>Loại</th>
                     <th>Giá</th>
                     <th>Số lượng</th>
                     <th>Size</th>
                     <th>Nhà cung cấp</th>
-                    <th>Ghi chú</th>
+                    <th>Màu</th>
                     <th>Hành động</th>
                 </tr>
                 </thead>

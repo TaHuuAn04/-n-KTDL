@@ -14,7 +14,8 @@ const ProductSchema = new mongoose.Schema(
         "Color": { type: String, required: false },
         "SupplierID": { type: Number, required: true },
         "Supplier Code": { type: String, required: false },
-        "Supplier": { type: String, required: false }
+        "Supplier": { type: String, required: false },
+        "Price": { type: Number, required: true },
     }, {collection: 'Product', timestamps: true}
 );
 const ProductModel= mongoose.model("Product", ProductSchema)
