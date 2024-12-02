@@ -46,9 +46,10 @@ router.post('/add', async (req, res) => {
 });
 
 //Xóa 1 sản phẩm
-router.delete('delete/:id', async (req, res) => {
+router.delete('/delete/:id', async (req, res) => {
     try {
-      const productId = req.params.id; 
+      console.log("Delete product", req.params.id);
+      const productId = req.params.id;
       const deletedProduct = await ProductModel.findByIdAndDelete(productId);
       if (!deletedProduct) {
         return res.status(404).json({ message: 'Sản phẩm không tồn tại' }); 
@@ -65,6 +66,7 @@ router.delete('delete/:id', async (req, res) => {
 // Chỉnh sửa 1 sản phẩm
 router.patch('/update/:id', async (req, res) => {
     try {
+      console.log("Update product:", req.body);
       const productId = req.params.id;
       const updatedData = req.body;
       const updatedProduct = await ProductModel.findByIdAndUpdate(productId, updatedData, {

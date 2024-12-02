@@ -133,7 +133,7 @@ const ProductList = () => {
                 // id: values.id,
                 ['SKU Code']: values['SKU Code'],
                 Name: values.Name,
-                ['Design No']: values['Design No'],
+                ['Design No ']: values['Design No '],
                 Category: values.Category,
                 Price: values.Price,
                 Stock: values['stock in B1'] + values['stock in B2'] + values['stock in B3'] + values['stock in B4'],
@@ -183,11 +183,27 @@ const ProductList = () => {
         alert('You clicked me!');
     }
 
-    const handleDelete = (id) => {
-        const confirmed = window.confirm(`Bạn có chắc chắn muốn xóa không?`);
+    const handleDelete = async (_id) => {
+        const confirmed = window.confirm(`Bạn có chắc chắn muốn xóa sản phẩm này không?`);
         if (confirmed) {
-            const updatedProducts = products.filter((product) => product.id !== id);
-            setProducts(updatedProducts);
+            try {
+                // Gửi request DELETE đến API
+                console.log('Xóa sản phẩm với id:', _id);
+                const response = await axios.delete(`http://localhost:3000/products/delete/${_id}`);
+
+                // Xử lý response từ API
+                if (response.status === 200) {
+                    console.log('Xóa sản phẩm thành công:', response.data);
+                    const updatedProducts = products.filter((product) => product._id !== _id);
+                    setProducts(updatedProducts);
+                } else {
+                    console.error('Lỗi khi xóa sản phẩm:', response.data);
+                    // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+                }
+            } catch (error) {
+                console.error('Lỗi khi xóa sản phẩm:', error);
+                // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+            }
         }
     };
 
@@ -204,16 +220,31 @@ const ProductList = () => {
         handleCancel();
     };
 
-    const handleSave = (editedProduct) => {
-        // console.log("kayy00");
-        const updatedProducts = products.map((product) =>
-            product.id === editedProduct.id ? editedProduct : product,
-        );
-        setProducts(updatedProducts);
-        setVisible(false);
-        setEditMode(false); // important update
-        handleOk();
-        handleCancel();
+    const handleSave = async (editedProduct) => {
+        try {
+            // Gọi API để cập nhật sản phẩm trên server
+            const response = await axios.patch(`http://localhost:3000/products/update/${editedProduct._id}`, editedProduct);
+
+            // Xử lý response từ API
+            if (response.status === 200) {
+                console.log('Cập nhật sản phẩm thành công:', response.data);
+
+                // Cập nhật danh sách sản phẩm ở frontend
+                const updatedProducts = products.map((product) =>
+                    product._id === editedProduct._id ? editedProduct : product
+                );
+                setProducts(updatedProducts); 1
+
+                setVisible(false);
+                setEditMode(false);
+            } else {
+                console.error('Lỗi khi cập nhật sản phẩm:', response.data);
+                // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+            }
+        } catch (error) {
+            console.error('Lỗi khi cập nhật sản phẩm:', error);
+            // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+        }
     };
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -235,7 +266,7 @@ const ProductList = () => {
                     Sửa
                 </button>
                 {/* <button onClick={handleClick}>Sửa</button> */}
-                <button className="delete-btn" onClick={() => handleDelete(product.id)}>
+                <button className="delete-btn" onClick={() => handleDelete(product._id)}>
                     Xoá
                 </button>
             </td>

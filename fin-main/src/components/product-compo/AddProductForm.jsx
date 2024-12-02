@@ -57,7 +57,6 @@ const AddProductForm = ({ onAddProduct }) => {
                 ]}
             >
                 <Input
-                    // name="name"
                 />
             </Form.Item>
 
@@ -78,7 +77,7 @@ const AddProductForm = ({ onAddProduct }) => {
 
             <Form.Item
                 label="Mã thiết kế"
-                name="Design No"
+                name="Design No "
                 rules={[
                     {
                         required: true,
