@@ -71,7 +71,7 @@ const Login = () => {
     return (
         <div className="login-page">
             <div className="login-logo-wrapper">
-                <span className="UnifrakturCook Bold">Closet</span>
+                <span>Closet</span>
             </div>
             <p style={{marginLeft: '156px', fontSize: '18px', fontStyle: 'italic', color: '#592A1C'}}>
                 Chào mừng bạn quay trở lại với <span className="UnifrakturCook Bold">Closet</span> !

@@ -90,7 +90,7 @@ router.patch('/update/:id', async (req, res) => {
 router.get('/id/:skuCode', async (req, res) => { // Thay đổi :id thành :skuCode
   try {
     console.log("skuCode", req.params.skuCode);
-    const skuCode = req.params.skuCode; // Lấy skuCode từ params
+    const skuCode = req.params.skuCode;
 
     // Tìm kiếm sản phẩm theo trường 'SKU Code'
     const product = await ProductModel.findOne({ 'SKU Code': skuCode });
@@ -101,6 +101,39 @@ router.get('/id/:skuCode', async (req, res) => { // Thay đổi :id thành :skuC
     res.status(200).json({
       message: 'Tìm kiếm thành công',
       product: product
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Đã xảy ra lỗi!', error: err.message });
+  }
+});
+
+router.get('/count', async (req, res) => {
+  try {
+    const filter = {};
+
+    const { category, supplierID, priceMin, priceMax } = req.query;
+    if (category) {
+      filter.Category = category;
+    }
+    if (supplierID) {
+      filter.SupplierID = supplierID;
+    }
+    if (priceMin) {
+      filter.Price = { $gte: parseFloat(priceMin) };
+    }
+    if (priceMax) {
+      if (filter.Price) {
+        filter.Price.$lte = parseFloat(priceMax);
+      } else {
+        filter.Price = { $lte: parseFloat(priceMax) };
+      }
+    }
+
+    const count = await ProductModel.countDocuments(filter);
+
+    res.status(200).json({
+      message: 'Lấy số lượng sản phẩm thành công!',
+      count: count
     });
   } catch (err) {
     res.status(500).json({ message: 'Đã xảy ra lỗi!', error: err.message });

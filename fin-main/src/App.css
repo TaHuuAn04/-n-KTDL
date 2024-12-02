@@ -428,6 +428,34 @@ body {
     display: flex;
     align-items: center;
 }
+.simple-pagination button {
+    background-color: #4CAF50; /* Màu xanh lá cây */
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor:
+    pointer;
+}
+.simple-pagination {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+}
+.simple-pagination .current-page {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+}
 
 .total-doctors {
     font-size: 16px;
@@ -656,7 +684,8 @@ body {
     src: url('./unifrakturcook-webfont/UnifrakturCook-Bold.woff') format('truetype');
 }
 span {
-    font-family: 'UnifrakturCook Bold', fallback-font; /* fallback-font là font dự phòng nếu UnifrakturCook không được hỗ trợ */
+    font-family: 'UnifrakturCook Bold', fallback-font;
+
 }
 
 .roboto-font {
