@@ -1,0 +1,121 @@
+{
+    "nurses": [
+        {
+            "name": "Nguyễn Văn Thắng",
+            "imgUrl": "https://www.facebook.com/photo/?fbid=368003345573965&set=a.106360931738209",
+            "sex": "Male",
+            "qualifications": ["Điều dưỡng cơ bản"],
+            "floor": "3",
+            "room": "306",
+            "time_off": ["2,4"],
+            "id": "1ab7"
+        },
+        {
+            "name": "Nguyễn Anh Minh",
+            "imgUrl": "https://www.facebook.com/photo/?fbid=368003345573965&set=a.106360931738209",
+            "sex": "Male",
+            "qualifications": ["Điều dưỡng cơ bản"],
+            "floor": "3",
+            "room": "306",
+            "time_off": ["2,4"],
+            "id": "1ab7"
+        },
+        {
+          "name": "Nguyễn Văn Nam Tâm",
+          "imgUrl": "https://www.facebook.com/photo/?fbid=368003345573965&set=a.106360931738209",
+          "sex": "Male",
+          "qualifications": ["Điều dưỡng cơ bản"],
+          "floor": "3",
+          "room": "306",
+          "time_off": ["2,4"],
+          "id": "1ab7"
+      }
+
+    ],
+    "patients": [
+        {
+            "generalInfo": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+            "image": "https://scontent.fsgn5-15.fna.fbcdn.net/v/t39.30808-6/400358333_368003342240632_3821298703715889007_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeEoThoxxeYdetOR8iydjP2ZS6U5s4zrILlLpTmzjOsgudPHN0Wnnd5ElwmOMr-BFdm4yxpLoKy8BPKMurusMrL3&_nc_ohc=4K2IXepUyZIQ7kNvgFf1iF8&_nc_ht=scontent.fsgn5-15.fna&oh=00_AfDOQqNhgUSh8_z8qIv_SQA4ftZTSSpAx0BI2S_sZFMk2g&oe=663854E6",
+            "name": "Nguyễn Văn A",
+            "birthday": "29-12-2003",
+            "blood_type": "AB",
+            "address": "26 Tô Ngọc Vân, Linh Trung, Thủ Đức, TPHCM",
+            "id": "3159"
+        },
+        {
+            "generalInfo": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+            "image": "https://scontent.fsgn5-15.fna.fbcdn.net/v/t39.30808-6/400358333_368003342240632_3821298703715889007_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeEoThoxxeYdetOR8iydjP2ZS6U5s4zrILlLpTmzjOsgudPHN0Wnnd5ElwmOMr-BFdm4yxpLoKy8BPKMurusMrL3&_nc_ohc=4K2IXepUyZIQ7kNvgFf1iF8&_nc_ht=scontent.fsgn5-15.fna&oh=00_AfDOQqNhgUSh8_z8qIv_SQA4ftZTSSpAx0BI2S_sZFMk2g&oe=663854E6",
+            "name": "Nguyễn Văn A",
+            "birthday": "29-12-2003",
+            "blood_type": "AB",
+            "address": "26 Tô Ngọc Vân, Linh Trung, Thủ Đức, TPHCM",
+            "id": "3160",
+            "examination_history": [
+                {
+                    "time": "12-04-2034",
+                    "doctor_appointed_name": "Trương Văn Nghĩa",
+                    "doctor_appointed_id": "BSNTH032146",
+                    "doctor_performed_name": "Trương Thanh An",
+                    "doctor_performed_id": "BSNTH034890",
+                    "method": "X-Ray",
+                    "status": "Hoàn thành",
+                    "result": "Không phát hiện bất thường"
+                }
+            ]
+        },
+        {
+            "general-info": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+            "image": "https://scontent.fsgn5-15.fna.fbcdn.net/v/t39.30808-6/400358333_368003342240632_3821298703715889007_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_eui2=AeEoThoxxeYdetOR8iydjP2ZS6U5s4zrILlLpTmzjOsgudPHN0Wnnd5ElwmOMr-BFdm4yxpLoKy8BPKMurusMrL3&_nc_ohc=4K2IXepUyZIQ7kNvgFf1iF8&_nc_ht=scontent.fsgn5-15.fna&oh=00_AfDOQqNhgUSh8_z8qIv_SQA4ftZTSSpAx0BI2S_sZFMk2g&oe=663854E6",
+            "name": "Nguyễn Văn B",
+            "birthday": "29-12-2003",
+            "blood_type": "B",
+            "address": "26 Tô Ngọc Vân, Linh Trung, Thủ Đức, TPHCM",
+            "id": "3160",
+            "examination_history": [
+                {
+                    "time": "12-04-2034",
+                    "doctor_appointed_name": "Trương Văn Nghĩa",
+                    "doctor_appointed_id": "BSNTH032146",
+                    "doctor_performed_name": "Trương Thanh An",
+                    "doctor_performed_id": "BSNTH034890",
+                    "method": "X-Ray",
+                    "status": "Hoàn thành",
+                    "Kết quả": "Không phát hiện bất thường"
+                }
+            ]
+        }
+    ],
+    "examination_history": [
+        {
+            "time": "12-04-2034",
+            "doctor_appointed_name": "Trương Văn Nghĩa",
+            "doctor_appointed_id": "BSNTH032146",
+            "doctor_performed_name": "Trương Thanh An",
+            "doctor_performed_id": "BSNTH034890",
+            "method": "X-Ray",
+            "status": "Hoàn thành",
+            "result": "Không phát hiện bất thường",
+            "id": "0eff"
+        },
+        {
+            "id": "5a23",
+            "diagnose": "m",
+            "method": "X-Ray",
+            "point_description": "a",
+            "doctor_appointed_name": "Trương Văn Nghĩa",
+            "doctor_appointed_id": "BSNTH032146",
+            "status": "Chờ khám",
+            "result": ""
+        },
+        {
+            "id": "1027",
+            "diagnose": "gãy chân",
+            "method": "X-Ray",
+            "point_description": "a",
+            "doctor_appointed_name": "Trương Văn Nghĩa",
+            "doctor_appointed_id": "BSNTH032146",
+            "status": "Chờ khám",
+            "result": ""
+        }
+    ]
+}
