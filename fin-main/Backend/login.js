@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const CustomerModel = require('./Model/Customer');
 const EmployeeModel = require('./Model/Employee');
-
+const SHA1 = require('./SHA/SHA1'); 
 
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -11,12 +11,15 @@ router.post('/login', async (req, res) => {
         return res.status(400).json({ message: 'Vui lòng nhập username và mật khẩu!' });
     }
 
+    // Mã hóa mật khẩu bằng SHA1
+    const hashedPassword = SHA1(password);
+
     try {
         // Kiểm tra trong model Employee 
         const admin = await EmployeeModel.findOne({ _id: username });
 
         if (admin) {
-            if (admin.password !== password) {
+            if (admin.password !== hashedPassword) {
                 return res.status(401).json({ message: 'Sai mật khẩu!' });
             }
             return res.status(200).json({
@@ -34,7 +37,7 @@ router.post('/login', async (req, res) => {
         const customer = await CustomerModel.findOne({ "Cust ID": username });
 
         if (customer) {
-            if (customer.password !== password) {
+            if (customer.password !== hashedPassword) {
                 return res.status(401).json({ message: 'Sai mật khẩu!' });
             }
             return res.status(200).json({
