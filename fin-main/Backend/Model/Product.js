@@ -16,6 +16,7 @@ const ProductSchema = new mongoose.Schema(
         "Supplier Code": { type: String, required: false },
         "Supplier": { type: String, required: false },
         "Price": { type: Number, required: true },
+        "dateAdd": { type: Date, default: Date.now }
     }, {collection: 'Product', timestamps: true}
 );
 const ProductModel= mongoose.model("Product", ProductSchema)
