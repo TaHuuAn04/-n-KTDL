@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Modal } from 'antd';
 import AddPatientForm from './AddPatientForm';
 import EditPatientForm from './EditPatientForm';
-import {Link} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom'
 import axios from 'axios';
 import { useSearch } from '../../SearchContext';
 import { useAuth } from '../../AuthContext';
@@ -16,7 +16,7 @@ const initialCustomer = [
     {
         id: 1,
         name: 'Nguyễn Văn A',
-        Subsciption: '01/01/2021',
+        Subscription: '01/01/2021',
         birthday: '01/01/1990',
         location: 'TPHCM',
         email: '',
@@ -27,7 +27,7 @@ const initialCustomer = [
     }
 ];
 
-const PatientGrid = () => {
+const CustomerGrid = () => {
     const {isAdmin} = useAuth();
     const [searchVal, setSearchVal] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -37,10 +37,11 @@ const PatientGrid = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     const [editMode, setEditMode] = useState(false);
-    const [selectedPatient, setSelectedPatient] = useState(null);
-    const [patientList, setPatientList] = useState([]);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [isSearch, setIsSearch] = useState(false);
-    const itemsPerPage = 9;
+
+    const navigate = useNavigate(); // Khởi tạo useNavigate
+    const itemsPerPage = 8;
 
     // const [query, setQuery] = useState('');
     // const [filteredItems, setFilteredItems] = useState([]);
@@ -140,7 +141,7 @@ const PatientGrid = () => {
         const confirmed = window.confirm(`Bạn có chắc chắn muốn xóa không?`);
         if (confirmed) {
             // Xoá thuốc với id tương ứng khỏi danh sách hiện tại
-            const updatedCustomers = customers.filter((patient) => patient.id !== id);
+            const updatedCustomers = customers.filter((customer) => customer.id !== id);
             setCustomers(updatedCustomers);
 
             // Xoá thuốc với id tương ứng khỏi danh sách ban đầu
@@ -149,8 +150,8 @@ const PatientGrid = () => {
         }
     };
 
-    const handleEdit = (patient) => {
-        setSelectedPatient(patient);
+    const handleEdit = (customer) => {
+        setSelectedCustomer(customer);
         setEditMode(true);
     };
     // const handleUpdatePatient = (updatedPatient) => {
@@ -164,26 +165,33 @@ const PatientGrid = () => {
 
     const handleCancelEdit = () => {
         setEditMode(false);
-        setSelectedPatient(null);
+        setSelectedCustomer(null);
         handleOk();
         handleCancel();
     };
 
-    const handleSave = (editedPatient) => {
+    const handleSave = (editedCustomer) => {
         // console.log("kayy00");
-        const updatedPatients = customers.map((patient) => (patient.id === editedPatient.id ? editedPatient : patient));
-        setCustomers(updatedPatients);
+        const updatedCustomers = customers.map((customer) => (customer.id === editedCustomer.id ? editedCustomer : customer));
+        setCustomers(updatedCustomers);
         setVisible(false);
         setEditMode(false); // important update
         handleOk();
         handleCancel();
     };
-
+    const handleNavigateInfo = (id) =>{
+        console.log("Navigate to customer detail");
+        navigate(`/customer-detail/${id}`);
+    }
+    const handleNavigateOrder = (id) =>{
+        console.log("Navigate to customer detail");
+        navigate(`/customer-order/${id}`);
+    }
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = customers.slice(indexOfFirstItem, indexOfLastItem);
 
-    const renderPatientRows = customers.map(customer => (
+    const renderCustomerRows = customers.map(customer => (
         <tr key={customer.id}>
 
             <td>{customer.id}</td>
@@ -197,7 +205,7 @@ const PatientGrid = () => {
 
                 <button
                     className="edit-btn"
-                    onClick={() => handleEdit(employeeData)}
+                    onClick={() => handleNavigateOrder(customer.id)}
                     style={{
                         fontSize: "16px",
                         color: "#a855f7",
@@ -207,17 +215,24 @@ const PatientGrid = () => {
                         cursor: "pointer",
                     }}
                 >
-                    Thêm
+                    Xem
                 </button>
-
-                {/* <button onClick={handleClick}>Sửa</button> */}
-
-                <button className="delete-btn" onClick={() => handleDelete(customer._id)}>
-
-                    Xoá
-
+            </td>
+            <td>
+                <button
+                    className="edit-btn"
+                    onClick={() => handleNavigateInfo(customer.id)}
+                    style={{
+                        fontSize: "16px",
+                        color: "#a855f7",
+                        background: "none",
+                        border: "none",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                    }}
+                >
+                    Xem
                 </button>
-
             </td>
 
         </tr>
@@ -234,7 +249,7 @@ const PatientGrid = () => {
 
             <div className="medicine-header">
 
-            <h1>Sản phẩm</h1>
+                <h1>Khách hàng</h1>
 
             </div>
 
@@ -248,7 +263,7 @@ const PatientGrid = () => {
 
                         type="text"
 
-                        placeholder="Tìm kiếm sản phẩm..."
+                        placeholder="Tìm kiếm khách hàng..."
 
                         value={searchVal}
 
@@ -262,25 +277,25 @@ const PatientGrid = () => {
 
                     {/*<SearchBar/>*/}
 
-                    <Filter
+                    {/*<Filter*/}
 
-                        // onLoaiChange={handleLoaiChange}
-                        //
-                        // onNhaCungCapChange={handleNhaCungCapChange}
-                        //
-                        // onSapXepChange={handleSapXepChange}
+                    {/*    // onLoaiChange={handleLoaiChange}*/}
+                    {/*    //*/}
+                    {/*    // onNhaCungCapChange={handleNhaCungCapChange}*/}
+                    {/*    //*/}
+                    {/*    // onSapXepChange={handleSapXepChange}*/}
 
-                        // ... (Các props khác cho các bộ lọc) ...
+                    {/*    // ... (Các props khác cho các bộ lọc) ...*/}
 
-                    />
+                    {/*/>*/}
 
 
 
-                    <Button className="add-button" type="primary" onClick={showModal}>
+                    {/*<Button className="add-button" type="primary" onClick={showModal}>*/}
 
-                        <span className="roboto-font">Thêm sản phẩm</span>
+                    {/*    <span className="roboto-font">Thêm sản phẩm</span>*/}
 
-                    </Button>
+                    {/*</Button>*/}
 
                 </strong>
 
@@ -354,7 +369,7 @@ const PatientGrid = () => {
 
                 </thead>
 
-                <tbody>{renderPatientRows}</tbody>
+                <tbody>{renderCustomerRows}</tbody>
 
             </table>
 
@@ -371,4 +386,4 @@ const PatientGrid = () => {
     );
 };
 
-export default PatientGrid;
+export default CustomerGrid;

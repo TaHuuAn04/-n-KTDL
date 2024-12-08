@@ -5,22 +5,22 @@ import CustomerInfo from '../CustomerInfo';
 import styles from './PatientDetail.module.scss';
 // import AddResult from '../AddResult';
 import { useState, useEffect } from 'react';
-// import ExaminationHistory from '../ExaminationHistory';
+// import Orders from '../Orders';
 import axios from 'axios';
 import UserInfo from '../../AuthContext';
 import { useAuth } from '../../AuthContext';
 const cx = classNames.bind(styles);
-import ExaminationHistory from '../ExaminationHistory';
+import ExaminationHistory from '../Orders/Content.jsx';
 import React from 'react';
 
 
 
-function PatientDetail() {
-    const { patientId } = useParams();
+function CustomerDetail() {
+    const { customerId } = useParams();
     
     const { UserInfo, isAdmin } = useAuth();
 
-    const [patientInfo, setPatientInfo] = useState({});
+    const [customerInfo, setCustomerInfo] = useState({});
     const [Examhistory, setExamHistory] = useState([])
     
     //lay thong tin benh nhan (lay duoc toan bo thong tin benh nhan bao gom lich su kham)
@@ -28,14 +28,14 @@ function PatientDetail() {
         const fetchData = async () => {
           try {
             const response = await axios.get("http://localhost:3000/patients");
-            setPatientInfo(response.data[0]);
+            setCustomerInfo(response.data);
           } catch (error) {
             console.log(error);
           }
         };
       
         fetchData();
-      }, [patientId]
+      }, [customerId]
     );
 
     //goi API lay danh sach lich su kham benh cua benh nhan do
@@ -60,7 +60,7 @@ function PatientDetail() {
     //ham cap nhat lich su kham
     const updateMedicalHistory = async (historyId, updatedData) => {
         try {
-          const response = await axios.patch(`/patients/${patientId}/medical-history/${historyId}`, updatedData);
+          const response = await axios.patch(`/patients/${customerId}/medical-history/${historyId}`, updatedData);
           console.log(response.data);
         } catch (error) {
           console.log(error);
@@ -78,49 +78,49 @@ function PatientDetail() {
     return (
     <div className={cx('wrapper')}>
         <div className={cx('navbar')}>
-            <Link to="/patient-schedule" className={cx('schedule-btn')}>
-                Kế hoạch điều trị
+            <Link to={`/customer-order/${customerId}`} className={cx('schedule-btn')}>
+                Đơn hàng
             </Link>
-            <Link to="/patient" className={cx('list-btn')}>
-                Danh sách bệnh nhân
+            <Link to="/customer" className={cx('list-btn')}>
+                Danh sách khách hàng
             </Link>
         </div>
         {/* Add component */}
         <div className={cx('patient-info')}>
-            <p className={cx('title')}>Thông tin bệnh nhân</p>
+            <p className={cx('title')}> THÔNG TIN KHÁCH HÀNG</p>
 
-            <PatientInfo
-                image={patientInfo.image}
-                generalInfo={patientInfo.generalInfo}
-                name={patientInfo.name}
-                birthday={patientInfo.birthday}
-                blood_type={patientInfo.blood_type}
-                address={patientInfo.address}
+            <CustomerInfo
+                image={customerInfo.image}
+                generalInfo={customerInfo.generalInfo}
+                name={customerInfo.name}
+                birthday={customerInfo.birthday}
+                blood_type={customerInfo.blood_type}
+                address={customerInfo.address}
             />
-            <div className={cx('history-wrapper')}>
-                <div className={cx('history-header-wrapper')}>
-                    <h4 className={cx('history-wrapper-header')}>Lịch sử khám</h4>
-                    <AddDoctorActivity callAPI={createExamination}  />
-                </div>
-                <div className={cx('history-title-wrapper')}>
-                    <ul className={cx('history-title-list')}>
-                        <li className={cx('history-title-item')}>Ngày</li>
-                        <li className={cx('history-title-item')}>Bác sĩ chỉ định</li>
-                        <li className={cx('history-title-item')}>Bác sĩ thực hiện</li>
-                        <li className={cx('history-title-item')}>Phương pháp</li>
-                        <li className={cx('history-title-item')}>Trạng thái</li>
-                        <li className={cx('history-title-item')}>Kết quả</li>
-                    </ul>
-                </div>
-                
-                <ExaminationHistory  
-                    ls = {Examhistory}
-                    handleUpdateHistory={updateMedicalHistory}
-                />
-            </div>
+            {/*<div className={cx('history-wrapper')}>*/}
+            {/*    <div className={cx('history-header-wrapper')}>*/}
+            {/*        <h4 className={cx('history-wrapper-header')}>Lịch sử đơn hàng</h4>*/}
+            {/*        <AddDoctorActivity callAPI={createExamination}  />*/}
+            {/*    </div>*/}
+            {/*    <div className={cx('history-title-wrapper')}>*/}
+            {/*        <ul className={cx('history-title-list')}>*/}
+            {/*            <li className={cx('history-title-item')}>Ngày</li>*/}
+            {/*            <li className={cx('history-title-item')}>Bác sĩ chỉ định</li>*/}
+            {/*            <li className={cx('history-title-item')}>Bác sĩ thực hiện</li>*/}
+            {/*            <li className={cx('history-title-item')}>Phương pháp</li>*/}
+            {/*            <li className={cx('history-title-item')}>Trạng thái</li>*/}
+            {/*            <li className={cx('history-title-item')}>Kết quả</li>*/}
+            {/*        </ul>*/}
+            {/*    </div>*/}
+            {/*    */}
+            {/*    <Orders  */}
+            {/*        ls = {Examhistory}*/}
+            {/*        handleUpdateHistory={updateMedicalHistory}*/}
+            {/*    />*/}
+            {/*</div>*/}
         </div>
     </div>
     );
 }
 
-export default PatientDetail;
+export default CustomerDetail;

@@ -5,7 +5,7 @@ import CustomerInfo from '../CustomerInfo';
 import styles from './PatientDetail.module.scss';
 // import AddResult from '../AddResult';
 import { useState, useEffect } from 'react';
-// import ExaminationHistory from '../ExaminationHistory';
+// import Orders from '../Orders';
 import axios from 'axios';
 import UserInfo from '../../AuthContext';
 import { useAuth } from '../../AuthContext';

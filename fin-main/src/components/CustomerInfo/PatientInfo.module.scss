@@ -1,21 +1,25 @@
 .patient-info-wrapper {
+
     display: flex;
     align-items: center;
 }
 
 .avatar {
-    height: 160px;
-    width: 160px;
+    background-color: #F6FFF9;
+    height: 300px;
+    width: 300px;
     object-fit: cover;
     border-radius: 46px;
     box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
 }
 
 .body {
+    background-color: #F6FFF9;
     box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
     flex: 1;
     border-radius: 32px;
-    margin-left: 16px;
+    margin-left: 150px;
+    margin-right: 150px;
     padding: 16px 32px;
 }
 
@@ -41,21 +45,24 @@
 
 .list-info-item {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin: 10px 0;
 }
 
 .list-info-header {
-    font-size: 24px;
+    font-size: 18px;
     color: #271e4a;
     font-weight: 600;
     margin: 0;
+    flex:1;
+    min-width: 100px;
 }
 
 .list-info-content {
     font-size: 18px;
     color: #271e4a;
-    font-weight: 200;
     margin: 0;
-    padding: 16px 0;
+    flex: 2;
+    text-align: left;
 }
