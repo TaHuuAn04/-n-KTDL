@@ -30,6 +30,13 @@ const EmployeeSchema = new mongoose.Schema(
         "password":{
             type: String,
             require: true
+        },
+        "Email":{
+            type: String,
+        },
+        "User_Code":{
+            type: String,
+            require: true
         }
 
     }, {
