@@ -1,0 +1,655 @@
+:root {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+.app-container {
+    position: relative; /* Để div nền xanh nằm đúng vị trí */
+}
+
+.blue-background {
+    background-color: #889CF6; /* Màu xanh bạn muốn */
+    width: 250px; /* Điều chỉnh độ rộng */
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: -1; /* Đặt div nền xanh nằm dưới sidebar */
+}
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #F7EDEC;
+    color: #9e9ea4;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.login-page {
+    color: black;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #E8B5A6 0%, rgba(255, 255, 255, 0) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.main-logo {
+    position: absolute;
+    width: 150px;
+    top: 8%;
+    left: 8%;
+}
+
+.img-logo {
+    width: 550px;
+    position: absolute;
+    top: 150px;
+    right: 120px;
+}
+
+.login-form {
+    width: 300px;
+    padding: 20px;
+    position: absolute;
+    top: 40%;
+    left: 8%;
+    margin: 0 auto;
+    margin-top: 68px;
+}
+
+.login-label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.login-logo-wrapper {
+    text-align: center;
+    margin-left: 146px;
+    margin-top: 46px;
+    font-size: 45px;
+}
+
+.login-input {
+    color: #063F5E;
+    margin-bottom: 15px;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    background-color: transparent;
+    margin-top: 8px;
+    outline: none;
+}
+
+.login-btn {
+    position: relative;
+    right: 0;
+    color: white;
+    width: 40%;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background: #0990ab;
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    background-color: #73bfd0;
+}
+
+.whole-container {
+    display: flex;
+    position: relative;
+    min-height: 100vh;
+}
+
+.read-only-field {
+    color: gray;
+    cursor: not-allowed;
+}
+
+.edit-btn {
+    background-color: white;
+    color: black;
+    border: 2px solid #04aa6d;
+    border-radius: 4px;
+    cursor: pointer;
+    transition-duration: 0.4s;
+}
+
+.edit-btn:hover {
+    background-color: #04aa6d;
+    color: white;
+}
+
+.delete-btn {
+    background-color: white;
+    color: black;
+    border: 2px solid #f44336;
+    border-radius: 4px;
+    cursor: pointer;
+    transition-duration: 0.4s;
+}
+
+.delete-btn:hover {
+    background-color: #f44336;
+    color: white;
+}
+
+.icon {
+    vertical-align: middle;
+    line-height: 1px;
+    font-size: 20px;
+}
+.icon_header {
+    vertical-align: middle;
+    line-height: 1px;
+    font-size: 26px;
+}
+.icon,
+.icon_header {
+    margin-right: 5px;
+}
+
+.close_icon {
+    color: red;
+    margin-left: 30px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+/* .grid-container {
+  margin-top: 60px;
+  display: grid;
+  grid-template-columns: 260px 1fr 1fr 1fr;
+  grid-template-rows: 0.2fr 3fr;
+  grid-template-areas:
+    'sidebar header header header'
+    'sidebar main main main';
+  height: 100vh;
+} */
+
+/* Header  */
+.header {
+    grid-area: header;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px 0 30px;
+    margin-left: 120px;
+}
+
+.menu-icon {
+    display: none;
+}
+
+/* End Header  */
+
+/* Sidebar  */
+#sidebar {
+    grid-area: sidebar;
+    height: 100%;
+    font-family: Rounded Mplus 1c Bold;
+    color: #006b82;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 26.73px;
+    text-align: left;
+    background-color: transparent;
+    overflow-y: auto;
+    transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+}
+
+.sidebar-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 30px 0px 30px;
+    margin-bottom: 30px;
+}
+
+.logo-name {
+    color: #fff;
+    font-size: 36px;
+    margin-top: 0;
+}
+
+.sidebar-title > span {
+    display: none;
+}
+
+.sidebar-brand {
+    margin-top: 15px;
+    font-size: 20px;
+    font-weight: 700;
+    width: 160px;
+}
+
+.sidebar-list {
+    padding: 100px 0;
+    list-style-type: none;
+    width: 249px;
+
+}
+
+.sidebar-list-item {
+    margin: 10px 0px;
+    background-color: white;
+    font-size: 18px;
+    min-width: 200px;
+    padding: 11px 25px 11px 25px;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    font-weight: 600;
+    color: #003844;
+}
+
+/* .sidebar-list-item:link {
+  text-decoration: none;
+}
+
+.sidebar-list-item:visited {
+  text-decoration: none;
+} */
+
+.sidebar-list-item:hover {
+    background-color: #006b82;
+    color: white;
+    cursor: pointer;
+}
+
+.sidebar-list-item > a {
+    text-decoration: none;
+    color: #9e9ea4;
+}
+
+.sidebar-responsive {
+    display: inline !important;
+    position: absolute;
+    /*
+    we want the z-index of the sidebar higher so that
+    the charts are not showing over the sidebar 
+    on small screens
+  */
+    z-index: 12 !important;
+}
+
+.active {
+    color: rgba(255, 184, 0, 1);
+}
+
+/* End Sidebar  */
+
+/* Main  */
+.card-wrapper {
+    background-color: white;
+    padding: 60px 30px;
+    border-radius: 16px;
+    grid-template-rows: auto auto; /* 2 hàng với chiều cao tự động */
+    grid-template-columns: auto auto; /* 2 cột với độ rộng tự động */
+    grid-gap: 20px; /* Khoảng cách giữa các phần tử */
+    align-items: center;
+    display: flex;
+    margin-right: 40px;
+    margin-left: 30px;
+}
+
+.card:hover {
+    cursor: pointer;
+    background-color: #d0f6ff;
+}
+
+/* .main-cards {
+  display: flex;
+  flex-wrap: wrap;
+} */
+
+.card {
+    color: #00738c;
+    width: 320px;
+    height: 246px;
+    background-color: #f0f0f0; /* Màu nền card */
+    padding: 16px 24px; /* Khoảng cách nội dung từ viền card */
+    border-radius: 14px;
+    box-shadow: -1px 4px 15px rgba(0, 0, 0, 0.25);
+    text-decoration: none;
+}
+
+.card-title {
+    font-size: 26px;
+    font-weight: 300;
+}
+
+.card-body {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.card-icon {
+    margin-left: 12px;
+}
+
+.card-quantity {
+}
+
+.card-quantity-title {
+    font-size: 22px;
+    font-weight: 300;
+}
+
+.card-quantity-sum {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+/* Định dạng cho card */
+.card:nth-child(1) {
+    grid-row: 1; /* Card đầu tiên nằm ở hàng thứ 1 */
+    grid-column: 1; /* Card đầu tiên nằm ở cột thứ 1 */
+}
+
+.card:nth-child(2) {
+    grid-row: 1; /* Card thứ hai nằm ở hàng thứ 1 */
+    grid-column: 2; /* Card thứ hai nằm ở cột thứ 2 */
+}
+
+.card:nth-child(3) {
+    grid-row: 2; /* Card thứ ba nằm ở hàng thứ 2 */
+    grid-column: 1; /* Card thứ ba nằm ở cột thứ 1 */
+}
+
+/* End Main  */
+
+/* Main  */
+.doctor-main-container {
+    background-color: white;
+    top: 154px;
+    left: 394px;
+    border-radius: 32px;
+    gap: 0px;
+    opacity: 0px;
+    margin-left: 16px;
+    grid-area: main;
+    overflow-y: hidden;
+    padding: 20px 20px;
+    color: #006b82;
+    margin-right: 16px;
+}
+
+.doctor-header {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto; /* Tổng số bác sĩ và h1 chiếm không gian tự nhiên, thanh tìm kiếm chiếm phần còn lại, nút thêm bác sĩ chiếm không gian tự nhiên */
+    align-items: center;
+}
+
+.doctor-total {
+    margin-right: 20px; /* Khoảng cách giữa tổng số bác sĩ và thanh tìm kiếm */
+}
+
+.total-doctors {
+    font-size: 40px !important;
+    padding: 10px;
+    padding-left: 0;
+}
+
+.search-input {
+    width: 90%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.add-button {
+    padding: 6px 13px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.total-doctors {
+    font-size: 16px;
+}
+
+/* Các tùy chỉnh khác có thể được thêm vào đây */
+
+/* Các tùy chỉnh khác có thể được thêm vào đây */
+
+.doctor-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 4 cột */
+    grid-template-rows: repeat(3, 1fr); /* 3 hàng */
+    grid-gap: 20px;
+}
+
+.doctor-card {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.doctor-card:hover {
+    background-color: #dadadb;
+}
+
+/* Các tùy chỉnh khác có thể được thêm vào đây */
+
+/* Các tùy chỉnh khác có thể được thêm vào đây */
+
+.main-title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.main-cards {
+    padding: 50px 50px;
+    flex-wrap: wrap;
+    display: flex;
+    flex-direction: row;
+    row-gap: 50px;
+    column-gap: 10%;
+    margin: 15px 0;
+}
+
+/* End Main  */
+
+/* Main  */
+.medicine-main-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+    background-color: white;
+    width: 85%;
+    height: 80%;
+    top: 154px;
+    left: 394px;
+    border-radius: 32px;
+    gap: 0px;
+    opacity: 0px;
+    margin: auto;
+    grid-area: main;
+    overflow-y: auto;
+    padding: 20px 20px;
+    color: #006b82;
+}
+
+.medicine-header {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: auto 1fr auto; /* Tổng số bác sĩ và h1 chiếm không gian tự nhiên, thanh tìm kiếm chiếm phần còn lại, nút thêm bác sĩ chiếm không gian tự nhiên */
+    align-items: center;
+}
+.header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    justify-items: start; /* Căn lề nội dung sang trái */
+    margin-left: 0px; /* Không cần thiết nếu bạn muốn căn lề sát trái */
+}
+.medicine-header .search-input {
+    width: 90%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+.search-bar input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.filter {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.filter label {
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.filter select {
+    width: 150px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+.medicine-header .add-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family:Arial, sans-serif;
+}
+/* Bảng danh sách thuốc */
+.medicine-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.medicine-table th,
+.medicine-table td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+.medicine-table th {
+    background-color: #f2f2f2;
+}
+
+/* Hiệu ứng khi di chuột qua mỗi hàng */
+.medicine-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* 
+/* Medium <= 992px */
+
+@media screen and (max-width: 992px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 0.2fr 3fr;
+        grid-template-areas:
+            'header'
+            'main';
+    }
+
+    #sidebar {
+        display: none;
+    }
+
+    .menu-icon {
+        display: inline;
+    }
+
+    .sidebar-title > span {
+        display: inline;
+    }
+}
+/* Small <= 768px */
+
+/* @media screen and (max-width: 768px) {
+  .main-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 0;
+  }
+
+  .charts {
+    grid-template-columns: 1fr;
+    margin-top: 30px;
+  }
+} */
+
+/* Extra Small <= 576px */
+
+/* @media screen and (max-width: 576px) {
+  .hedaer-left {
+    display: none;
+  }
+}  */
+
+.whole-wrapper {
+    margin-left: 32px;
+    flex: 1;
+}
+
+.user-info {
+    position: relative;
+    padding: 16px;
+}
+
+.copy-right {
+    color: #fff;
+    display: flex;
+    align-items: center;
+    margin-left: 16px;
+    position: absolute;
+    bottom: 0;
+}
+
+.copy-right-icon {
+    font-size: 20px;
+}
+
+.copy-right-content {
+    margin-left: 8px;
+}
+@font-face {
+    font-family: 'UnifrakturCook Bold';
+    src: url('./unifrakturcook-webfont/UnifrakturCook-Bold.woff') format('truetype');
+}
+span {
+    font-family: 'UnifrakturCook Bold', fallback-font; /* fallback-font là font dự phòng nếu UnifrakturCook không được hỗ trợ */
+}
+
+.roboto-font {
+    font-family: Roboto, sans-serif;
+}

@@ -1,0 +1,231 @@
+.wrapper {
+    background-color: #fff;
+    box-shadow: 1px 4px 8px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    min-height: 100vh;
+}
+
+.navbar {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    margin-top: 32px;
+    margin-right: 52px;
+}
+
+.schedule-btn {
+    font-size: 16px;
+    color: #fff;
+    background-color: #05ba6e;
+    border-radius: 12px;
+    min-width: 206px;
+    border: none;
+    padding: 8px;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    &:hover {
+        cursor: pointer;
+        background-color: #18d385;
+    }
+}
+
+.list-btn {
+    font-size: 16px;
+    color: #fff;
+    background-color: #0599ba;
+    border-radius: 12px;
+    min-width: 216px;
+    border: none;
+    padding: 8px;
+    margin-left: 16px;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    &:hover {
+        background-color: #28d0f5;
+        cursor: pointer;
+    }
+}
+
+.patient-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    font-size: 24px;
+    color: #271e4a;
+}
+
+.patient-info-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.avatar {
+    height: 160px;
+    width: 160px;
+    object-fit: cover;
+    border-radius: 46px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+}
+
+.body {
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+    flex: 1;
+    border-radius: 32px;
+    margin-left: 16px;
+    padding: 16px 32px;
+}
+
+.body-title {
+    font-size: 24px;
+    color: #271e4a;
+}
+
+.body-content {
+    font-size: 20px;
+    color: #271e4a;
+    text-align: left;
+}
+
+.list-info {
+    display: flex;
+    list-style-type: none;
+    justify-content: space-between;
+    padding-left: 0;
+    margin-top: 32px;
+    margin-bottom: 0;
+}
+
+.list-info-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.list-info-header {
+    font-size: 24px;
+    color: #271e4a;
+    font-weight: 600;
+    margin: 0;
+}
+
+.list-info-content {
+    font-size: 18px;
+    color: #271e4a;
+    font-weight: 200;
+    margin: 0;
+    padding: 16px 0;
+}
+
+.history-wrapper {
+    background-color: #fff;
+    border-radius: 32px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 4px 25px rgba(0, 0, 0, 0.25);
+    margin-top: 32px;
+    padding: 16px 48px;
+}
+
+.history-header-wrapper {
+    display: flex;
+    justify-content: space-between;
+}
+
+.history-wrapper-header {
+    font-size: 24px;
+    color: #271e4a;
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.history-btn {
+    border: none;
+    background-color: #0599ba;
+    color: #fff;
+    padding: 12px 32px;
+    border-radius: 16px;
+}
+
+.history-title-wrapper {
+    background-color: #edf4fc;
+    margin-top: 16px;
+    margin-left: -4px;
+}
+
+.history-title-list {
+    list-style-type: none;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 0;
+    padding: 0 16px;
+}
+
+.history-title-item {
+    font-size: 16px;
+    color: #271e4a;
+}
+
+.history-body-wrapper {
+}
+
+.history-body-list {
+    list-style-type: none;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 0;
+    padding: 12px;
+    margin-left: -4px;
+    background-color: #ffdddd24;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    align-items: center;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.history-body-item {
+    text-align: left;
+    color: #3f779b;
+}
+
+.history-body-item--method {
+    background-color: #ff8989;
+    color: #fff;
+    padding: 8px 76px;
+}
+
+.history-body-item--date {
+    color: #271e4a;
+}
+
+.history-body-item--status {
+    font-weight: 600;
+}
+.history-body-item--result {
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.view-result-btn {
+    padding: 8px;
+    border: none;
+    margin-top: 4px;
+    background-color: #1c7518;
+    color: #fff;
+    box-shadow: 0 2px 0 rgba(5,145,255,0.1);
+    font-size: 14px;
+    border-radius: 4px;
+    &:hover {
+        cursor: pointer;
+        background-color: #40963c;
+    }
+}
