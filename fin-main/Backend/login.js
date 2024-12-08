@@ -16,7 +16,7 @@ router.post('/login', async (req, res) => {
 
     try {
         // Kiểm tra trong model Employee 
-        const admin = await EmployeeModel.findOne({ _id: username });
+        const admin = await EmployeeModel.findOne({ "User_Code": username });
 
         if (admin) {
             if (admin.password !== hashedPassword) {
