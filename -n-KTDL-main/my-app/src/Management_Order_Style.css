@@ -1,0 +1,59 @@
+.back-gr-wrap {
+    width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    justify-items: center;
+    height: 500px;
+}
+
+
+.back-gr-wrap h {
+    font-size: 50px;
+    font-family: unicaone;
+}
+
+.title-or-ma {
+    padding-top: 40px;
+}
+
+.detail-fol {
+    font-size: 20px;
+    font-family: montser;
+    padding: 20px;
+    background-color: antiquewhite;
+    border-radius: 10px;
+}
+
+.two-button {
+    display: flex;
+    justify-content: space-between;
+    width: 800px;
+    padding: 80px;
+    font-size: 25px;
+    font-family: montser;
+}
+
+.two-button nav a {
+    text-decoration: none;
+    background-color: rgb(193, 38, 174);
+    color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.two-button nav a:hover {
+    background-color: rgb(188, 103, 179);
+}
+
+.two-button span a {
+    text-decoration: none;
+    background-color: rgb(59, 38, 193);
+    color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.two-button span a:hover {
+    background-color: rgb(115, 102, 198);
+}

@@ -1,0 +1,270 @@
+.header-backgr {
+    /* display: flex;
+    flex-direction: row;
+    justify-content: first baseline;
+    align-items: center;
+    margin-right: 10px; */
+    background: #E7DAF4;
+    width: 100%;
+    width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+    height: 108px;
+}
+
+.my-button {
+    background-color: #E7DAF4;
+    /* border: none; */
+    /* padding: 10px 10px; */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    /* font-size: 10px; */
+    width: 45px;
+    height: 45px;
+    border-left: none;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+.my-button-search {
+    border: none;
+    padding: 10px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 10px;
+}
+
+.my-icon {
+    width: 50px;
+    height: 50px;
+    pointer-events: none;
+}
+
+.rounded-button {
+    border-radius: 20px;
+    margin: 5px;
+}
+
+.my-logo {
+    width: 90px;
+    height: 50px;
+    pointer-events: none;
+}
+
+.my-search {
+    width: 800px;
+    height: 45px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+.header-main .inner-wrap {
+    display: flex;
+}
+
+.my-img {
+    width: 90px;
+    height: 50px;
+    margin-top: 10px;
+    margin-left: 30px;
+    margin-right: 100px;
+}
+
+.header-main .inner-logo a {
+    align-items: center;
+}
+
+
+.inner-search button:hover {
+    background: rgb(178, 124, 230);
+}
+
+
+.header-main .inner-user ul {
+    display: flex;
+    list-style-type: none;
+}
+
+.inner-search input {
+    font-size: 25px;
+    padding-left: 20px;
+}
+
+.my-magni {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.my-icon-shop {
+    width: 50px;
+    height: 50px;
+    margin-right: 30px;
+    margin-left: 60px;
+    color: black;
+}
+
+.my-icon-user {
+    width: 50px;
+    height: 50px;
+    margin-right: 0px;
+    color: black;
+}
+
+.my-list {
+    background-color: #E7DAF4;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 10px;
+    align-items: center;
+    margin-left: -41px;
+    color: black;
+    position: relative;
+}
+
+.my-list svg {
+    width: 50px;
+    height: 50px;
+}
+
+.header-main .inner-logo ul {
+    display: flex;
+    list-style-type: none;
+}
+
+
+
+@font-face {
+    font-family: montser;
+    src: url(../font/Montserrat/Montserrat-VariableFont_wght.ttf);
+}
+
+.inner-wrap {
+    justify-content: space-between;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+    height: 100%;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.inner-search {
+    display: flex;
+    margin-top: -20px;
+}
+
+.menu {
+    background: linear-gradient(180deg, #E7DAF4 0%, #FFFFFF 100%);
+    width: 450px;
+    height: 400px;
+    position: absolute;
+    left: 37px;
+    top: 12%;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+}
+
+.menu ul {
+    font-family: montser;
+    font-size: 25px;
+}
+
+.menu ul li {
+    list-style-type: none;
+    justify-content: center;
+    border-bottom: 1px solid #9c4444;
+    padding: 15px;
+    justify-content: center;
+    text-align: left;
+    margin-left: -50px;
+}
+
+.menu ul li a {
+    text-decoration: none;
+    display: block;
+    color: black;
+}
+
+.menu li a:hover {
+    background-color: rgb(227, 178, 186);
+    display: inline-block;
+    border-radius: 10px;
+}
+
+.inner-logo button:hover {
+    color: #a56bda;
+}
+
+.my-icon-shop:hover, .my-icon-user:hover {
+    color: rgb(16, 16, 229);
+}
+
+.menu ul li a button {
+    border: none;
+    background-color: #f4eff9;
+}
+
+.menu ul li button:hover {
+    background-color: rgb(227, 178, 186);
+    border-radius: 10px;
+}
+
+.Menu-avatar .ant-dropdown-menu-item {
+    font-size: 20px !important; /* Thay đổi cỡ chữ */
+    color: rgb(63, 60, 60) !important; /* Thay đổi màu chữ */
+    height: 70px !important;
+    width: 180px !important;
+    font-family: montser !important;
+}
+
+.Menu-avatar .ant-dropdown-menu-item a {
+    text-decoration: none;
+}
+
+.Menu-avatar .ant-dropdown-menu-item button {
+    border: none;
+    background: none; /* Xóa nền nếu cần */
+    padding: 0; /* Xóa padding nếu cần */
+    
+}
+
+.inner-user li {
+    cursor: pointer;
+}
+
+.Menu-list .ant-dropdown-menu-item {
+    font-size: 25px !important;
+    
+}
+
+
+/* Tùy chỉnh các mục trong menu */
+.Menu-list .ant-dropdown-menu-item {
+    padding: 10px 20px !important; /* Thay đổi padding */
+    height: 80px !important;
+}
+
+/* Thay đổi màu nền khi hover */
+.Menu-list .ant-dropdown-menu-item:hover {
+    background-color: #e0e0e0 !important; /* Thay đổi màu nền khi hover */
+}
+
+/* Xóa dấu gạch chân của liên kết */
+.Menu-list .ant-dropdown-menu-item a {
+    text-decoration: none;
+    color: inherit; /* Giữ nguyên màu chữ */
+}
+
+/* Thay đổi màu chữ khi hover */
+.Menu-list .ant-dropdown-menu-item a:hover {
+    color: #3c82c3 !important; /* Thay đổi màu chữ khi hover */
+}

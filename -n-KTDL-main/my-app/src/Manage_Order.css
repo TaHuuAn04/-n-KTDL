@@ -1,0 +1,43 @@
+.button-return-order {
+    text-align: center;
+    font-size: 25px;
+    padding: 20px;
+}
+
+.button-return-order button {
+    border-radius: 10px;
+    background-color: rgb(85, 146, 35);
+    color: #fff;
+    border: none;
+}
+
+.title-of {
+    text-align: center;
+    font-size: 50px;
+    font-family: unicaone;
+    padding: 25px;
+}
+
+.fol-details {
+    background-color: antiquewhite;
+    padding-top: 20px;
+    padding-bottom: 10px;
+    font-size: 20px;
+    font-family: montser;
+    text-align: center;
+    border-radius: 20px;
+}
+
+.undo-page {
+    text-align: center;
+    padding: 40px;
+    font-size: 25px;
+    font-family: montser;
+}
+
+.undo-page button {
+    border-radius: 20px;
+    border: none;
+    background-color: rgb(213, 197, 105);
+    font-weight: 450;
+}
