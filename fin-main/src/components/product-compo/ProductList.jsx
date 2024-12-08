@@ -16,21 +16,13 @@ import SimplePagination from './Button_Page.jsx';
 
 
 const ProductList = () => {
-
     const [searchVal, setSearchVal] = useState('');
-
     const [searchResults, setSearchResults] = useState([]);
-
     const [products, setProducts] = useState([]);
-
     const [visible, setVisible] = useState(false);
-
     const [currentPage, setCurrentPage] = useState(1);
-
     const [totalPages, setTotalPages] = useState(1);
-
     const [loading, setLoading] = useState(true);
-
     const [editMode, setEditMode] = useState(false);
 
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -42,13 +34,9 @@ const ProductList = () => {
     // const [tonKhoFilter, setTonKhoFilter] = useState('');
 
     const [filters, setFilters] = useState({
-
         category: null,
-
         supplierID: null,
-
         sortBy: null,
-
         // ...
 
     });
@@ -387,10 +375,6 @@ const ProductList = () => {
                 console.log('Xóa sản phẩm với id:', _id);
 
                 const response = await axios.delete(`http://localhost:3000/products/delete/${_id}`);
-
-
-
-                // Xử lý response từ API
 
                 if (response.status === 200) {
 

@@ -13,7 +13,7 @@ function UserInfo() {
         </div>
         <div className={cx('info')}>
             <h4 className={cx('name')} >Nguyễn Quốc A</h4>
-            <p className={cx('department')} >Khoa Ngoại Tổng Hợp</p>
+            <p className={cx('department')} >Admin</p>
         </div>
     </div>
   )

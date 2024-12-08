@@ -6,16 +6,33 @@ import {Link} from 'react-router-dom';
 import axios from 'axios';
 import { useSearch } from '../../SearchContext';
 import { useAuth } from '../../AuthContext';
+import Filter from "../product-compo/Filter.jsx";
+import AddProductForm from "../product-compo/AddProductForm.jsx";
+import EditProductForm from "../product-compo/EditProductForm.jsx";
+import SimplePagination from "../product-compo/Button_Page.jsx";
 
 
-
+const initialCustomer = [
+    {
+        id: 1,
+        name: 'Nguyễn Văn A',
+        Subsciption: '01/01/2021',
+        birthday: '01/01/1990',
+        location: 'TPHCM',
+        email: '',
+        phoneNumber: '0123456789',
+        sex: 'Nam',
+        cccd: '123456789',
+        blood_Type: 'A+',
+    }
+];
 
 const PatientGrid = () => {
     const {isAdmin} = useAuth();
     const [searchVal, setSearchVal] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const {searchItem} = useSearch();
-    const [patients, setPatients] = useState([]);
+    const [customers, setCustomers] = useState(initialCustomer);
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -29,48 +46,50 @@ const PatientGrid = () => {
     // const [filteredItems, setFilteredItems] = useState([]);
 
     // useEffect(() => {
-    //     const filtered = initialPatients.filter(item =>
+    //     const filtered = initialCustomer.filter(item =>
     //         item.name.toLowerCase().includes(query.toLowerCase())
     //     );
     //     setFilteredItems(filtered);
     // }, [query]);
+
     const paginate = (pageNumber) => {
         setCurrentPage(pageNumber);
     }
 
     useEffect(()=> {
-        if (searchItem) {
-            setIsSearch(true);
-            axios.get(`http://localhost:3000/api/search?q=${searchItem}`)
-            .then(response => setPatientList(response.data))
-            .catch(err => {
-                console.error("Error fetching search result:",err);
-            }) 
-        } else {
-            axios.get("http://localhost:3000/patients")
-            .then(response => setPatientList(response.data))
-            .catch(err => {
-                console.error("Error fetching patients:",err);
-            }) 
-        }
+        // if (searchItem) {
+        //     setIsSearch(true);
+        //     axios.get(`http://localhost:3000/api/search?q=${searchItem}`)
+        //     .then(response => setPatientList(response.data))
+        //     .catch(err => {
+        //         console.error("Error fetching search result:",err);
+        //     })
+        // } else {
+        //     axios.get("http://localhost:3000/patients")
+        //     .then(response => setPatientList(response.data))
+        //     .catch(err => {
+        //         console.error("Error fetching patients:",err);
+        //     })
+        // }
 
-    },[searchItem]);
+
+    },[searchVal]);
 
     const handleChange = (event) => {
         setSearchVal(event.target.value);
     };
 
     useEffect(() => {
-        const results = patientList.filter((patient) =>
-            patient.name.toLowerCase().includes(searchVal.toLowerCase()),
-        );
+        console.log("searchItem");
+        const results = initialCustomer.filter(customer =>
+            customer.name.toLowerCase().includes(searchVal.toLowerCase()));
         setSearchResults(results);
-        setPatients(results); // tự thêm
+        setCustomers(results);
     }, [searchVal]);
 
-    const handleAddPatient = (values) => {
+    const handleAddCustomer = (values) => {
         // Generate a new ID for the new medicine
-        const newPatient = {
+        const newCustomer = {
             // id: values.id,
             name: values.name,
             birthday: values.birthday,
@@ -82,7 +101,7 @@ const PatientGrid = () => {
             bloodType: values.bloodType,
         };
         // Add the new medicine to the list of medicines
-        setPatients([...patients, newPatient]);
+        setCustomers([...customers, newCustomer]);
         // Close the modal
         setVisible(false);
     };
@@ -121,8 +140,8 @@ const PatientGrid = () => {
         const confirmed = window.confirm(`Bạn có chắc chắn muốn xóa không?`);
         if (confirmed) {
             // Xoá thuốc với id tương ứng khỏi danh sách hiện tại
-            const updatedPatients = patients.filter((patient) => patient.id !== id);
-            setPatients(updatedPatients);
+            const updatedCustomers = customers.filter((patient) => patient.id !== id);
+            setCustomers(updatedCustomers);
 
             // Xoá thuốc với id tương ứng khỏi danh sách ban đầu
             // const updatedInitialPatients = initialPatients.filter((patient) => patient.id !== id);
@@ -152,8 +171,8 @@ const PatientGrid = () => {
 
     const handleSave = (editedPatient) => {
         // console.log("kayy00");
-        const updatedPatients = patients.map((patient) => (patient.id === editedPatient.id ? editedPatient : patient));
-        setPatients(updatedPatients);
+        const updatedPatients = customers.map((patient) => (patient.id === editedPatient.id ? editedPatient : patient));
+        setCustomers(updatedPatients);
         setVisible(false);
         setEditMode(false); // important update
         handleOk();
@@ -162,106 +181,193 @@ const PatientGrid = () => {
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = patients.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = customers.slice(indexOfFirstItem, indexOfLastItem);
 
-    const renderPatientRows = patientList.map(patient => (
-        <Link to = {`/patient-detail`} key={patient.id} className="doctor-card">
-            <h2>{patient.name}</h2>
-            <p>
-                Năm sinh: {patient.birthday}, Nhóm máu: {patient.blood_type}
-            </p>
-            <div>
-                { isAdmin && <button className="edit-btn" onClick={() => handleEdit(patient)}>
-                    Sửa
-                </button>}
+    const renderPatientRows = customers.map(customer => (
+        <tr key={customer.id}>
+
+            <td>{customer.id}</td>
+
+            <td>{customer.name}</td>
+
+            <td>{customer.sex}</td>
+
+            <td>{customer.Subscription}</td>
+            <td>
+
+                <button
+                    className="edit-btn"
+                    onClick={() => handleEdit(employeeData)}
+                    style={{
+                        fontSize: "16px",
+                        color: "#a855f7",
+                        background: "none",
+                        border: "none",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                    }}
+                >
+                    Thêm
+                </button>
+
                 {/* <button onClick={handleClick}>Sửa</button> */}
-                { isAdmin && <button className="delete-btn" onClick={() => handleDelete(patient.id)}>
+
+                <button className="delete-btn" onClick={() => handleDelete(customer._id)}>
+
                     Xoá
-                </button>}
-            </div>
-        </Link>
+
+                </button>
+
+            </td>
+
+        </tr>
     ));
 
     const pageNumbers = [];
-    for (let i = 1; i <= Math.ceil(patients.length / itemsPerPage); i++) {
+    for (let i = 1; i <= Math.ceil(customers.length / itemsPerPage); i++) {
         pageNumbers.push(i);
     }
 
     return (
+
         <div>
-            <div className="doctor-header">
-                <h1 className="doctor-total">Bệnh nhân hiện có</h1>
-                <div className="total-doctors">{patientList.length}</div>
-                <div className="search-bar">
+
+            <div className="medicine-header">
+
+            <h1>Sản phẩm</h1>
+
+            </div>
+
+            <div className="header">
+
+                <strong style={{display: 'flex'}}>
+
                     <input
+
                         className="search-input"
+
                         type="text"
-                        placeholder="Tìm kiếm bệnh nhân..."
-                        // value={query}
-                        // onChange={(e) => setQuery(e.target.value)}
+
+                        placeholder="Tìm kiếm sản phẩm..."
+
                         value={searchVal}
+
                         onChange={handleChange}
+
                         // onChange={e => { setSearchVal(e.target.value); handleSearchClick(); }}
-                        // value={searchTerm}
-                        // onChange={handleSearch}
+
                     />
-                </div>
-                { isAdmin && <Button className="add-button" type="primary" onClick={showModal}>
-                    Thêm bệnh nhân
-                </Button>}
-                {/* <button 
-              onClick={handleClick}>Thêm bác sĩ</button> */}
-                <Modal
-                    title="Thêm Bệnh nhân mới"
-                    visible={visible}
-                    onOk={handleOk}
-                    onCancel={handleCancel}
-                    footer={null} // To hide the default footer buttons
-                >
-                    <AddPatientForm onAddPatient={handleAddPatient} />
-                </Modal>
 
-                {editMode && selectedPatient && (
-                    <Modal
-                        title="Chỉnh sửa thông tin Bệnh nhân"
-                        visible={editMode}
-                        onCancel={handleCancelEdit}
-                        footer={null}
-                        // onSave={handleSave}
-                    >
-                        <EditPatientForm
-                            patient={selectedPatient}
-                            // onUpdatePatient={handleUpdatePatient}
-                            onSave={handleSave}
-                            onCancel={() => setVisible(false)}
-                        />
-                    </Modal>
-                )}
-            </div>
-            <div className="doctor-grid">
-                {/* <div> */}
-                {renderPatientRows}
-                {/* </div> */}
-                {/* {patients.map(patient => (
-                <div key={patient.id} className="patient-card">
-                  <h2>{patient.name}</h2>
-                  <p>Chuyên khoa: {patient.qualifications}</p>
-                  <div>
-                    <button onClick={handleClick}>Sửa</button>
-                    <button onClick={() => handleDelete(patient.id)}>Xoá</button>
-                  </div>
-                </div>
-            ))} */}
+
+
+                    {/*<SearchBar/>*/}
+
+                    <Filter
+
+                        // onLoaiChange={handleLoaiChange}
+                        //
+                        // onNhaCungCapChange={handleNhaCungCapChange}
+                        //
+                        // onSapXepChange={handleSapXepChange}
+
+                        // ... (Các props khác cho các bộ lọc) ...
+
+                    />
+
+
+
+                    <Button className="add-button" type="primary" onClick={showModal}>
+
+                        <span className="roboto-font">Thêm sản phẩm</span>
+
+                    </Button>
+
+                </strong>
+
+                {/*<Modal title="Thêm sản phẩm mới" visible={visible} onOk={handleOk} onCancel={handleCancel}*/}
+
+                {/*       footer={null}>*/}
+
+                {/*    <AddProductForm onAddProduct={handleAddProduct}/>*/}
+
+                {/*</Modal>*/}
+
+
+
+                {/*{editMode && selectedProduct && (*/}
+
+                {/*    <Modal*/}
+
+                {/*        title="Chỉnh sửa thông tin sản phẩm"*/}
+
+                {/*        open={editMode}*/}
+
+                {/*        onCancel={handleCancelEdit}*/}
+
+                {/*        footer={null}*/}
+
+                {/*        onSave={handleSave}*/}
+
+                {/*    >*/}
+
+                {/*        /!*<EditProductForm*!/*/}
+                {/*        */}
+                {/*        /!*    product={selectedProduct}*!/*/}
+                {/*        */}
+                {/*        /!*    onSave={handleSave}*!/*/}
+                {/*        */}
+                {/*        /!*    onCancel={() => setVisible(false)}*!/*/}
+                {/*        */}
+                        {/*/>*/}
+
+                {/*    </Modal>*/}
+
+                {/*)}*/}
+
+
+
             </div>
 
-            <div className="page-number" style={{ textAlign: 'center', bottom: 0 }}>
-                {pageNumbers.map((number) => (
-                    <button key={number} onClick={() => paginate(number)}>
-                        {number}
-                    </button>
-                ))}
-            </div>
+
+
+
+
+            <table className="medicine-table">
+
+                <thead>
+
+                <tr>
+
+                    <th>Mã khách hàng</th>
+
+                    <th>Tên khách hàng</th>
+
+                    <th>Giới tính</th>
+
+                    <th>Ngày đăng kí</th>
+
+                    <th>Lịch sử đơn hàng</th>
+
+                    <th>Thông tin cá nhân</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>{renderPatientRows}</tbody>
+
+            </table>
+
+
+
+            {/*<SimplePagination*/}
+            {/*    currentPage={currentPage}*/}
+            {/*    totalPages={totalPages}*/}
+            {/*    onPageChange={setCurrentPage}*/}
+            {/*/>*/}
+
         </div>
+
     );
 };
 

@@ -3,14 +3,14 @@ import { Button, Modal } from 'antd';
 import axios from 'axios';
 import AddDoctorForm from './AddDoctorForm';
 import EditDoctorForm from './EditDoctorForm';
-import { Link } from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom'
 
 // BACKEND GET Infor from DB - initialDoctors (danh sach doctor)
 // Dữ liệu danh sách các bác sĩ
 const initialDoctors = [
   { 
     id: 1, 
-    name: 'Bác sĩ 1', 
+    name: 'Nhân viên 1',
     birthday: 1970,
     location: 'TP. HCM',
     email: '@gmail.com',
@@ -24,7 +24,7 @@ const initialDoctors = [
   },
   { 
     id: 2, 
-    name: 'Bác sĩ B', 
+    name: 'Nhân viên B',
     birthday: 1970,
     location: 'TP. HCM',
     email: '@gmail.com',
@@ -38,7 +38,7 @@ const initialDoctors = [
   },
   { 
     id: 3, 
-    name: 'Bác sĩ C', 
+    name: 'Nhân viên C',
     birthday: 1970,
     location: 'TP. HCM',
     email: '@gmail.com',
@@ -52,7 +52,7 @@ const initialDoctors = [
   },
   { 
     id: 4, 
-    name: 'Bác sĩ D', 
+    name: 'Nhân viên D',
     birthday: 1970,
     location: 'TP. HCM',
     email: '@gmail.com',
@@ -66,7 +66,7 @@ const initialDoctors = [
 },
   { 
     id: 5, 
-    name: 'Bác sĩ A', 
+    name: 'Nhân viên A',
     birthday: 1970,
     location: 'TP. HCM',
     email: '@gmail.com',
@@ -80,7 +80,7 @@ const initialDoctors = [
   },
   { 
     id: 6, 
-    name: 'Bác sĩ B', 
+    name: 'Nhân viên B',
     birthday: 1970,
     location: 'TP. HCM',
     email: '@gmail.com',
@@ -94,7 +94,7 @@ const initialDoctors = [
   },
   { 
     id: 7, 
-    name: 'Bác sĩ C', 
+    name: 'Nhân viên C',
     birthday: 1970,
     location: 'TP. HCM',
     email: '@gmail.com',
@@ -108,7 +108,7 @@ const initialDoctors = [
 },
   { 
     id: 8, 
-    name: 'Bác sĩ D', 
+    name: 'Nhân viên D',
     birthday: 1970,
     location: 'TP. HCM',
     email: '@gmail.com',
@@ -122,7 +122,7 @@ const initialDoctors = [
   },
   { 
     id: 9, 
-    name: 'Bác sĩ A', 
+    name: 'Nhân viên A',
     birthday: 1970,
     location: 'TP. HCM',
     email: '@gmail.com',
@@ -136,7 +136,7 @@ const initialDoctors = [
   },
   { 
     id: 10,
-    name: 'Bác sĩ B',
+    name: 'Nhân viên B',
     birthday: 1970,
     location: 'TP. HCM',
     email: '@gmail.com',
@@ -150,7 +150,7 @@ const initialDoctors = [
   },
   { 
     id: 11,
-    name: 'Bác sĩ C',
+    name: 'Nhân viên C',
     birthday: 1970,
     location: 'TP. HCM',
     email: '@gmail.com',
@@ -164,7 +164,7 @@ const initialDoctors = [
   },
   { 
     id: 12,
-    name: 'Bác sĩ 2',
+    name: 'Nhân viên 2',
     birthday: 1970,
     location: 'TP. HCM',
     email: '@gmail.com',
@@ -176,7 +176,6 @@ const initialDoctors = [
     available: true,
     time_off: '5PM',
   },
-  // Thêm các bác sĩ khác nếu cần
 ];
 
 
@@ -189,6 +188,9 @@ const DoctorGrid = () => {
   const [editMode, setEditMode] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const itemsPerPage = 9;
+
+
+  const navigate = useNavigate(); // Khởi tạo useNavigate
 
     // const [query, setQuery] = useState('');
     // const [filteredItems, setFilteredItems] = useState([]);
@@ -317,16 +319,16 @@ const DoctorGrid = () => {
   };
 
 
-  const handleViewDetail = (doctor) => {
-
+  const handleViewDetail = (id) => {
+    navigate(`/info/${id}`);
   }
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = doctors.slice(indexOfFirstItem, indexOfLastItem);
 
-  const renderDoctorRows = currentItems.map((doctor, id) => (
-      <div key={doctor.id} className="doctor-card">
+  const renderDoctorRows = currentItems.map((doctor )=> (
+      <div key={doctor.id}  onClick={() => handleViewDetail(doctor.id)} className="doctor-card">
         <h2>{doctor.name}</h2>
         <p>Chuyên khoa: {doctor.qualifications}</p>
         <div>
@@ -349,7 +351,7 @@ const DoctorGrid = () => {
   return (
     <div>
         <div className="doctor-header">
-            <h1 className='doctor-total'>Bác sĩ hiện có</h1>
+            <h1 className='doctor-total'>Nhân viên hiện có</h1>
             <div className="total-doctors">{doctors.length}</div>
             <div className="search-bar">
                 <input
