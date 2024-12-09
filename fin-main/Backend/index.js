@@ -9,6 +9,7 @@ app.use(express.json());
 const loginRoute = require('./login');
 const productRoutes = require('./products')
 const customerRoutes = require('./customers')
+const saleRoutes = require('./sales')
 // Kết nối MongoDB
 mongoose.connect(
     "mongodb+srv://antaduychinh:abcxyz04@fashionshop.qdyue.mongodb.net/fashion?retryWrites=true&w=majority&appName=Fashionshop"
@@ -18,6 +19,7 @@ mongoose.connect(
 app.use('/api', loginRoute);
 app.use('/products', productRoutes);
 app.use('/customers', customerRoutes);
+app.use('/sales', saleRoutes);
 
 app.listen(3000, () => {
     console.log("Connect successfully!");
