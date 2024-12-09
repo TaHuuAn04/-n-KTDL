@@ -70,6 +70,19 @@ router.post('/add', async (req, res) => {
     }
 });
 
+
+router.get('/customerCount', async (req, res) => {
+    try {
+        const count = await CustomerModel.countDocuments();
+
+        res.status(200).json({
+            message: 'Lấy số lượng khách hàng thành công!',
+            count: count
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Đã xảy ra lỗi!', error: err.message });
+    }
+});
 //Chỉnh sửa thông tin khách hàng
 /*
 http://localhost:3000/customers/update/672d648b3da568b38d0e6fd8

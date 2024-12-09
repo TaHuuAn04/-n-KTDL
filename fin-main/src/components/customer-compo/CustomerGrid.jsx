@@ -32,7 +32,7 @@ const CustomerGrid = () => {
     const [searchVal, setSearchVal] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const {searchItem} = useSearch();
-    const [customers, setCustomers] = useState(initialCustomer);
+    const [customers, setCustomers] = useState([]);
     const [visible, setVisible] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -40,6 +40,9 @@ const CustomerGrid = () => {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [isSearch, setIsSearch] = useState(false);
 
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [totalPages, setTotalPages] = useState(1);
     const navigate = useNavigate(); // Khởi tạo useNavigate
     const itemsPerPage = 8;
 
@@ -57,36 +60,111 @@ const CustomerGrid = () => {
         setCurrentPage(pageNumber);
     }
 
-    useEffect(()=> {
-        // if (searchItem) {
-        //     setIsSearch(true);
-        //     axios.get(`http://localhost:3000/api/search?q=${searchItem}`)
-        //     .then(response => setPatientList(response.data))
-        //     .catch(err => {
-        //         console.error("Error fetching search result:",err);
-        //     })
-        // } else {
-        //     axios.get("http://localhost:3000/patients")
-        //     .then(response => setPatientList(response.data))
-        //     .catch(err => {
-        //         console.error("Error fetching patients:",err);
-        //     })
-        // }
+    useEffect(() => {
 
 
-    },[searchVal]);
+
+        const fetchData = async () => {
+
+            try {
+
+                setLoading(true);
+
+                let response, countResponse;
+
+
+
+                if (searchVal) { // Kiểm tra nếu có searchVal
+
+                    const encodedSkuCode = encodeURIComponent(searchVal);
+
+                    const response = await axios.get('http://localhost:3000/customers/search', {
+                        params: {
+                            custID: encodedSkuCode
+                        }
+                    })
+                        .then(response => {
+                            setCustomers([response.data.customers]);
+                            console.log(response.data);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+
+                    // setProducts([response.data.product]);
+
+                    console.log('Response data (search):', response.data);
+
+
+
+                } else {
+
+                    // Không có filter, gọi API lấy tất cả sản phẩm
+
+
+
+                    const response = await axios.get('http://localhost:3000/customers/all', {
+                        params: {
+                            page: 1,
+                            limit: 5
+                        }
+                    })
+                        .then(response => {
+                            setCustomers(response.data.customers);
+                            console.log("product", customers);
+                            console.log(response.data);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    countResponse = await axios.get('http://localhost:3000/customers/customerCount');
+
+                    const totalCount = countResponse ? countResponse.data.count : response.data.count;
+
+                    const total = Math.ceil(totalCount / itemsPerPage);
+
+                    setTotalPages(total);
+                    console.log('currentPage:', currentPage);
+
+
+
+
+
+                    // console.log('Response data (all):', response.data);
+
+
+
+
+
+                }
+
+
+
+            } catch (error) {
+
+                console.error('Error:', error);
+
+                setError(error);
+
+            } finally {
+
+                setLoading(false);
+
+            }
+
+        };
+
+        console.log('Current page:', currentPage);
+
+
+
+        fetchData();
+
+    }, [currentPage, searchVal]);
 
     const handleChange = (event) => {
         setSearchVal(event.target.value);
     };
-
-    useEffect(() => {
-        console.log("searchItem");
-        const results = initialCustomer.filter(customer =>
-            customer.name.toLowerCase().includes(searchVal.toLowerCase()));
-        setSearchResults(results);
-        setCustomers(results);
-    }, [searchVal]);
 
     const handleAddCustomer = (values) => {
         // Generate a new ID for the new medicine
@@ -187,14 +265,11 @@ const CustomerGrid = () => {
         console.log("Navigate to customer detail");
         navigate(`/customer-order/${id}`);
     }
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = customers.slice(indexOfFirstItem, indexOfLastItem);
 
     const renderCustomerRows = customers.map(customer => (
-        <tr key={customer.id}>
+        <tr key={customer['Cust ID']}>
 
-            <td>{customer.id}</td>
+            <td>{customer['Cust ID']}</td>
 
             <td>{customer.name}</td>
 
