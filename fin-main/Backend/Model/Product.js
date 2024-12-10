@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const ProductSchema = new mongoose.Schema(
     {
         "SKU Code": { type: String, required: false },
-        "Design No ": { type: String, required: false },
+        "Design No": { type: String, required: false },
         "Stock": { type: String, required: true },
         "stock in B1": { type: Number, required: false },
         "stock in B2": { type: Number, required: false },

@@ -6,6 +6,7 @@ import styles from './PatientDetail.module.scss';
 // import AddResult from '../AddResult';
 import { useState, useEffect } from 'react';
 // import Orders from '../Orders';
+// import ExaminationHistory from '../ExaminationHistory';
 import axios from 'axios';
 import UserInfo from '../../AuthContext';
 import { useAuth } from '../../AuthContext';

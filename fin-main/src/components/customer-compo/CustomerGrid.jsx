@@ -271,7 +271,7 @@ const CustomerGrid = () => {
 
             <td>{customer['Cust ID']}</td>
 
-            <td>{customer.name}</td>
+            <td>{customer['First Name']} {customer['Last Name']}</td>
 
             <td>{customer.sex}</td>
 
