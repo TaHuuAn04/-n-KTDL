@@ -3,6 +3,6 @@ Vẫn còn dùng các Model test nên mọi người có thể test thoải mái
 --------  ///   --------
 
 B1: cd Backend_my-app     
-B2: npm sever       
+B2: npm start       
 B3: cd my-app      
 B4: npm start
