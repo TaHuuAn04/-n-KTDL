@@ -33,7 +33,13 @@ const CustomerSchema = new mongoose.Schema(
         "password": {
             type: String,
             require: true
-        }
+        },
+        "Sex": {
+            type: String
+        },
+        "Age": {
+            type: Number
+        },
 
     }, { collection: 'customer' }
 );

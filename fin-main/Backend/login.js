@@ -2,20 +2,55 @@ const express = require('express');
 const router = express.Router();
 const CustomerModel = require('./Model/Customer');
 const EmployeeModel = require('./Model/Employee');
-const SHA1 = require('./SHA/SHA1'); 
+const SHA1 = require('./SHA/SHA1');
 
-router.post('/login', async (req, res) => {
+// API đăng nhập cho khách hàng
+router.post('/customer/login', async (req, res) => {
     const { username, password } = req.body;
+    console.log("Customer login with username: ", username);
+    console.log("Customer login with password: ", password);
 
     if (!username || !password) {
         return res.status(400).json({ message: 'Vui lòng nhập username và mật khẩu!' });
     }
 
-    // Mã hóa mật khẩu bằng SHA1
     const hashedPassword = SHA1(password);
+    console.log("Hashed password", hashedPassword);
 
     try {
-        // Kiểm tra trong model Employee 
+        const customer = await CustomerModel.findOne({ "Email": username });
+
+        if (customer) {
+            if (customer.password !== hashedPassword) {
+                return res.status(401).json({ message: 'Sai mật khẩu!' });
+            }
+            return res.status(200).json({
+                message: 'Đăng nhập thành công!',
+                user: customer
+            });
+        }
+
+        return res.status(404).json({ message: 'Tài khoản không tồn tại!' });
+    } catch (error) {
+        console.error('Lỗi trong quá trình đăng nhập:', error);
+        return res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });
+    }
+});
+
+// API đăng nhập cho nhân viên
+router.post('/employee/login', async (req, res) => {
+    const { username, password } = req.body;
+    console.log("Employee login with username: ", username);
+    console.log("Employee login with password: ", password);
+
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Vui lòng nhập username và mật khẩu!' });
+    }
+
+    const hashedPassword = SHA1(password);
+    console.log("Hashed password", hashedPassword);
+
+    try {
         const admin = await EmployeeModel.findOne({ "User_Code": username });
 
         if (admin) {
@@ -24,34 +59,10 @@ router.post('/login', async (req, res) => {
             }
             return res.status(200).json({
                 message: 'Đăng nhập thành công!',
-                user: {
-                    username: admin._id,
-                    name: admin["First Name"],
-                    role: 'admin'
-                },
-                isAdmin: true,
+                user: admin
             });
         }
 
-        // Nếu không phải Employee
-        const customer = await CustomerModel.findOne({ "Cust ID": username });
-
-        if (customer) {
-            if (customer.password !== hashedPassword) {
-                return res.status(401).json({ message: 'Sai mật khẩu!' });
-            }
-            return res.status(200).json({
-                message: 'Đăng nhập thành công!',
-                user: {
-                    username: customer["Cust ID"],
-                    name: `${customer["First Name"]} ${customer["Last Name"]}`,
-                    role: 'customer'
-                },
-                isAdmin: false,
-            });
-        }
-
-        // Nếu không tìm thấy cả trong Employee lẫn Customer
         return res.status(404).json({ message: 'Tài khoản không tồn tại!' });
     } catch (error) {
         console.error('Lỗi trong quá trình đăng nhập:', error);

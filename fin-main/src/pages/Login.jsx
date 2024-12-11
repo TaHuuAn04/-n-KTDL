@@ -19,22 +19,22 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const isAdmin = document.getElementById('isAdmin').checked;
+        //const isAdmin = document.getElementById('isAdmin').checked;
+        const isAdmin = true;
 
         try {
-            const response = await axios.post('http://localhost:3000/api/login', formData);
-
+            const response = await axios.post('http://localhost:3000/api/employee/login', formData);
+            console.log("hi:",response.data);
             if (response.status === 200) {
-                const { user, isAdmin } = response.data;
-
-
+                const  user = response.data;
+                console.log("i:",user);
                 handleLogin(user, isAdmin);
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
 
 
                 if (isAdmin) {
-                    navigate('/dashboard');
+                    navigate('/product');
                 } else {
                     navigate('/');
                 }
