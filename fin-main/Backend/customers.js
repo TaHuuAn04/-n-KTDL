@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const CustomerModel = require('./Model/Customer');  
-
+const CustomerModel = require('./Model/Customer');
+const SHA1 = require('./SHA/SHA1');
 //Trả về toàn bộ khách hàng
 // API ví dụ: http://localhost:3000/customers/all?page=2&limit=10
 router.get('/all', async (req, res) => {
@@ -45,14 +45,24 @@ Phần body:
 */
 router.post('/add', async (req, res) => {
     try {
-        const { CustID, FirstName, LastName, Company, Phone1, Phone2, Email, SubscriptionDate, Password } = req.body;
+        const { FirstName, LastName, Company, Phone1, Phone2, Email, SubscriptionDate, Password, Sex, Age} = req.body;
 
         // Kiểm tra nếu các trường bắt buộc không có
-        if (!CustID || !FirstName || !LastName || !Phone1 || !Email || !Password) {
+        if (!FirstName || !LastName || !Phone1 || !Email || !Password) {
             return res.status(400).json({ message: 'Vui lòng điền đầy đủ tất cả các trường thông tin!' });
         }
+
+        // Tìm giá trị lớn nhất của CustID trong database
+        const maxCustID = await CustomerModel.findOne({}, { "Cust ID": 1 }, { sort: { "Cust ID": -1 } });
+
+        // Tính toán CustID mới
+        let newCustID = 1; // Giá trị mặc định nếu chưa có khách hàng nào
+        if (maxCustID) {
+            newCustID = parseInt(maxCustID["Cust ID"]) + 1;
+        }
+        const hashedPassword = SHA1(Password);
         const newCustomer = new CustomerModel({
-            "Cust ID": CustID,
+            "Cust ID": newCustID,
             "First Name": FirstName,
             "Last Name": LastName,
             "Company": Company,
@@ -60,8 +70,11 @@ router.post('/add', async (req, res) => {
             "Phone 2": Phone2,
             "Email": Email,
             "Subcription Date": SubscriptionDate,
-            "password": Password,
+            "password": hashedPassword,
+            "Sex": Sex,
+            "Age": Age
         });
+
         await newCustomer.save();
         res.status(201).json({ message: 'Thêm khách hàng mới thành công', customer: newCustomer });
     } catch (error) {
@@ -95,7 +108,7 @@ patch thì không cần gửi full các trường trong body
 router.patch('/update/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { CustID, FirstName, LastName, Company, Phone1, Phone2, Email, SubscriptionDate, Password } = req.body;
+        const { CustID, FirstName, LastName, Company, Phone1, Phone2, Email, SubscriptionDate, Password, Sex, Age} = req.body;
         const updatedCustomer = await CustomerModel.findByIdAndUpdate(
             id, // ID của khách hàng cần sửa
             { 
@@ -108,6 +121,8 @@ router.patch('/update/:id', async (req, res) => {
                 "Email": Email,
                 "Subcription Date": SubscriptionDate,
                 "password": Password,
+                "Sex": Sex,
+                "Age": Age
             },
             { new: true } // Trả về khách hàng đã được cập nhật
         );
