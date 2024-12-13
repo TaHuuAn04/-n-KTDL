@@ -158,24 +158,30 @@ router.get('/filter', verifyToken, async (req, res) => {
 router.patch('/update/orderID/:orderID', verifyToken, async (req, res) => {
     try {
         const orderID = req.params.orderID; 
-        const updatedData = req.body; 
-        const updatedOrder = await SalesModel.findOneAndUpdate(
-            { "Order ID": orderID }, 
-            updatedData, 
-            { new: true, runValidators: true } 
-        );
-
-        if (!updatedOrder) {
+        const updatedData = req.body;        
+        const checkOrder = await SalesModel.findOne({ "Order ID": orderID });
+        if (!checkOrder) {
             return res.status(404).json({ message: 'Đơn hàng không tồn tại!' });
         }
 
+        if (checkOrder.Status !== 'Pending') {
+            return res.status(400).json({ message: 'Đơn hàng chỉ được sửa ở trạng thái Pending!' });
+        }
+        const updatedOrder = await SalesModel.findOneAndUpdate(
+            { "Order ID": orderID },  
+            updatedData,              
+            { new: true, runValidators: true }  
+        );
+        if (!updatedOrder) {
+            return res.status(404).json({ message: 'Không thể cập nhật đơn hàng!' });
+        }
         res.status(200).json({
             message: 'Chỉnh sửa thành công!',
-            order: updatedOrder 
+            order: updatedOrder
         });
-
     } catch (err) {
-        res.status(500).json({ message: 'Đã xảy ra lỗi trong quá trình xử lý yêu cầu!', error: err.message });
+        console.error(err);
+        res.status(500).json({ message: 'Đã xảy ra lỗi trong quá trình cập nhật!' });
     }
 });
 
