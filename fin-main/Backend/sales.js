@@ -69,11 +69,10 @@ router.delete('/delete/:id', async (req, res) => {
 });
 
 //Tìm kiếm 1 lịch sử mua hàng dựa trên id
-router.get('/find/:id', async (req, res) => {
+router.get('/find/:orderID', async (req, res) => {
     try {
-      console.log("id", req.params.id);
-      const id = req.params.id;
-      const cacheKey = `sale:${id}`;
+      const orderID = req.params.orderID;
+      const cacheKey = `sale:${orderID}`;
       const cachedSale = await redisClient.get(cacheKey);
       if (cachedSale) {
         console.log('Cache hit: Sale found in Redis');
@@ -83,7 +82,7 @@ router.get('/find/:id', async (req, res) => {
         });
       }
       // Nếu không có trong cache, truy vấn MongoDB
-      const sale = await SaleModel.findOne({ '_id': id });
+      const sale = await SaleModel.findOne({ 'Order ID': orderID });
       if (!sale) {
         return res.status(404).json({ message: 'Lịch sử bán hàng không tồn tại!' });
       }
@@ -99,18 +98,22 @@ router.get('/find/:id', async (req, res) => {
       console.error('Error:', err);
       res.status(500).json({ message: 'Đã xảy ra lỗi!', error: err.message });
     }
-  });
+});
 
 //API sửa dựa trên id của lịch sử tìm kiếm
-router.patch('/update/:id', async (req, res) => {
+router.patch('/update/:orderID', async (req, res) => {
     try {
       console.log("Update sale:", req.body);
-      const saleId = req.params.id;
+      const orderID = req.params.orderID;
       const updatedData = req.body;
-      const updatedSale = await SaleModel.findByIdAndUpdate(saleId, updatedData, {
-        new: true, 
-        runValidators: true 
-      });
+      const updatedSale = await SaleModel.findOneAndUpdate(
+        { 'Order ID': orderID },    // Tìm theo saleId
+        updatedData,            // Cập nhật với updatedData
+        {
+          new: true,            // Trả về đối tượng đã cập nhật
+          runValidators: true   // Chạy validation trước khi lưu
+        }
+      );
   
       if (!updatedSale) {
         return res.status(404).json({ message: 'Lịch sử mua hàng không tồn tại!' }); 
@@ -141,10 +144,10 @@ router.post('/add', async (req, res) => {
     }
 });
 
-// Filter dựa trên id khách, khoảng thời gian, khoản tiền của đơn, sortBy, có phân trang 
+// Filter dựa trên id khách, khoảng thời gian, khoản tiền của đơn, sortBy, bổ sung trạng thái, có phân trang 
 router.get('/filter', async (req, res) => {
     try {
-        let { page, limit, custID, priceMax, priceMin, fromDate, toDate, sortBy } = req.query;
+        let { page, limit, custID, priceMax, status, priceMin, fromDate, toDate, sortBy } = req.query;
         page = parseInt(page) || 1;
         limit = parseInt(limit) || 10;
         const skip = (page - 1) * limit;
@@ -164,6 +167,11 @@ router.get('/filter', async (req, res) => {
             filter.Amount = {};
             if (priceMin) filter.Amount.$gte = parseFloat(priceMin);
             if (priceMax) filter.Amount.$lte = parseFloat(priceMax);
+        }
+
+        // status: Pending, Processing, Delivering, Delivered, Cancelled
+        if (status) {
+          filter.Status = status;
         }
   
         // Xác định tham số sort theo ngày hoặc giá, mặc định là sắp xếp theo ngày thêm vào (tăng dần)
@@ -225,6 +233,42 @@ router.get('/filter', async (req, res) => {
     }
 });
 
+// Đổi trạng thái của đơn
+router.patch('/changeStatus/:orderID', async (req, res) => {
+  const { orderID } = req.params;
+  try {
+      // Tìm đơn hàng theo orderID
+      const order = await SaleModel.findOne({ 'Order ID': orderID });
 
+      if (!order) {
+          return res.status(404).json({ message: 'Not found' });
+      }
+
+      // Kiểm tra trạng thái hiện tại và chuyển sang trạng thái tiếp theo
+      switch (order.Status) {
+          case 'Pending':
+              order.Status = 'Processing';
+              break;
+          case 'Processing':
+              order.Status = 'Delivering';
+              break;
+          case 'Delivering':
+              order.Status = 'Delivered';
+              break;
+          case 'Delivered':
+              order.Status = 'Cancelled';
+              break;
+          case 'Cancelled':
+              order.Status = 'Pending';
+              break;
+          default:
+              return res.status(400).json({ message: 'Invalid order status transition' });
+      }
+      await order.save();
+      return res.status(200).json({ message: 'Order status updated successfully', order });
+  } catch (error) {
+      return res.status(500).json({ message: 'Server error', error });
+  }
+});
 
 module.exports = router;  
