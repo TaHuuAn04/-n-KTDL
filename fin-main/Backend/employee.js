@@ -22,7 +22,6 @@ router.get('/All', async (req, res) => {
 
         const cacheKey = `employees:page=${page}&limit=${limit}`;
 
-        // Kiểm tra xem kết quả đã có trong cache Redis chưa
         const cachedData = await redisClient.get(cacheKey);
         if (cachedData) {
             console.log('Cache hit');
@@ -59,7 +58,6 @@ router.get('/All', async (req, res) => {
                 })),
             };
 
-            // Lưu kết quả vào Redis với thời gian cache là 1 giờ
             await redisClient.setex(cacheKey, 3600, JSON.stringify(response));
 
             return res.status(200).json(response);
@@ -84,7 +82,6 @@ router.get('/Find', async (req, res) => {
     try {
         const cacheKey = `employee:find:${keywords}`;
 
-        // Kiểm tra Redis cache
         const cachedData = await redisClient.get(cacheKey);
         if (cachedData) {
             console.log('Cache hit');
@@ -93,7 +90,6 @@ router.get('/Find', async (req, res) => {
 
         console.log('Cache miss: Retrieving data from MongoDB');
 
-        // Tìm kiếm trong MongoDB
         let employee = await EmployeeModel.findOne({ "User_Code": keywords });
         if (!employee) {
             employee = await EmployeeModel.findOne({ "First Name": keywords });
@@ -116,7 +112,6 @@ router.get('/Find', async (req, res) => {
                 },
             };
 
-            // Lưu kết quả vào Redis với thời gian cache là 1 giờ
             await redisClient.setex(cacheKey, 3600, JSON.stringify(response));
 
             return res.status(200).json(response);
@@ -134,13 +129,13 @@ router.get('/SortAndFilter', async (req, res) => {
     try {
         const { team, sortBySalary, page = 1, limit = 10 } = req.query;
 
-        // Tạo bộ lọc
+        
         let filter = {};
         if (team) {
-            filter.Team = team; // Lọc theo phòng ban (Team)
+            filter.Team = team; 
         }
 
-        // Xác định sắp xếp theo lương
+
         let sort = {};
         if (sortBySalary === 'asc') {
             sort.Salary = 1; // Tăng dần
@@ -148,18 +143,15 @@ router.get('/SortAndFilter', async (req, res) => {
             sort.Salary = -1; // Giảm dần
         }
 
-        // Tạo một key duy nhất cho cache dựa trên các tham số
+        
         const cacheKey = `employees:${JSON.stringify(filter)}:${JSON.stringify(sort)}:${page}:${limit}`;
 
-        // Kiểm tra trong Redis cache
         redisClient.get(cacheKey, async (err, data) => {
             if (err) throw err;
 
             if (data) {
-                // Nếu có dữ liệu trong cache, trả về ngay
                 return res.status(200).json(JSON.parse(data));
             } else {
-                // Nếu không có trong cache, truy vấn MongoDB
                 const employees = await EmployeeModel.find(filter)
                     .sort(sort)
                     .skip((page - 1) * limit) // Tính toán skip cho phân trang
@@ -169,7 +161,6 @@ router.get('/SortAndFilter', async (req, res) => {
                     return res.status(404).json({ message: 'Không tìm thấy nhân viên nào!' });
                 }
 
-                // Lưu dữ liệu vào cache
                 const result = {
                     message: 'Danh sách nhân viên:',
                     totalEmployees: employees.length,
@@ -187,10 +178,8 @@ router.get('/SortAndFilter', async (req, res) => {
                     })),
                 };
 
-                // Lưu vào Redis cache với thời gian hết hạn 1 giờgiờ
                 redisClient.setex(cacheKey, 3600, JSON.stringify(result));
 
-                // Trả kết quả
                 return res.status(200).json(result);
             }
         });
@@ -264,20 +253,20 @@ router.post('/Add', checkSeniorManagement, async (req, res) => {
 // API xóa nhân viên
 router.delete('/Delete/:User_Code', checkSeniorManagement, async (req, res) => {
     try {
-        const { User_Code } = req.params; // Lấy User_Code từ URL params
+        const { User_Code } = req.params; 
 
         if (!User_Code) {
             return res.status(400).json({ message: 'Vui lòng cung cấp User_Code!' });
         }
 
-        // Tìm nhân viên theo User_Code
+        
         const employee = await EmployeeModel.findOne({ "User_Code": User_Code });
 
         if (!employee) {
             return res.status(404).json({ message: 'Không tìm thấy nhân viên!' });
         }
 
-        // Xóa nhân viên
+        
         await EmployeeModel.deleteOne({ "User_Code": User_Code });
 
         return res.status(200).json({
