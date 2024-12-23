@@ -1,9 +1,12 @@
 // redis.js
-const redis = require('ioredis');
-const redisClient = new redis();
+const Redis = require('ioredis');
+const redisClient = new Redis({
+  host: '127.0.0.1', // Địa chỉ Redis server (localhost)
+  port: 6379,        // Cổng Redis server
+});
 
 redisClient.on('connect', () => {
-  console.log('Connected to Redis successfully');
+  console.log('Redis connected successfully!');
 });
 
 redisClient.on('error', (err) => {
