@@ -282,7 +282,7 @@ const CustomerGrid = () => {
             <td>
                 <button
                     className="edit-btn"
-                    onClick={() => handleNavigateInfo(customer.id)}
+                    onClick={() => handleNavigateInfo(customer['Cust ID'])}
                     style={{
                         fontSize: "16px",
                         color: "#a855f7",

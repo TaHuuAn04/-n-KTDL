@@ -127,7 +127,7 @@ router.get('/filter', verifyToken, async (req, res) => {
         else {
           console.log("Cache miss: Sales retrieved from MongoDB");
         }
-  
+        console.log("filter:", filter);
         // Nếu không có cache, truy vấn MongoDB
         const sales = await SalesModel.find(filter)
             .skip(skip)

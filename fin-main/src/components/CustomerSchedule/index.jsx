@@ -15,7 +15,7 @@ function CustomerOrder() {
             try {
                 const token = localStorage.getItem('token');
                 console.log('Token:', token); // Log token ra để kiểm tra
-
+                console.log('ID:', id); // Log id ra để kiểm tra
                 if (token) { // Kiểm tra xem có token hay không
                     const response = await axios.get(`http://localhost:3000/orders/filter?customerId=${id}`, {
                         headers: {
@@ -37,10 +37,67 @@ function CustomerOrder() {
 
         fetchOrders();
     }, [id]);
+    const handleEdit = async (order) => {
+        try {
+            const token = localStorage.getItem('token');
+            const orderID = order['Order ID']; // Lấy Order ID của đơn hàng
 
-    const handleEdit = (order) => {
+            if (token) {
+                const response = await axios.patch(
+                    `http://localhost:3000/sales/changeStatus/${orderID}`,
+                    {}, // Có thể gửi data nếu cần thiết
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
 
-    }
+                console.log('Update status response:', response.data);
+
+                // Cập nhật lại danh sách đơn hàng sau khi thay đổi trạng thái
+                const updatedOrders = orders.map((o) =>
+                    o['Order ID'] === orderID ? { ...o, Status: response.data.order.Status } : o
+                );
+                setOrders(updatedOrders);
+            } else {
+                console.error('No token found!');
+            }
+        } catch (error) {
+            console.error('Error updating order status:', error);
+        }
+    };
+    const handleCancel = async (order) => {
+        try {
+            const token = localStorage.getItem('token');
+            const orderID = order['Order ID'];
+
+            if (token) {
+                // Gọi API để hủy đơn hàng
+                const response = await axios.patch(
+                    `http://localhost:3000/sales/changeStatus/${orderID}`,
+                    { status: 'Cancelled' }, // Hoặc giá trị tương ứng với "Hủy"
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                console.log('Update status response:', response.data);
+
+                // Cập nhật lại danh sách đơn hàng
+                const updatedOrders = orders.map((o) =>
+                    o['Order ID'] === orderID ? { ...o, Status: response.data.order.Status } : o
+                );
+                setOrders(updatedOrders);
+            } else {
+                console.error('No token found!');
+            }
+        } catch (error) {
+            console.error('Error updating order status:', error);
+        }
+    };
     // ... (Phần render)
     return (
         <div className={cx('wrapper')}>
@@ -98,7 +155,7 @@ function CustomerOrder() {
                                     </button>
                                     <button
                                         className="edit-btn"
-                                        onClick={() => handleEdit(order)}
+                                        onClick={() => handleCancel(order)}
                                         style={{
                                             fontSize: "16px",
                                             color: "#a855f7",

@@ -16,64 +16,32 @@ import React from 'react';
 
 
 function CustomerDetail() {
-    const { customerId } = useParams();
+    const { id: customerId } = useParams();
     
     const { UserInfo, isAdmin } = useAuth();
 
     const [customerInfo, setCustomerInfo] = useState({});
-    const [Examhistory, setExamHistory] = useState([])
     
     //lay thong tin benh nhan (lay duoc toan bo thong tin benh nhan bao gom lich su kham)
     useEffect(() => {
-        const fetchData = async () => {
-          try {
-            const response = await axios.get("http://localhost:3000/patients");
-            setCustomerInfo(response.data);
-          } catch (error) {
-            console.log(error);
-          }
+        const fetchCustomerInfo = async () => {
+            try {
+                const response = await axios.get(`http://localhost:3000/customers/search?custID=${customerId}`);
+                setCustomerInfo(response.data.customer);
+                console.log('Customer info:', response.data);
+            } catch (error) {
+                console.error('Error fetching customer info:', error);
+                // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi
+            }
         };
-      
-        fetchData();
-      }, [customerId]
-    );
+
+        fetchCustomerInfo();
+    }, [customerId]);
 
     //goi API lay danh sach lich su kham benh cua benh nhan do
 
-    useEffect(() => {
-        const fetchData = async () => {
-          try {
-            const response = await axios.get("http://localhost:3000/examination_history");
-            setExamHistory(response.data);
-          } catch (error) {
-            console.log(error);
-          }
-        };
-      
-        fetchData();
-      }, [Examhistory]
-    );
 
 
-
-
-    //ham cap nhat lich su kham
-    const updateMedicalHistory = async (historyId, updatedData) => {
-        try {
-          const response = await axios.patch(`/patients/${customerId}/medical-history/${historyId}`, updatedData);
-          console.log(response.data);
-        } catch (error) {
-          console.log(error);
-        }
-    };
-
-
-    const createExamination = (newExam) => {
-        axios
-            .post('http://localhost:3000/examination_history', newExam)
-            .then((response) => setExamHistory([...Examhistory, response.data]))
-            .catch((error) => console.log(error));
-    };
         
     return (
     <div className={cx('wrapper')}>
@@ -91,11 +59,18 @@ function CustomerDetail() {
 
             <CustomerInfo
                 image={customerInfo.image}
+                id = {customerInfo['Cust ID']}
+                first_name = {customerInfo['First Name']}
+                last_name = {customerInfo['Last Name']}
+                company = {customerInfo.Company}
+                address = {customerInfo.City}
+                phone1 = {customerInfo['Phone 1']}
+                phone2 = {customerInfo['Phone 2']}
+                country = {customerInfo.Country}
+                email = {customerInfo.Email}
+                subscription={customerInfo['Subscription Date']}
                 generalInfo={customerInfo.generalInfo}
-                name={customerInfo.name}
-                birthday={customerInfo.birthday}
-                blood_type={customerInfo.blood_type}
-                address={customerInfo.address}
+
             />
             {/*<div className={cx('history-wrapper')}>*/}
             {/*    <div className={cx('history-header-wrapper')}>*/}

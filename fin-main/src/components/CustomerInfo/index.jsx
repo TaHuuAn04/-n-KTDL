@@ -20,27 +20,27 @@ function CustomerInfo(props) {
                     </li>
                     <li className={cx('list-info-item')}>
                         <h4 className={cx('list-info-header')}>Họ:</h4>
-                        <p className={cx('list-info-content')}> {props.name}</p>
+                        <p className={cx('list-info-content')}> {props.first_name}</p>
                     </li>
                     <li className={cx('list-info-item')}>
                         <h4 className={cx('list-info-header')}>Tên:</h4>
-                        <p className={cx('list-info-content')}> {props.name}</p>
+                        <p className={cx('list-info-content')}> {props.last_name}</p>
                     </li>
                     <li className={cx('list-info-item')}>
                         <h4 className={cx('list-info-header')}>Công ty:</h4>
-                        <p className={cx('list-info-content')}> {props.birthday} </p>
+                        <p className={cx('list-info-content')}> {props.company} </p>
                     </li>
                     <li className={cx('list-info-item')}>
                         <h4 className={cx('list-info-header')}>Địa chỉ:</h4>
-                        <p className={cx('list-info-content')}> {props.name}</p>
+                        <p className={cx('list-info-content')}> {props.address}</p>
                     </li>
                     <li className={cx('list-info-item')}>
                         <h4 className={cx('list-info-header')}>Quốc gia:</h4>
-                        <p className={cx('list-info-content')}> {props.blood_type} </p>
+                        <p className={cx('list-info-content')}> {props.country} </p>
                     </li>
                     <li className={cx('list-info-item')}>
                         <h4 className={cx('list-info-header')}>Số điện thoại:</h4>
-                        <p className={cx('list-info-content')}> {props.name}, {props.name}</p>
+                        <p className={cx('list-info-content')}> {props.phone1}, {props.phone2}</p>
                     </li>
                     <li className={cx('list-info-item')}>
                         <h4 className={cx('list-info-header')}>Email:</h4>
@@ -48,7 +48,7 @@ function CustomerInfo(props) {
                     </li>
                     <li className={cx('list-info-item')}>
                         <h4 className={cx('list-info-header')}>Ngày đăng kí:</h4>
-                        <p className={cx('list-info-content')}>{props.address}</p>
+                        <p className={cx('list-info-content')}>{props.subscription}</p>
                     </li>
                 </ul>
             </div>

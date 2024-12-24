@@ -156,7 +156,7 @@ router.get('/filter', async (req, res) => {
         if (custID) {
             filter['Cust ID'] = custID;
         }
-
+        console.log('CustID', filter['Cust ID']);
         if (fromDate || toDate) {
             filter.createdAt = {};
             if (fromDate) filter.createdAt.$gte = new Date(fromDate);  // Chuyển fromDate thành đối tượng Date
@@ -269,6 +269,38 @@ router.patch('/changeStatus/:orderID', async (req, res) => {
   } catch (error) {
       return res.status(500).json({ message: 'Server error', error });
   }
+});
+// API hủy đơn hàng
+router.patch('/cancelSale/:orderID', async (req, res) => {
+    const { orderID } = req.params;
+
+    // Kiểm tra quyền của user (ví dụ: chỉ admin hoặc nhân viên được hủy đơn)
+    if (req.user.role !== 'admin' && req.user.role !== 'employee') {
+        return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    try {
+        // Tìm đơn hàng theo orderID (sử dụng trường Order ID của bạn)
+        const order = await SaleModel.findOne({ 'Order ID': orderID });
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Kiểm tra trạng thái hiện tại của đơn hàng (nếu cần)
+        if (order.Status === 'Delivered') {
+            return res.status(400).json({ message: 'Cannot cancel a delivered order' });
+        }
+
+        // Cập nhật trạng thái thành Cancelled
+        order.Status = 'Cancelled';
+        await order.save();
+
+        res.status(200).json({ message: 'Order cancelled successfully', order });
+    } catch (error) {
+        console.error('Error cancelling order:', error);
+        res.status(500).json({ message: 'Server error', error });
+    }
 });
 
 module.exports = router;  
