@@ -73,15 +73,20 @@ router.delete('/delete/:orderID', verifyToken, async (req, res) => {
 // Lấy tất cả đơn hàng của customer đó theo điều kiện. Nếu bỏ trống các trường ==> get all
 router.get('/filter', verifyToken, async (req, res) => {
     try {
-        let { page, limit, priceMax, priceMin, fromDate, toDate, sortBy } = req.query;
+        console.log("take orders");
+        let { page, limit, priceMax, priceMin, fromDate, toDate, sortBy, customerId } = req.query;
+        console.log("customerID:", customerId);
         page = parseInt(page) || 1;
         limit = parseInt(limit) || 10;
         const skip = (page - 1) * limit;
         let filter = {};
 
-        const custID = req.user.custID;
-        filter['Cust ID'] = custID;
-
+        if(req.user.username){
+            filter['Cust ID'] = customerId;
+        } else{
+            filter['Cust ID'] = req.user.custID;
+        }
+        console.log('CustID', filter['Cust ID']);
         if (fromDate || toDate) {
             filter.createdAt = {};
             if (fromDate) filter.createdAt.$gte = new Date(fromDate);  // Chuyển fromDate thành đối tượng Date

@@ -12,20 +12,6 @@ import EditProductForm from "../product-compo/EditProductForm.jsx";
 import SimplePagination from "../product-compo/Button_Page.jsx";
 
 
-const initialCustomer = [
-    {
-        id: 1,
-        name: 'Nguyễn Văn A',
-        Subscription: '01/01/2021',
-        birthday: '01/01/1990',
-        location: 'TPHCM',
-        email: '',
-        phoneNumber: '0123456789',
-        sex: 'Nam',
-        cccd: '123456789',
-        blood_Type: 'A+',
-    }
-];
 
 const CustomerGrid = () => {
     const {isAdmin} = useAuth();
@@ -273,14 +259,14 @@ const CustomerGrid = () => {
 
             <td>{customer['First Name']} {customer['Last Name']}</td>
 
-            <td>{customer.sex}</td>
+            <td>{customer.Sex}</td>
 
-            <td>{customer.Subscription}</td>
+            <td>{customer['Subscription Date']}</td>
             <td>
 
                 <button
                     className="edit-btn"
-                    onClick={() => handleNavigateOrder(customer.id)}
+                    onClick={() => handleNavigateOrder(customer['Cust ID'])}
                     style={{
                         fontSize: "16px",
                         color: "#a855f7",

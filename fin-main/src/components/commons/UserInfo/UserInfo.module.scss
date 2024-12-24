@@ -34,3 +34,26 @@
     height: 100%;
     border-radius: 50%;
 }
+
+.logout-button {
+    display: flex;
+    align-items: center;
+    background-color: #dc3545; // Màu đỏ cho nút logout
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin-top: 10px; // Cách phần info phía trên 10px
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+
+    &:hover {
+        background-color: #c82333; // Màu đỏ đậm hơn khi hover
+    }
+
+    // Style cho icon logout (dùng React Icons)
+    .logout-icon {
+        margin-right: 8px; // Cách chữ "Đăng xuất" 8px
+        font-size: 20px;    // Kích thước icon
+    }
+}

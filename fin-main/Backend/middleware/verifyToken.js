@@ -3,7 +3,9 @@ const secretKey = 'your_secret_key';
 
 // Middleware để xác thực và lấy thông tin từ token
 const verifyToken = (req, res, next) => {
+
     const token = req.headers['authorization']?.split(' ')[1];  // Lấy token từ header Authorization
+    console.log('Token:', token);  // Log token ra để kiểm tra
     if (!token) {
         return res.status(403).json({ message: 'Không có token, truy cập bị từ chối' });
     }

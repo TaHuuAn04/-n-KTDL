@@ -5,8 +5,7 @@ import { useAuth } from '../AuthContext';
 import '../App.css';
 
 const Login = () => {
-    const { handleLogin } = useAuth();
-    const { setLoggedIn } = useAuth();
+    const { handleLogin, loggedIn } = useAuth(); // Sửa 1: Lấy thêm loggedIn
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ username: '', password: '' });
     const [error, setError] = useState('');
@@ -16,22 +15,22 @@ const Login = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        //const isAdmin = document.getElementById('isAdmin').checked;
-        const isAdmin = true;
+        const isAdmin = document.getElementById('isAdmin').checked;
 
         try {
-            const response = await axios.post('http://localhost:3000/api/employee/login', formData);
-            console.log("hi:",response.data);
+            const response = await axios.post('http://localhost:3000/api/employee/login', formData); // Sửa 2: Gửi data không cần isAdmin
+
             if (response.status === 200) {
-                const  user = response.data;
-                console.log("i:",user);
+                const { user, token } = response.data;
+
+                // Lưu token vào localStorage
+                localStorage.setItem('token', token);
+
                 handleLogin(user, isAdmin);
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('isAdmin', isAdmin ? 'true' : 'false');
-
 
                 if (isAdmin) {
                     navigate('/product');
@@ -40,34 +39,40 @@ const Login = () => {
                 }
             }
         } catch (error) {
-            // Xử lý lỗi trả về từ server
             if (error.response) {
                 setError(error.response.data.message || 'Đăng nhập không thành công!');
             } else {
-                // Lỗi server không phản hồi -> chạy node Backend/index.js
                 setError('Đã xảy ra lỗi. Vui lòng thử lại sau!');
             }
         }
     };
 
     useEffect(() => {
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        if (isLoggedIn === 'true') {
-            setLoggedIn(true);
+        const token = localStorage.getItem('token');
+        const isAdmin = localStorage.getItem('isAdmin');
+
+        // Kiểm tra nếu đã có token (có thể đã đăng nhập trước đó)
+        if (token) {
+            if(isAdmin === 'true'){
+                navigate('/product')
+            }
+            else {
+                navigate('/')
+            }
         }
-    }, [setLoggedIn]);
+    }, [navigate]);
 
     return (
         <div className="login-page">
             <div className="login-logo-wrapper">
                 <span className="UnifrakturCook Bold">Closet</span>
             </div>
-            <p style={{ marginLeft: '156px', fontSize: '18px', fontStyle: 'italic', color: '#592A1C' }}>
+            <p style={{marginLeft: '156px', fontSize: '18px', fontStyle: 'italic', color: '#592A1C'}}>
                 Chào mừng bạn quay trở lại với <span className="UnifrakturCook Bold">Closet</span> !
             </p>
             <div className="login-form">
                 <h1>Đăng nhập</h1>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
+                {error && <p className="error-message">{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <div>
                         <label className="login-label">Username</label>
@@ -91,8 +96,8 @@ const Login = () => {
                             required
                         />
                     </div>
-                    <div style={{ marginBottom: '8px' }} className="isAdminCheck">
-                        <input type="checkbox" id="isAdmin"></input>
+                    <div className="isAdminCheck">
+                        <input type="checkbox" id="isAdmin"/>
                         <label htmlFor="isAdmin">
                             Bạn là Admin của <span className="UnifrakturCook Bold">Closet</span>?
                         </label>
@@ -102,7 +107,7 @@ const Login = () => {
                     </button>
                 </form>
             </div>
-            <img className="img-logo" src="src/assets/Group 2.png" alt="Closet Logo"></img>
+            <img className="img-logo" src="src/assets/Group 2.png" alt="Closet Logo"/>
         </div>
     );
 };
