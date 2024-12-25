@@ -10,7 +10,7 @@ app.use(express.json());
 const loginRoute = require('./login');
 const productRoutes = require('./products')
 const customerRoutes = require('./customers')
-const employee = require('./employee')
+const employeeRoutes = require('./employee')
 const saleRoutes = require('./sales')
 const orderRoutes = require('./orders');
 const { applyTimestamps } = require('./Model/Product');
@@ -24,8 +24,8 @@ app.use('/api', loginRoute);
 app.use('/products', productRoutes);
 app.use('/customers', customerRoutes);
 app.use('/sales', saleRoutes);
-app.use('/employee', employee);
 app.use('/orders', orderRoutes);
+app.use('/employee', employeeRoutes);
 
 app.listen(3000, () => {
     console.log("Connect successfully!");
