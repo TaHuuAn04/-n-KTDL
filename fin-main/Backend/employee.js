@@ -254,7 +254,21 @@ router.post('/Add', checkSeniorManagement, async (req, res) => {
         return res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });
     }
 });
+// Đếm số lượng nhân viên
+// http://localhost:3000/employee/count
+router.get('/count', async (req, res) => {
+    try {
+        const employeeCount = await EmployeeModel.countDocuments();
 
+        res.status(200).json({
+            message: 'Tổng số nhân viên',
+            count: employeeCount
+        });
+    } catch (error) {
+        console.error('Lỗi:', error);
+        res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });
+    }
+});
 // API xóa nhân viên
 router.delete('/Delete/:User_Code', checkSeniorManagement, async (req, res) => {
     try {

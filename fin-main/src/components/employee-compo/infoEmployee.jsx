@@ -1,31 +1,47 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import Layout from "../../Layout"; // Giả sử SideBar đã được xây dựng và import
+import Layout from "../../Layout";
+import axios from "axios";
 
 function InfoEmployee() {
     const { id } = useParams(); // Lấy ID nhân viên từ URL
+    const [employeeData, setEmployeeData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Dữ liệu mẫu - thay thế bằng API fetch từ server trong thực tế
-    const employeeData = {
-        id: id,
-        name: "Nguyễn Văn A",
-        gender: "Nữ",
-        address: "TPHCM",
-        email: ["abcxyz@hcmut.edu.vn", "abcxyz04@hcmut.edu.vn"],
-        registrationDate: "20/10/2024",
-        phone: "0123456789",
-        salaryHistory: [
-            { dateUpdated: "12/2/2024",perUpdate:"Nguyễn Văn B",month: "01/2024",numDay:"20" ,amount: "10,000,000 VND" },
-            { dateUpdated: "12/3/2024", perUpdate:"Nguyễn Văn B",month: "02/2024",numDay:"29" ,amount: "10,500,000 VND" },
-        ],
-    };
+    useEffect(() => {
+        const fetchEmployeeData = async () => {
+            try {
+                setLoading(true);
+                const response = await axios.get(`http://localhost:3000/employee/Information/${id}`);
+                setEmployeeData(response.data.employee);
+            } catch (error) {
+                console.error("Error fetching employee data:", error);
+                setError(error.message || "Failed to fetch employee data.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEmployeeData();
+    }, [id]);
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
+    if (!employeeData) {
+        return <div>Employee not found.</div>;
+    }
 
     return (
         <div className="info-employee-container" style={{ display: "flex", height: "100vh" }}>
-            {/* Sidebar */}
             <Layout />
 
-            {/* Main content */}
             <div
                 className="employee-info-content"
                 style={{
@@ -40,7 +56,6 @@ function InfoEmployee() {
                     Quản lý thông tin nhân viên
                 </h1>
 
-                {/* Profile Section */}
                 <div
                     className="profile-section"
                     style={{
@@ -53,7 +68,6 @@ function InfoEmployee() {
                         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                     }}
                 >
-                    {/* Avatar */}
                     <div
                         className="avatar"
                         style={{
@@ -71,34 +85,37 @@ function InfoEmployee() {
                         👤
                     </div>
 
-                    {/* Employee Details */}
-                    <div className="employee-details" style={{ flex: 1 }}>
-                        <p style={{ margin: "10px 0" }}>
-                            <strong>Họ và tên:</strong> {employeeData.name}
+                    <div className="employee-details" style={{flex: 1}}>
+                        <p style={{margin: "10px 0"}}>
+                            <strong>Họ và tên:</strong> {employeeData.First_Name}
                         </p>
-                        <p style={{ margin: "10px 0" }}>
-                            <strong>Giới tính:</strong> {employeeData.gender}
+                        <p style={{margin: "10px 0"}}>
+                            <strong>Giới tính:</strong> {employeeData.Gender}
                         </p>
-                        <p style={{ margin: "10px 0" }}>
-                            <strong>Địa chỉ:</strong> {employeeData.address}
+                        <p style={{margin: "10px 0"}}>
+                            <strong>Bộ phận:</strong> {employeeData.branch}
                         </p>
-                        <p style={{ margin: "10px 0" }}>
+                        <p style={{margin: "10px 0"}}>
+                            <strong>Team:</strong> {employeeData.Team}
+                        </p>
+                        <p style={{margin: "10px 0"}}>
                             <strong>Email:</strong>
-                            <br />
-                            {employeeData.email.map((email, index) => (
-                                <span key={index}>{email}<br /></span>
-                            ))}
+                            <br/>
+                            {/*{employeeData.email.map((email, index) => (*/}
+                            {/*    <span key={index}>{email}<br /></span>*/}
+                            {/*))}*/}
+                            {employeeData.Email}
                         </p>
-                        <p style={{ margin: "10px 0" }}>
-                            <strong>Ngày đăng ký:</strong> {employeeData.registrationDate}
+                        <p style={{margin: "10px 0"}}>
+                            <strong>Ngày vào
+                                làm:</strong> {new Date(employeeData.Start_Date).toLocaleDateString("vi-VN")}
                         </p>
-                        <p style={{ margin: "10px 0" }}>
+                        <p style={{margin: "10px 0"}}>
                             <strong>Số điện thoại:</strong> {employeeData.phone}
                         </p>
                     </div>
                 </div>
 
-                {/* Salary History Section */}
                 <div
                     className="salary-history"
                     style={{
@@ -128,7 +145,7 @@ function InfoEmployee() {
                         </tr>
                         </thead>
                         <tbody>
-                        {employeeData.salaryHistory.map((entry, index) => (
+                        {employeeData.salaryHistory && employeeData.salaryHistory.map((entry, index) => (
                             <tr key={index}>
                                 <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>{entry.dateUpdated}</td>
                                 <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>{entry.perUpdate}</td>
