@@ -1,75 +1,219 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Modal } from 'antd';
+import EditOrderForm from './EditOrderForm';
+import SimplePagination from '../product-compo/Button_Page.jsx';
+import { DatePicker } from 'antd';
+import dayjs from 'dayjs';
 
+const { RangePicker } = DatePicker;
 function OrderList() {
     const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filterStatus, setFilterStatus] = useState(""); // "", "Pending", "Processing", "Delivering", "Delivered", "Cancelled"
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterStatus, setFilterStatus] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const itemsPerPage = 8; // Số đơn hàng trên mỗi trang
+    const [fromDate, setFromDate] = useState(null); // Thêm state fromDate
+    const [toDate, setToDate] = useState(null);     // Thêm state toDate
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+
+    const showEditModal = () => {
+        setIsEditModalVisible(true);
+    };
+
+    const handleEditOk = () => {
+        setIsEditModalVisible(false);
+    };
+
+    const handleEditCancel = () => {
+        setIsEditModalVisible(false);
+    };
+
+    const handleEdit = (order) => {
+        setSelectedOrder(order);
+        setIsEditModalVisible(true);
+    };
+
+    const handleSave = async (editedOrder) => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error('No token found!');
+                return;
+            }
+
+            const response = await axios.patch(
+                `http://localhost:3000/sales/update/orderID/${editedOrder['Order ID']}`,
+                editedOrder,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log('Update order response:', response.data);
+
+            const updatedOrders = orders.map((o) =>
+                o['Order ID'] === editedOrder['Order ID'] ? response.data.order : o
+            );
+            setOrders(updatedOrders);
+            setIsEditModalVisible(false);
+        } catch (error) {
+            console.error('Error updating order:', error);
+        }
+    };
 
     useEffect(() => {
+        const fetchOrderCounts = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    console.error("No token found!");
+                    return;
+                }
+
+                const headers = {
+                    Authorization: `Bearer ${token}`,
+                };
+
+                const params = {
+                    orderId: searchTerm
+                };
+
+                // Gọi API để lấy tổng số đơn hàng cho mỗi trạng thái
+                const allCountResponse = await axios.get("http://localhost:3000/sales/count", {
+                    headers
+                });
+
+                const pendingCountResponse = await axios.get("http://localhost:3000/sales/count", {
+                    headers,
+                    params: { status: "Pending", orderId: searchTerm },
+                });
+
+                const processingCountResponse = await axios.get("http://localhost:3000/sales/count", {
+                    headers,
+                    params: { status: "Processing", orderId: searchTerm },
+                });
+
+                const deliveringCountResponse = await axios.get("http://localhost:3000/sales/count", {
+                    headers,
+                    params: { status: "Delivering", orderId: searchTerm },
+                });
+
+                const deliveredCountResponse = await axios.get("http://localhost:3000/sales/count", {
+                    headers,
+                    params: { status: "Delivered", orderId: searchTerm },
+                });
+
+                const cancelledCountResponse = await axios.get("http://localhost:3000/sales/count", {
+                    headers,
+                    params: { status: "Cancelled", orderId: searchTerm },
+                });
+                const totalAll = allCountResponse.data.totalOrders;
+                const totalPending = pendingCountResponse.data.totalOrders;
+                const totalProcessing = processingCountResponse.data.totalOrders;
+                const totalDelivering = deliveringCountResponse.data.totalOrders;
+                const totalDelivered = deliveredCountResponse.data.totalOrders;
+                const totalCancelled = cancelledCountResponse.data.totalOrders;
+
+                let totalOrders;
+                switch (filterStatus) {
+                    case "Pending":
+                        totalOrders = totalPending;
+                        break;
+                    case "Processing":
+                        totalOrders = totalProcessing;
+                        break;
+                    case "Delivering":
+                        totalOrders = totalDelivering;
+                        break;
+                    case "Delivered":
+                        totalOrders = totalDelivered;
+                        break;
+                    case "Cancelled":
+                        totalOrders = totalCancelled;
+                        break;
+                    default:
+                        totalOrders = totalAll;
+                }
+                setTotalPages(Math.ceil(totalOrders / itemsPerPage));
+
+            } catch (error) {
+                console.error("Error fetching order counts:", error);
+            }
+        };
+
+        fetchOrderCounts();
         fetchOrders();
-    }, [filterStatus]);
+    }, [filterStatus, currentPage, searchTerm, fromDate, toDate]);
 
     const fetchOrders = async () => {
         setIsLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem('token');
             if (!token) {
-                console.error("No token found!");
+                console.error('No token found!');
                 return;
             }
 
-            let url = "http://localhost:3000/sales/filter";
-            const params = {};
+            const params = {
+                page: currentPage,
+                limit: itemsPerPage,
+            };
 
             if (filterStatus) {
                 params.status = filterStatus;
             }
-
+            if (fromDate) {
+                params.fromDate = dayjs(fromDate).format('YYYY-MM-DD');
+            }
+            if (toDate) {
+                params.toDate = dayjs(toDate).format('YYYY-MM-DD');
+            }
             if (searchTerm) {
                 params.orderId = searchTerm;
             }
-
-            params.sortBy = "date_desc";
-            console.log('params:', params);
-            const response = await axios.get(url, {
+            console.log("Params: ", params);
+            const response = await axios.get('http://localhost:3000/sales/filter', {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-                params: params,
+                params,
             });
-
+            console.log('Fetch orders response:', response.data.sale);
             if (Array.isArray(response.data.sale)) {
                 setOrders(response.data.sale);
             } else {
-                console.error("Expected an array but received:", response.data.sale);
+                console.error('Expected an array but received:', response.data.sale);
                 setOrders([]);
             }
         } catch (err) {
-            setError(err.message || "An error occurred while fetching orders.");
+            setError(err.message || 'An error occurred while fetching orders.');
         } finally {
             setIsLoading(false);
         }
     };
-
-    // Lọc đơn hàng dựa trên tìm kiếm (nếu cần)
-    const filteredOrders = orders.filter((order) => {
-        const matchesSearch = order["Order ID"].toLowerCase().includes(searchTerm.toLowerCase());
-        // const matchesStatus = filterStatus ? order.status === filterStatus : true;
-        return matchesSearch;
-    });
-
+    const handleDateRangeChange = (dates) => {
+        if (dates && dates.length === 2) {
+            setFromDate(dates[0]);
+            setToDate(dates[1]);
+        } else {
+            setFromDate(null);
+            setToDate(null);
+        }
+        setCurrentPage(1); // Reset về trang 1 khi thay đổi filter
+    };
     const handleOrderStatusChange = (newStatus) => {
         setFilterStatus(newStatus);
-    };
-
-    const handleViewDetails = (orderId) => {
-        navigate(`/order-details/${orderId}`);
+        setCurrentPage(1); // Reset về trang 1 khi thay đổi filter
     };
 
     const handleApprove = async (order) => {
@@ -157,7 +301,11 @@ function OrderList() {
                         marginRight: "20px",
                     }}
                 />
-
+                <RangePicker
+                    onChange={handleDateRangeChange}
+                    value={[fromDate, toDate]}
+                    style={{ marginRight: '20px' }}
+                />
                 <button onClick={() => handleOrderStatusChange("")} style={buttonStyle(filterStatus === "")}>
                     Tất cả
                 </button>
@@ -229,19 +377,19 @@ function OrderList() {
                                     {error}
                                 </td>
                             </tr>
-                        ) : filteredOrders.length > 0 ? (
-                            filteredOrders.map((order) => (
+                        ) : orders.length > 0 ? (
+                            orders.map((order) => (
                                 <tr key={order["Order ID"]}>
                                     <td style={cellStyle}>{order["Order ID"]}</td>
                                     <td style={cellStyle}>{order.SKU}</td>
                                     <td style={cellStyle}>{order.Qty}</td>
                                     <td style={cellStyle}>{new Date(order.Date).toLocaleDateString("vi-VN")}</td>
                                     <td style={cellStyle}>{order.Status}</td>
-                                    <td style={cellStyle}>{order["Ship Postal Code"]}</td>
+                                    <td style={cellStyle}>{order["ship-postal-code"]}</td>
                                     <td style={cellStyle}>{order.Amount}</td>
                                     <td style={cellStyle}>
                                         <button
-                                            onClick={() => handleViewDetails(order["Order ID"])}
+                                            onClick={() => handleEdit(order)}
                                             style={{
                                                 padding: "5px 10px",
                                                 backgroundColor: "#a855f7",
@@ -251,7 +399,7 @@ function OrderList() {
                                                 cursor: "pointer",
                                             }}
                                         >
-                                            Xem chi tiết
+                                            Sửa
                                         </button>
                                     </td>
                                     <td style={cellStyle}>
@@ -299,7 +447,29 @@ function OrderList() {
                         )}
                         </tbody>
                     </table>
+                    <Modal
+                        title="Chỉnh sửa đơn hàng"
+                        open={isEditModalVisible}
+                        onOk={handleEditOk}
+                        onCancel={handleEditCancel}
+                        footer={null} // Tùy chỉnh footer nếu cần
+                    >
+                        {selectedOrder && (
+                            <EditOrderForm
+                                order={selectedOrder}
+                                onSave={handleSave}
+                                onCancel={handleEditCancel}
+                            />
+                        )}
+                    </Modal>
                 </div>
+            </div>
+            <div className="pagination-container" style={{display: "flex", justifyContent: "center", marginTop: "20px"}}>
+                <SimplePagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
             </div>
         </div>
     );

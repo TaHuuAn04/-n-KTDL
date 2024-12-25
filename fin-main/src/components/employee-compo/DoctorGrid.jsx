@@ -3,256 +3,181 @@ import { Button, Modal } from 'antd';
 import axios from 'axios';
 import AddDoctorForm from './AddDoctorForm';
 import EditDoctorForm from './EditDoctorForm';
-import {Link, useNavigate} from 'react-router-dom'
-
-// BACKEND GET Infor from DB - initialDoctors (danh sach doctor)
-// Dữ liệu danh sách các bác sĩ
-const initialDoctors = [
-  { 
-    id: 1, 
-    name: 'Nhân viên 1',
-    birthday: 1970,
-    location: 'TP. HCM',
-    email: '@gmail.com',
-    phoneNumber: '123',
-    sex: 'Nam',
-    cccd: 'số cccd',
-    department: 'Tai, mũi, họng',
-    qualifications: 'Nhi',
-    available: true,
-    time_off: '5PM',
-  },
-  { 
-    id: 2, 
-    name: 'Nhân viên B',
-    birthday: 1970,
-    location: 'TP. HCM',
-    email: '@gmail.com',
-    phoneNumber: '123',
-    sex: 'Nam',
-    cccd: 'số cccd',
-    department: 'Tai, mũi, họng',
-    qualifications: 'Nhi',
-    available: true,
-    time_off: '5PM',
-  },
-  { 
-    id: 3, 
-    name: 'Nhân viên C',
-    birthday: 1970,
-    location: 'TP. HCM',
-    email: '@gmail.com',
-    phoneNumber: '123',
-    sex: 'Nam',
-    cccd: 'số cccd',
-    department: 'Tai, mũi, họng',
-    qualifications: 'Da liễu',
-    available: true,
-    time_off: '5PM',
-  },
-  { 
-    id: 4, 
-    name: 'Nhân viên D',
-    birthday: 1970,
-    location: 'TP. HCM',
-    email: '@gmail.com',
-    phoneNumber: '123',
-    sex: 'Nam',
-    cccd: 'số cccd',
-    department: 'Tai, mũi, họng',
-    qualifications: 'Phẫu thuật',
-    available: true,
-    time_off: '5PM',
-},
-  { 
-    id: 5, 
-    name: 'Nhân viên A',
-    birthday: 1970,
-    location: 'TP. HCM',
-    email: '@gmail.com',
-    phoneNumber: '123',
-    sex: 'Nam',
-    cccd: 'số cccd',
-    department: 'Tai, mũi, họng',
-    qualifications: 'Nội trú',
-    available: true,
-    time_off: '5PM',
-  },
-  { 
-    id: 6, 
-    name: 'Nhân viên B',
-    birthday: 1970,
-    location: 'TP. HCM',
-    email: '@gmail.com',
-    phoneNumber: '123',
-    sex: 'Nam',
-    cccd: 'số cccd',
-    department: 'Tai, mũi, họng',
-    qualifications: 'Nhi',
-    available: true,
-    time_off: '5PM',
-  },
-  { 
-    id: 7, 
-    name: 'Nhân viên C',
-    birthday: 1970,
-    location: 'TP. HCM',
-    email: '@gmail.com',
-    phoneNumber: '123',
-    sex: 'Nam',
-    cccd: 'số cccd',
-    department: 'Tai, mũi, họng',
-    qualifications: 'Da liễu',
-    available: true,
-    time_off: '5PM',
-},
-  { 
-    id: 8, 
-    name: 'Nhân viên D',
-    birthday: 1970,
-    location: 'TP. HCM',
-    email: '@gmail.com',
-    phoneNumber: '123',
-    sex: 'Nam',
-    cccd: 'số cccd',
-    department: 'Tai, mũi, họng',
-    qualifications: 'Phẫu thuật',
-    available: true,
-    time_off: '5PM',
-  },
-  { 
-    id: 9, 
-    name: 'Nhân viên A',
-    birthday: 1970,
-    location: 'TP. HCM',
-    email: '@gmail.com',
-    phoneNumber: '123',
-    sex: 'Nam',
-    cccd: 'số cccd',
-    department: 'Tai, mũi, họng',
-    qualifications: 'Nội trú',
-    available: true,
-    time_off: '5PM',
-  },
-  { 
-    id: 10,
-    name: 'Nhân viên B',
-    birthday: 1970,
-    location: 'TP. HCM',
-    email: '@gmail.com',
-    phoneNumber: '123',
-    sex: 'Nam',
-    cccd: 'số cccd',
-    department: 'Tai, mũi, họng',
-    qualifications: 'Nhi',
-    available: true,
-    time_off: '5PM',
-  },
-  { 
-    id: 11,
-    name: 'Nhân viên C',
-    birthday: 1970,
-    location: 'TP. HCM',
-    email: '@gmail.com',
-    phoneNumber: '123',
-    sex: 'Nam',
-    cccd: 'số cccd',
-    department: 'Tai, mũi, họng',
-    qualifications: 'Da liễu',
-    available: true,
-    time_off: '5PM',
-  },
-  { 
-    id: 12,
-    name: 'Nhân viên 2',
-    birthday: 1970,
-    location: 'TP. HCM',
-    email: '@gmail.com',
-    phoneNumber: '123',
-    sex: 'Nam',
-    cccd: 'số cccd',
-    department: 'Tai, mũi, họng',
-    qualifications: 'Phẫu thuật',
-    available: true,
-    time_off: '5PM',
-  },
-];
-
+import { Link, useNavigate } from 'react-router-dom';
+import SimplePagination from '../product-compo/Button_Page';
 
 const DoctorGrid = () => {
-  const [searchVal, setSearchVal] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [doctors, setDoctors] = useState(initialDoctors);
+  const [searchVal, setSearchVal] = useState('');
+  const [doctors, setDoctors] = useState([]);
   const [visible, setVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [editMode, setEditMode] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 9;
+  const navigate = useNavigate();
 
+  // Hàm này bất đồng bộ, khi nào gọi api xong thì mới return
+  const getEmployeeInfo = async (employee) => {
+    try {
+      const response = await axios.get(
+          `http://localhost:3000/employee/Information/${employee.User_Code}`
+      );
+      return {
+        id: employee.User_Code,
+        name: employee['First Name'],
+        email: employee.Email,
+        department: employee.Team,
+        branch: employee.branch,
+        Team: employee.Team,
+        salary: employee.Salary,
+      };
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin nhân viên:', error);
+      return null;
+    }
+  };
 
-  const navigate = useNavigate(); // Khởi tạo useNavigate
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/employee/All', {
+          params: {
+            page: currentPage,
+            limit: itemsPerPage,
+          },
+        });
+        console.log('response', response.data.employees);
+        // Chỉ lấy thông tin nhân viên và bỏ qua thông tin phân trang
+        if (response.data && Array.isArray(response.data.employees)) {
+          const employeesData = response.data.employees;
+          const totalEmployees = response.data.totalEmployees;
+          const totalPages = Math.ceil(totalEmployees / itemsPerPage);
+          setTotalPages(totalPages);
 
-    // const [query, setQuery] = useState('');
-    // const [filteredItems, setFilteredItems] = useState([]);
+          // Lặp qua danh sách nhân viên và lấy thông tin chi tiết
+          const doctorsPromises = employeesData.map((employee) =>
+              getEmployeeInfo(employee)
+          );
+          const doctorsData = await Promise.all(doctorsPromises);
 
- 
-    // useEffect(() => {
-    //     const filtered = initialDoctors.filter(item =>
-    //         item.name.toLowerCase().includes(query.toLowerCase())
-    //     );
-    //     setFilteredItems(filtered);
-    // }, [query]);
+          // Lọc bỏ các kết quả null (nếu có lỗi khi gọi API)
+          const validDoctorsData = doctorsData.filter(
+              (doctor) => doctor !== null
+          );
 
+          // Cập nhật state với danh sách nhân viên đã xử lý
+          setDoctors(validDoctorsData);
+        } else {
+          console.error('Dữ liệu trả về không đúng định dạng:', response.data);
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy danh sách nhân viên:', error);
+      }
+    };
 
-    // BACKEND FIND Infor in DB - doctor's name (searchVal)
-  const handleChange = event => {
+    fetchData();
+  }, [currentPage]);
+
+  const handleChange = (event) => {
     setSearchVal(event.target.value);
   };
 
   useEffect(() => {
-    const results = initialDoctors.filter(doctor =>
-      doctor.name.toLowerCase().includes(searchVal.toLowerCase()));
-      setSearchResults(results);
-      setDoctors(results); // tự thêm
-  }, [searchVal]);
+    const fetchSearchResults = async () => {
+      if (searchVal) {
+        try {
+          const response = await axios.get(
+              `http://localhost:3000/employee/Find?keywords=${searchVal}`
+          );
+          if (response.data && response.data.user) {
+            const employee = response.data.user;
+            const doctorData = await getEmployeeInfo(employee);
+            if (doctorData) {
+              setDoctors([doctorData]);
+            } else {
+              setDoctors([]);
+            }
+          } else {
+            console.error('Không tìm thấy nhân viên với từ khóa:', searchVal);
+            setDoctors([]);
+          }
+        } catch (error) {
+          console.error('Lỗi khi tìm kiếm nhân viên:', error);
+          setDoctors([]);
+        }
+      } else {
+        // Nếu không có searchVal, gọi lại API để lấy tất cả nhân viên
+        try {
+          const response = await axios.get('http://localhost:3000/employee/All', {
+            params: {
+              page: currentPage,
+              limit: itemsPerPage,
+            },
+          });
 
-
-  const handleAddDoctor = (values) => {
-    // BACKEND ADD Infor to DB - new Doctor
-
-    // Generate a new ID for the new medicine
-    const newDoctor = {     
-      // id: values.id,          ///////// comment lại chỗ này giúp t
-      name: values.name,
-      birthday: values.birthday,
-      location: values.location,
-      email: values.email,
-      phoneNumber: values.phoneNumber,
-      sex: values.sex,
-      cccd: values.cccd,
-      department: values.department,
-      qualifications: values.qualifications, 
-      available: values.available,
-      time_off: values.time_off,
+          if (response.data && Array.isArray(response.data.employees)) {
+            const employeesData = response.data.employees;
+            const doctorsPromises = employeesData.map((employee) =>
+                getEmployeeInfo(employee)
+            );
+            const doctorsData = await Promise.all(doctorsPromises);
+            const validDoctorsData = doctorsData.filter(
+                (doctor) => doctor !== null
+            );
+            setDoctors(validDoctorsData);
+          } else {
+            console.error('Dữ liệu trả về không đúng định dạng:', response.data);
+          }
+        } catch (error) {
+          console.error('Lỗi khi lấy danh sách nhân viên:', error);
+        }
+      }
     };
-    // Add the new medicine to the list of medicines
-    setDoctors([...doctors, newDoctor]);
-    // Close the modal
-    setVisible(false);
-  };
 
-  // function handleSearchClick() {
-  //   if (searchVal === "") {
-  //     setDoctors(initialDoctors);
-  //     return;
-  //   }
-  //   const filterBySearch = initialDoctors.filter((doctor) => {
-  //     if (doctor.name.toLowerCase().includes(searchVal.toLowerCase())) {
-  //       return doctor;
-  //     }
-  //   });
-  //   setDoctors(filterBySearch);
-  // }
+    fetchSearchResults();
+  }, [searchVal, currentPage]);
+
+  const handleAddDoctor = async (values) => {
+    try {
+      // Gọi API để thêm nhân viên
+      const response = await axios.post('http://localhost:3000/employee/Add', values);
+      if (response.status === 201) {
+        // Thêm nhân viên thành công
+        console.log('Thêm nhân viên thành công:', response.data);
+
+        // Cập nhật lại danh sách nhân viên
+        const updatedResponse = await axios.get('http://localhost:3000/employee/All', {
+          params: {
+            page: currentPage,
+            limit: itemsPerPage,
+          },
+        });
+
+        if (updatedResponse.data && Array.isArray(updatedResponse.data.employees)) {
+          const employeesData = updatedResponse.data.employees;
+          const doctorsPromises = employeesData.map((employee) =>
+              getEmployeeInfo(employee)
+          );
+          const doctorsData = await Promise.all(doctorsPromises);
+          const validDoctorsData = doctorsData.filter(
+              (doctor) => doctor !== null
+          );
+          setDoctors(validDoctorsData);
+        } else {
+          console.error('Dữ liệu trả về không đúng định dạng:', updatedResponse.data);
+        }
+
+        setVisible(false); // Đóng modal
+      } else {
+        console.error('Lỗi khi thêm nhân viên:', response.data);
+        // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+      }
+    } catch (error) {
+      console.error('Lỗi khi thêm nhân viên:', error);
+      // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+    }
+  };
 
   const showModal = () => {
     setVisible(true);
@@ -266,22 +191,26 @@ const DoctorGrid = () => {
     setVisible(false);
   };
 
-  function handleClick() {
-    alert('You clicked me!');
-  }
-
-
-  // BACKEND DELETE Infor in DB - doctor's ID
-  const handleDelete = (id) => {
-    const confirmed = window.confirm(`Bạn có chắc chắn muốn xóa không?`);
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm(`Bạn có chắc chắn muốn xóa nhân viên này không?`);
     if (confirmed) {
-      // Xoá thuốc với id tương ứng khỏi danh sách hiện tại
-      const updatedDoctors = doctors.filter((doctor) => doctor.id !== id);
-      setDoctors(updatedDoctors);
+      try {
+        // Gọi API để xóa nhân viên
+        const response = await axios.delete(`http://localhost:3000/employee/Delete/${id}`);
+        if (response.status === 200) {
+          console.log('Xóa nhân viên thành công:', response.data);
 
-      // Xoá thuốc với id tương ứng khỏi danh sách ban đầu
-      // const updatedInitialDoctors = initialDoctors.filter((doctor) => doctor.id !== id);
-      // initialDoctors(updatedInitialDoctors);
+          // Cập nhật lại danh sách nhân viên
+          const updatedDoctors = doctors.filter((doctor) => doctor.id !== id);
+          setDoctors(updatedDoctors);
+        } else {
+          console.error('Lỗi khi xóa nhân viên:', response.data);
+          // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+        }
+      } catch (error) {
+        console.error('Lỗi khi xóa nhân viên:', error);
+        // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+      }
     }
   };
 
@@ -289,14 +218,6 @@ const DoctorGrid = () => {
     setSelectedDoctor(doctor);
     setEditMode(true);
   };
-  // const handleUpdateDoctor = (updatedDoctor) => {
-  //   const updatedDoctors = doctors.map((doctor) =>
-  //     doctor.id === updatedDoctor.id ? updatedDoctor : doctor
-  //   );
-  //   setDoctors(updatedDoctors);
-  //   setEditMode(false);
-  //   setSelectedDoctor(null);
-  // };
 
   const handleCancelEdit = () => {
     setEditMode(false);
@@ -305,127 +226,138 @@ const DoctorGrid = () => {
     handleCancel();
   };
 
-  // BACKEND UPDATE Infor to DB - doctor's ID (editedDoctor)
-  const handleSave = (editedDoctor) => {
-    // console.log("kayy00");
-    const updatedDoctors = doctors.map(doctor =>
-      doctor.id === editedDoctor.id ? editedDoctor : doctor
-    );
-    setDoctors(updatedDoctors);
-    setVisible(false);
-    setEditMode(false); // important update
-    handleOk();
-    handleCancel();
-  };
+  const handleSave = async (editedDoctor) => {
+    try {
+      const employeeId = editedDoctor.id;
+      const token = localStorage.getItem('token'); // Lấy token từ localStorage
+      const response = await axios.put(
+          `http://localhost:3000/employee/Update/${employeeId}`,
+          editedDoctor,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+      );
 
+      if (response.status === 200) {
+        console.log('Cập nhật thông tin nhân viên thành công:', response.data);
+
+        // Cập nhật lại danh sách nhân viên
+        const updatedDoctors = doctors.map((doctor) =>
+            doctor.id === editedDoctor.id ? { ...doctor, ...editedDoctor } : doctor
+        );
+        setDoctors(updatedDoctors);
+
+        // Đóng modal
+        setVisible(false);
+        setEditMode(false);
+      } else {
+        console.error('Lỗi khi cập nhật thông tin nhân viên:', response.data);
+        // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+      }
+    } catch (error) {
+      console.error('Lỗi khi cập nhật thông tin nhân viên:', error);
+      // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+    }
+  };
 
   const handleViewDetail = (id) => {
     navigate(`/info/${id}`);
-  }
+  };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = doctors.slice(indexOfFirstItem, indexOfLastItem);
-
-  const renderDoctorRows = currentItems.map((doctor )=> (
-      <div key={doctor.id}  onClick={() => handleViewDetail(doctor.id)} className="doctor-card">
+  const renderDoctorRows = doctors.map((doctor) => (
+      <div
+          key={doctor.id}
+          onClick={() => handleViewDetail(doctor.id)}
+          className="doctor-card"
+      >
         <h2>{doctor.name}</h2>
-        <p>Chuyên khoa: {doctor.qualifications}</p>
+        <p>Chi nhánh: {doctor.branch}</p>
+        <p>Team: {doctor.Team}</p>
+        <p>Email: {doctor.email}</p>
         <div>
-          {/* <button onClick={toggleForm}>Xem</button> */}
-          <button className='edit-btn'
-            onClick={() => handleEdit(doctor)}>Sửa</button>
-          {/* <button onClick={handleClick}>Sửa</button> */}
-          <button className='delete-btn'
-            onClick={() => handleDelete(doctor.id)}>Xoá</button>
+          <button
+              className="edit-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEdit(doctor);
+              }}
+          >
+            Sửa
+          </button>
+          <button
+              className="delete-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(doctor.id);
+              }}
+          >
+            Xoá
+          </button>
         </div>
       </div>
   ));
 
   const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(doctors.length / itemsPerPage); i++) {
+  for (let i = 1; i <= totalPages; i++) {
     pageNumbers.push(i);
   }
 
-
   return (
-    <div>
+      <div>
         <div className="doctor-header">
-            <h1 className='doctor-total'>Nhân viên hiện có</h1>
-            <div className="total-doctors">{doctors.length}</div>
-            <div className="search-bar">
-                <input
+          <h1 className="doctor-total">Nhân viên hiện có</h1>
+          <div className="total-doctors">{doctors.length}</div>
+          <div className="search-bar">
+            <input
                 className="search-input"
                 type="text"
                 placeholder="Tìm kiếm bác sĩ..."
-                // value={query}
-                // onChange={(e) => setQuery(e.target.value)}
                 value={searchVal}
                 onChange={handleChange}
-                // onChange={e => { setSearchVal(e.target.value); handleSearchClick(); }}
-                // value={searchTerm}
-                // onChange={handleSearch}
-                />
-            </div>
-            <Button className="add-button" type="primary" 
-              onClick={showModal}>
-              Thêm bác sĩ
-            </Button>
-            {/* <button 
-              onClick={handleClick}>Thêm bác sĩ</button> */}
-            <Modal
-              title="Thêm Bác sĩ mới"
+            />
+          </div>
+          <Button className="add-button" type="primary" onClick={showModal}>
+            Thêm nhân viên
+          </Button>
+          <Modal
+              title="Thêm nhân viên mới"
               visible={visible}
               onOk={handleOk}
               onCancel={handleCancel}
-              footer={null} // To hide the default footer buttons
-            >
-              <AddDoctorForm 
-                // onCancel={}
-                onAddDoctor={handleAddDoctor} />
-            </Modal>
+              footer={null}
+          >
+            <AddDoctorForm onAddDoctor={handleAddDoctor} />
+          </Modal>
 
-            {editMode && selectedDoctor && (
+          {editMode && selectedDoctor && (
               <Modal
-                title="Chỉnh sửa thông tin Bác sĩ"
-                visible={editMode}
-                onCancel={handleCancelEdit}
-                footer={null}
-                // onSave={handleSave}
+                  title="Chỉnh sửa thông tin nhân viên"
+                  visible={editMode}
+                  onCancel={handleCancelEdit}
+                  footer={null}
               >
                 <EditDoctorForm
-                  doctor={selectedDoctor}
-                  // onUpdateDoctor={handleUpdateDoctor}
-                  onSave={handleSave}
-                  onCancel={() => setVisible(false)} 
+                    doctor={selectedDoctor}
+                    onSave={handleSave}
+                    onCancel={() => setVisible(false)}
                 />
               </Modal>
-            )}
-
+          )}
         </div>
-        <div className="doctor-grid">
-          {/* <div> */}
-            {renderDoctorRows}
-          {/* </div> */}
-            {/* {doctors.map(doctor => (
-                <div key={doctor.id} className="doctor-card">
-                  <h2>{doctor.name}</h2>
-                  <p>Chuyên khoa: {doctor.qualifications}</p>
-                  <div>
-                    <button onClick={handleClick}>Sửa</button>
-                    <button onClick={() => handleDelete(doctor.id)}>Xoá</button>
-                  </div>
-                </div>
-            ))} */}
+        <div className="doctor-grid">{renderDoctorRows}</div>
+        <div
+            className="page-number"
+            style={{ textAlign: 'center', bottom: 0, marginTop: '8px' }}
+        >
+          <SimplePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+          />
         </div>
-        <div className="page-number" style={{textAlign: 'center', bottom: 0, marginTop: "8px"}}>
-          {pageNumbers.map(number => (
-            <button style={{padding: "4px 8px", marginLeft: "4px"}} key={number} onClick={() => setCurrentPage(number)}>
-              {number}
-            </button>
-          ))}
-        </div>
-    </div>
+      </div>
   );
 };
 

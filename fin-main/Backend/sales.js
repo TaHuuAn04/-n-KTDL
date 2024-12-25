@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const SaleModel = require('./Model/Sale');  
 const checkCache = require('./caching/cacheMiddleware');
 const redisClient = require('./caching/redis');
-
+const dayjs = require('dayjs'); // Thêm dòng này để import dayjs
 // Trả về toàn bộ lịch sử Sales
 router.get('/all', checkCache('sale'), async (req, res) => {
     try {
@@ -147,7 +147,8 @@ router.post('/add', async (req, res) => {
 // Filter dựa trên id khách, khoảng thời gian, khoản tiền của đơn, sortBy, bổ sung trạng thái, có phân trang 
 router.get('/filter', async (req, res) => {
     try {
-        let { page, limit, custID, priceMax, status, priceMin, fromDate, toDate, sortBy,orderId } = req.query;
+        let { page, limit, custID, priceMax, status, priceMin, fromDate, toDate, sortBy, orderId } = req.query;
+        console.log("req", req.query);
         page = parseInt(page) || 1;
         limit = parseInt(limit) || 10;
         const skip = (page - 1) * limit;
@@ -156,11 +157,10 @@ router.get('/filter', async (req, res) => {
         if (custID) {
             filter['Cust ID'] = custID;
         }
-        console.log('CustID', filter['Cust ID']);
         if (fromDate || toDate) {
-            filter.createdAt = {};
-            if (fromDate) filter.createdAt.$gte = new Date(fromDate);  // Chuyển fromDate thành đối tượng Date
-            if (toDate) filter.createdAt.$lte = new Date(toDate);  // Chuyển toDate thành đối tượng Date
+            filter.Date = {}; // Sửa createdAt thành Date
+            if (fromDate) filter.Date.$gte = new Date(fromDate);
+            if (toDate) filter.Date.$lte = new Date(toDate);
         }
         
         if (priceMin || priceMax) {
@@ -210,9 +210,16 @@ router.get('/filter', async (req, res) => {
             .skip(skip)
             .limit(limit)
             .sort(sort);
-  
+
+        // Lấy tổng số đơn hàng (không phân trang) để tính totalPages
+        const totalOrders = await SaleModel.countDocuments(filter); // Thêm dòng này
+
         if (sales.length === 0) {
-            return res.status(200).json({ message: 'Chưa có lịch sử bán hàng thỏa mãn điều kiện' });
+            return res.status(200).json({
+                message: 'Chưa có lịch sử bán hàng thỏa mãn điều kiện',
+                totalOrders: 0, // Sửa lại response
+                sale: [],
+            });
         }
   
         // Lưu kết quả vào Redis
@@ -222,19 +229,57 @@ router.get('/filter', async (req, res) => {
             page: page,
             limit: limit
         }));  // Lưu cache trong 1 giờ (3600 giây)
-  
+        // Format lại dữ liệu sales trước khi trả về
+        const formattedSales = sales.map((sale, index) => ({
+            stt: (page - 1) * limit + index + 1, // Tính stt dựa trên page và limit
+            'Order ID': sale['Order ID'], // Giữ nguyên Order ID
+            Date: dayjs(sale.Date).format('DD/MM/YYYY'), // Format Date
+            SKU: sale.SKU,
+            Qty: sale.Qty,
+            'ship-postal-code': sale['ship-postal-code'],
+            Amount: sale.Amount,
+            Status: sale.Status,
+            // Thêm các trường khác nếu cần
+        }));
+
         res.json({
             message: 'Lấy danh sách lịch sử bán hàng thành công',
-            sale: sales,
+            totalOrders: totalOrders, // Trả về tổng số đơn hàng
+            sale: formattedSales, // Trả về mảng formattedSales
             page: page,
-            limit: limit
+            limit: limit,
         });
   
     } catch (err) {
         res.status(500).json({ message: 'Đã xảy ra lỗi!', error: err.message });
     }
 });
+// API đếm số lượng đơn hàng theo trạng thái
+router.get('/count', async (req, res) => {
+    try {
+        const { status, orderId } = req.query;
+        let filter = {};
 
+
+        // Lọc theo trạng thái (status) nếu được cung cấp
+        if (status) {
+            filter.Status = status;
+        }
+
+        // Lọc theo orderId (nếu cần)
+        if (orderId) {
+            filter["Order ID"] = { $regex: orderId, $options: 'i' };
+        }
+
+        // Đếm số lượng đơn hàng thỏa mãn điều kiện filter
+        const totalOrders = await SaleModel.countDocuments(filter);
+
+        res.status(200).json({ totalOrders });
+    } catch (error) {
+        console.error('Error counting orders:', error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+});
 // Đổi trạng thái của đơn
 router.patch('/changeStatus/:orderID', async (req, res) => {
   const { orderID } = req.params;

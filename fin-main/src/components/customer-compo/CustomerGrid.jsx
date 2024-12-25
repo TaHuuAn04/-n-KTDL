@@ -42,110 +42,45 @@ const CustomerGrid = () => {
     //     setFilteredItems(filtered);
     // }, [query]);
 
-    const paginate = (pageNumber) => {
-        setCurrentPage(pageNumber);
-    }
-
     useEffect(() => {
-
-
-
         const fetchData = async () => {
-
             try {
-
                 setLoading(true);
-
                 let response, countResponse;
 
-
-
-                if (searchVal) { // Kiểm tra nếu có searchVal
-
+                if (searchVal) {
+                    // Search logic
                     const encodedSkuCode = encodeURIComponent(searchVal);
-
-                    const response = await axios.get('http://localhost:3000/customers/search', {
+                    response = await axios.get('http://localhost:3000/customers/search', {
                         params: {
-                            custID: encodedSkuCode
-                        }
-                    })
-                        .then(response => {
-                            setCustomers([response.data.customers]);
-                            console.log(response.data);
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-
-                    // setProducts([response.data.product]);
-
-                    console.log('Response data (search):', response.data);
-
-
-
+                            custID: encodedSkuCode,
+                        },
+                    });
+                    setCustomers([response.data.customer]);
+                    setTotalPages(1); // Reset total pages for search
                 } else {
-
-                    // Không có filter, gọi API lấy tất cả sản phẩm
-
-
-
-                    const response = await axios.get('http://localhost:3000/customers/all', {
+                    // Fetch all or filtered customers
+                    response = await axios.get('http://localhost:3000/customers/all', {
                         params: {
-                            page: 1,
-                            limit: 5
-                        }
-                    })
-                        .then(response => {
-                            setCustomers(response.data.customers);
-                            console.log("product", customers);
-                            console.log(response.data);
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
+                            page: currentPage,
+                            limit: itemsPerPage,
+                        },
+                    });
+                    setCustomers(response.data.customers);
+
                     countResponse = await axios.get('http://localhost:3000/customers/customerCount');
-
-                    const totalCount = countResponse ? countResponse.data.count : response.data.count;
-
-                    const total = Math.ceil(totalCount / itemsPerPage);
-
-                    setTotalPages(total);
-                    console.log('currentPage:', currentPage);
-
-
-
-
-
-                    // console.log('Response data (all):', response.data);
-
-
-
-
-
+                    const totalCount = countResponse ? countResponse.data.count : 0;
+                    setTotalPages(Math.ceil(totalCount / itemsPerPage));
                 }
-
-
-
             } catch (error) {
-
                 console.error('Error:', error);
-
                 setError(error);
-
             } finally {
-
                 setLoading(false);
-
             }
-
         };
 
-        console.log('Current page:', currentPage);
-
-
-
         fetchData();
-
     }, [currentPage, searchVal]);
 
     const handleChange = (event) => {
@@ -436,11 +371,11 @@ const CustomerGrid = () => {
 
 
 
-            {/*<SimplePagination*/}
-            {/*    currentPage={currentPage}*/}
-            {/*    totalPages={totalPages}*/}
-            {/*    onPageChange={setCurrentPage}*/}
-            {/*/>*/}
+            <SimplePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+            />
 
         </div>
 
