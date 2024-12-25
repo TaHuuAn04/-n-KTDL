@@ -244,8 +244,7 @@ router.post('/Add', checkSeniorManagement, async (req, res) => {
                 Team: savedEmployee["Team"],
                 branch: savedEmployee["branch"],
                 Email: savedEmployee["Email"],
-                User_Code: savedEmployee["User_Code"],
-
+                User_Code: savedEmployee["User_Code"]
             }
         });
 
