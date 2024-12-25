@@ -11,6 +11,7 @@ const router = express.Router();
 const EmployeeModel = require('./Model/Employee');
 const redisClient = require('./caching/redis');
 const checkSeniorManagement = require('./Middleware/checkManager'); 
+const SHA1 = require('./SHA/SHA1');
 
 
 // Trả về tất cả nhân viên
@@ -201,14 +202,16 @@ router.get('/SortAndFilter', async (req, res) => {
   "Team": "HR",
   "branch": 1,
   "Email": "john.doe@example.com",
-  "User_Code": "00001"
+  "User_Code": "admin",
+  "Password" : "admin"
 }
 
 */
 router.post('/Add', checkSeniorManagement, async (req, res) => {
     try {
         // Lấy dữ liệu nhân viên từ body request
-        const { First_Name, Gender, Start_Date, Salary, Bonus, Senior_Management, Team, branch, Email, User_Code } = req.body;
+        const { First_Name, Gender, Start_Date, Salary, Bonus, Senior_Management, Team, branch, Email, User_Code, Password } = req.body;
+
         if (!First_Name || !Gender || !Start_Date || !Salary || !Email) {
             return res.status(400).json({ message: 'Thông tin nhân viên không đủ!' });
         }
@@ -222,7 +225,8 @@ router.post('/Add', checkSeniorManagement, async (req, res) => {
             "Team": Team || '', // để trống
             "branch": branch || '', // để trống
             "Email": Email,
-            "User_Code": User_Code || '' // để trống
+            "User_Code": User_Code || '' , // để trống,
+            "password" : SHA1(Password) || ''
         });
 
         const savedEmployee = await newEmployee.save();
@@ -240,7 +244,8 @@ router.post('/Add', checkSeniorManagement, async (req, res) => {
                 Team: savedEmployee["Team"],
                 branch: savedEmployee["branch"],
                 Email: savedEmployee["Email"],
-                User_Code: savedEmployee["User_Code"]
+                User_Code: savedEmployee["User_Code"],
+
             }
         });
 
