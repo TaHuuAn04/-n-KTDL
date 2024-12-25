@@ -40,6 +40,7 @@ router.post('/customer/login', async (req, res) => {
             custID: customer["Cust ID"],
             email: customer.Email,
             name: customer.Name,
+            role: 'customer'
         };
 
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
@@ -80,6 +81,7 @@ router.post('/employee/login', async (req, res) => {
             const payload = {
                 id: admin._id,
                 username: admin.User_Code,
+                role: admin.User_Code,
                 // Thêm các thông tin cần thiết khác vào payload
             };
 

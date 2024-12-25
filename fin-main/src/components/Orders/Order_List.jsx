@@ -1,50 +1,142 @@
-import React, { useState } from "react";
-import Layout from "../../Layout"; // Giả sử SideBar đã được xây dựng và import
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function OrderList() {
-    // Dữ liệu mẫu - thay thế bằng API fetch từ server trong thực tế
-    const orders = [
-        {
-            orderId: "DH001",
-            customerName: "Nguyễn Văn A",
-            orderDate: "01/12/2024",
-            status: "Đang xử lý",
-            sku: "SKU001",
-            quantity: 1,
-            shippingCode: "SHIP001",
-            total: "1,000,000",
-        },
-        {
-            orderId: "DH002",
-            customerName: "Trần Thị B",
-            orderDate: "02/12/2024",
-            status: "Hoàn thành",
-            sku: "SKU002",
-            quantity: 2,
-            shippingCode: "SHIP002",
-            total: "2,000,000",
-        },
-        {
-            orderId: "DH003",
-            customerName: "Lê Văn C",
-            orderDate: "03/12/2024",
-            status: "Đã hủy",
-            sku: "SKU003",
-            quantity: 3,
-            shippingCode: "SHIP003",
-            total: "3,000,000",
-        },
-    ];
-
+    const navigate = useNavigate();
+    const [orders, setOrders] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filterStatus, setFilterStatus] = useState("");
+    const [filterStatus, setFilterStatus] = useState(""); // "", "Pending", "Processing", "Delivering", "Delivered", "Cancelled"
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    // Lọc đơn hàng dựa trên tìm kiếm và trạng thái
+    useEffect(() => {
+        fetchOrders();
+    }, [filterStatus]);
+
+    const fetchOrders = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("No token found!");
+                return;
+            }
+
+            let url = "http://localhost:3000/sales/filter";
+            const params = {};
+
+            if (filterStatus) {
+                params.status = filterStatus;
+            }
+
+            if (searchTerm) {
+                params.orderId = searchTerm;
+            }
+
+            params.sortBy = "date_desc";
+            console.log('params:', params);
+            const response = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                params: params,
+            });
+
+            if (Array.isArray(response.data.sale)) {
+                setOrders(response.data.sale);
+            } else {
+                console.error("Expected an array but received:", response.data.sale);
+                setOrders([]);
+            }
+        } catch (err) {
+            setError(err.message || "An error occurred while fetching orders.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Lọc đơn hàng dựa trên tìm kiếm (nếu cần)
     const filteredOrders = orders.filter((order) => {
-        const matchesSearch = order.orderId.includes(searchTerm);
-        const matchesStatus = filterStatus ? order.status === filterStatus : true;
-        return matchesSearch && matchesStatus;
+        const matchesSearch = order["Order ID"].toLowerCase().includes(searchTerm.toLowerCase());
+        // const matchesStatus = filterStatus ? order.status === filterStatus : true;
+        return matchesSearch;
     });
+
+    const handleOrderStatusChange = (newStatus) => {
+        setFilterStatus(newStatus);
+    };
+
+    const handleViewDetails = (orderId) => {
+        navigate(`/order-details/${orderId}`);
+    };
+
+    const handleApprove = async (order) => {
+        try {
+            const token = localStorage.getItem('token');
+            const orderID = order['Order ID'];
+
+            if (!token) {
+                console.error("No token found!");
+                return;
+            }
+
+            const response = await axios.patch(
+                `http://localhost:3000/sales/changeStatus/${orderID}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log('Update status response:', response.data);
+
+            // Cập nhật trạng thái đơn hàng trong danh sách orders
+            const updatedOrders = orders.map((o) =>
+                o['Order ID'] === orderID ? { ...o, Status: response.data.order.Status } : o
+            );
+            setOrders(updatedOrders);
+
+        } catch (error) {
+            console.error('Error updating order status:', error);
+        }
+    }
+
+    const handleCancel = async (order) => {
+        try {
+            const token = localStorage.getItem('token');
+            const orderID = order['Order ID'];
+
+            if (!token) {
+                console.error("No token found!");
+                return;
+            }
+
+            const response = await axios.patch(
+                `http://localhost:3000/sales/cancelSale/${orderID}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log('Cancel order response:', response.data);
+
+            // Cập nhật trạng thái đơn hàng trong danh sách orders
+            const updatedOrders = orders.map((o) =>
+                o['Order ID'] === orderID ? { ...o, Status: 'Cancelled' } : o
+            );
+            setOrders(updatedOrders);
+
+        } catch (error) {
+            console.error('Error cancelling order:', error);
+        }
+    };
 
     return (
         <div className="order-list-container" style={{ display: "flex", height: "80vh", flexDirection: "column" }}>
@@ -52,7 +144,6 @@ function OrderList() {
                 className="order-actions"
                 style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}
             >
-                {/* Thanh tìm kiếm */}
                 <input
                     type="text"
                     placeholder="Tìm mã đơn hàng..."
@@ -67,42 +158,40 @@ function OrderList() {
                     }}
                 />
 
-                {/* Các nút lọc trạng thái */}
+                <button onClick={() => handleOrderStatusChange("")} style={buttonStyle(filterStatus === "")}>
+                    Tất cả
+                </button>
                 <button
-                    onClick={() => setFilterStatus("Đang xử lý")}
-                    style={buttonStyle(filterStatus === "Đang xử lý")}
+                    onClick={() => handleOrderStatusChange("Pending")}
+                    style={buttonStyle(filterStatus === "Pending")}
                 >
                     Đơn hàng chờ duyệt
                 </button>
                 <button
-                    onClick={() => setFilterStatus("Hoàn thành")}
-                    style={buttonStyle(filterStatus === "Hoàn thành")}
+                    onClick={() => handleOrderStatusChange("Processing")}
+                    style={buttonStyle(filterStatus === "Processing")}
                 >
                     Đơn hàng chờ lấy
                 </button>
                 <button
-                    onClick={() => setFilterStatus("")}
-                    style={buttonStyle(filterStatus === "")}
+                    onClick={() => handleOrderStatusChange("Delivering")}
+                    style={buttonStyle(filterStatus === "Delivering")}
                 >
-                    Lịch sử đơn hàng
+                    Đơn hàng đang giao
+                </button>
+                <button
+                    onClick={() => handleOrderStatusChange("Delivered")}
+                    style={buttonStyle(filterStatus === "Delivered")}
+                >
+                    Đơn hàng đã giao
+                </button>
+                <button onClick={() => handleOrderStatusChange("Cancelled")} style={buttonStyle(filterStatus === "Cancelled")}>
+                    Lịch sử trả hàng
                 </button>
             </div>
 
-            {/* Danh sách đơn hàng */}
-            <div
-                className="order-list-content"
-                // style={{
-                //     flex: 1,
-                //     padding: "20px",
-                //     backgroundColor: "#fef8f5",
-                //     borderRadius: "8px",
-                //     margin: "20px 0",
-                //     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                // }}
-            >
-                <h1 style={{ textAlign: "center", color: "#444", marginBottom: "20px" }}>
-                    Quản lý đơn hàng
-                </h1>
+            <div className="order-list-content">
+                <h1 style={{ textAlign: "center", color: "#444", marginBottom: "20px" }}>Quản lý đơn hàng</h1>
 
                 <div
                     className="order-table"
@@ -113,13 +202,7 @@ function OrderList() {
                         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                     }}
                 >
-                    <table
-                        style={{
-                            width: "100%",
-                            borderCollapse: "collapse",
-                            textAlign: "left",
-                        }}
-                    >
+                    <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                         <thead>
                         <tr>
                             <th style={headerStyle}>Mã đơn hàng</th>
@@ -134,48 +217,86 @@ function OrderList() {
                         </tr>
                         </thead>
                         <tbody>
-                        {filteredOrders.map((order, index) => (
-                            <tr key={index}>
-                                <td style={cellStyle}>{order.orderId}</td>
-                                <td style={cellStyle}>{order.sku}</td>
-                                <td style={cellStyle}>{order.quantity}</td>
-                                <td style={cellStyle}>{order.orderDate}</td>
-                                <td style={cellStyle}>{order.status}</td>
-                                <td style={cellStyle}>{order.shippingCode}</td>
-                                <td style={cellStyle}>{order.total}</td>
-                                <td style={cellStyle}>
-                                    <button
-                                        onClick={() => console.log("Viewing details for", order.orderId)}
-                                        style={{
-                                            padding: "5px 10px",
-                                            backgroundColor: "#a855f7",
-                                            color: "#fff",
-                                            border: "none",
-                                            borderRadius: "4px",
-                                            cursor: "pointer",
-                                        }}
-                                    >
-                                        Xem chi tiết
-                                    </button>
-                                </td>
-                                <td style={cellStyle}>
-                                    <button
-                                        className="edit-btn"
-                                        onClick={() => handleNavigateOrder(customer.id)}
-                                        style={{
-                                            fontSize: "16px",
-                                            color: "#a855f7",
-                                            background: "none",
-                                            border: "none",
-                                            textDecoration: "underline",
-                                            cursor: "pointer",
-                                        }}
-                                    >
-                                        Duyệt
-                                    </button>
+                        {isLoading ? (
+                            <tr>
+                                <td colSpan="9" style={{ textAlign: "center", padding: "20px" }}>
+                                    Đang tải...
                                 </td>
                             </tr>
-                        ))}
+                        ) : error ? (
+                            <tr>
+                                <td colSpan="9" style={{ textAlign: "center", padding: "20px", color: "red" }}>
+                                    {error}
+                                </td>
+                            </tr>
+                        ) : filteredOrders.length > 0 ? (
+                            filteredOrders.map((order) => (
+                                <tr key={order["Order ID"]}>
+                                    <td style={cellStyle}>{order["Order ID"]}</td>
+                                    <td style={cellStyle}>{order.SKU}</td>
+                                    <td style={cellStyle}>{order.Qty}</td>
+                                    <td style={cellStyle}>{new Date(order.Date).toLocaleDateString("vi-VN")}</td>
+                                    <td style={cellStyle}>{order.Status}</td>
+                                    <td style={cellStyle}>{order["Ship Postal Code"]}</td>
+                                    <td style={cellStyle}>{order.Amount}</td>
+                                    <td style={cellStyle}>
+                                        <button
+                                            onClick={() => handleViewDetails(order["Order ID"])}
+                                            style={{
+                                                padding: "5px 10px",
+                                                backgroundColor: "#a855f7",
+                                                color: "#fff",
+                                                border: "none",
+                                                borderRadius: "4px",
+                                                cursor: "pointer",
+                                            }}
+                                        >
+                                            Xem chi tiết
+                                        </button>
+                                    </td>
+                                    <td style={cellStyle}>
+                                        {order.Status !== "Delivered" && (
+                                            <>
+                                                <button
+                                                    className="edit-btn"
+                                                    onClick={() => handleApprove(order)}
+                                                    style={{
+                                                        fontSize: "16px",
+                                                        color: "#a855f7",
+                                                        background: "none",
+                                                        border: "none",
+                                                        textDecoration: "underline",
+                                                        cursor: "pointer",
+                                                    }}
+                                                >
+                                                    Duyệt
+                                                </button>
+                                                <button
+                                                    className="edit-btn"
+                                                    onClick={() => handleCancel(order)}
+                                                    style={{
+                                                        fontSize: "16px",
+                                                        color: "#a855f7",
+                                                        background: "none",
+                                                        border: "none",
+                                                        textDecoration: "underline",
+                                                        cursor: "pointer",
+                                                    }}
+                                                >
+                                                    Hủy
+                                                </button>
+                                            </>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="9" style={{ textAlign: "center", padding: "20px" }}>
+                                    Không có đơn hàng nào.
+                                </td>
+                            </tr>
+                        )}
                         </tbody>
                     </table>
                 </div>

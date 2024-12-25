@@ -147,7 +147,7 @@ router.post('/add', async (req, res) => {
 // Filter dựa trên id khách, khoảng thời gian, khoản tiền của đơn, sortBy, bổ sung trạng thái, có phân trang 
 router.get('/filter', async (req, res) => {
     try {
-        let { page, limit, custID, priceMax, status, priceMin, fromDate, toDate, sortBy } = req.query;
+        let { page, limit, custID, priceMax, status, priceMin, fromDate, toDate, sortBy,orderId } = req.query;
         page = parseInt(page) || 1;
         limit = parseInt(limit) || 10;
         const skip = (page - 1) * limit;
@@ -173,7 +173,9 @@ router.get('/filter', async (req, res) => {
         if (status) {
           filter.Status = status;
         }
-  
+        if (orderId) {
+            filter["Order ID"] = { $regex: orderId, $options: 'i' }; // Tìm kiếm không phân biệt hoa thường
+        }
         // Xác định tham số sort theo ngày hoặc giá, mặc định là sắp xếp theo ngày thêm vào (tăng dần)
         let sort = {};
         if (sortBy) {
