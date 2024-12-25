@@ -275,11 +275,7 @@ router.patch('/changeStatus/:orderID', async (req, res) => {
 // API hủy đơn hàng
 router.patch('/cancelSale/:orderID', async (req, res) => {
     const { orderID } = req.params;
-
     // Kiểm tra quyền của user (ví dụ: chỉ admin hoặc nhân viên được hủy đơn)
-    if (req.user.role !== 'admin' && req.user.role !== 'employee') {
-        return res.status(403).json({ message: 'Forbidden' });
-    }
 
     try {
         // Tìm đơn hàng theo orderID (sử dụng trường Order ID của bạn)
