@@ -12,7 +12,7 @@ const EmployeeModel = require('./Model/Employee');
 const redisClient = require('./caching/redis');
 const checkSeniorManagement = require('./Middleware/checkManager'); 
 const SHA1 = require('./SHA/SHA1');
-
+const jwt = require('jsonwebtoken');
 
 // Trả về tất cả nhân viên
 //http://localhost:3000/employee/All?page=1&limit=9
@@ -130,60 +130,92 @@ router.get('/SortAndFilter', async (req, res) => {
     try {
         const { team, sortBySalary, page = 1, limit = 10 } = req.query;
 
-        
-        let filter = {};
-        if (team) {
-            filter.Team = team; 
-        }
-
-
-        let sort = {};
-        if (sortBySalary === 'asc') {
-            sort.Salary = 1; // Tăng dần
-        } else if (sortBySalary === 'desc') {
-            sort.Salary = -1; // Giảm dần
-        }
-
-        
-        const cacheKey = `employees:${JSON.stringify(filter)}:${JSON.stringify(sort)}:${page}:${limit}`;
-
-        redisClient.get(cacheKey, async (err, data) => {
-            if (err) throw err;
-
-            if (data) {
-                return res.status(200).json(JSON.parse(data));
-            } else {
-                const employees = await EmployeeModel.find(filter)
-                    .sort(sort)
-                    .skip((page - 1) * limit) // Tính toán skip cho phân trang
-                    .limit(parseInt(limit));
-
-                if (employees.length === 0) {
-                    return res.status(404).json({ message: 'Không tìm thấy nhân viên nào!' });
-                }
-
-                const result = {
-                    message: 'Danh sách nhân viên:',
-                    totalEmployees: employees.length,
-                    employees: employees.map(employee => ({
-                        First_Name: employee["First Name"] || '',
-                        Gender: employee["Gender"] || '',
-                        Start_Date: employee["Start Date"] || '',
-                        Salary: employee["Salary"] || 0,
-                        Bonus: employee["Bonus"] || 0,
-                        Senior_Management: employee["Senior Management"] || false,
-                        Team: employee["Team"] || '',
-                        branch: employee["branch"] || '',
-                        Email: employee["Email"] || '',
-                        User_Code: employee["User_Code"] || '',
-                    })),
-                };
-
-                redisClient.setex(cacheKey, 3600, JSON.stringify(result));
-
-                return res.status(200).json(result);
+        // Giải mã token để lấy thông tin người dùng (nếu có)
+        const authHeader = req.headers.authorization;
+        let user = null;
+        if (authHeader) {
+            const token = authHeader.split(' ')[1];
+            const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
+            try {
+                const decoded = jwt.verify(token, JWT_SECRET);
+                user = decoded;
+            } catch (err) {
+                console.error("Lỗi xác thực token:", err);
             }
-        });
+        }
+
+        let filter = {};
+        let sort = {};
+
+        // Phân quyền
+        if (user && user.role === 'admin') {
+            // Không thêm filter
+        } else if (user && user.manage) {
+            filter.branch = user.branch;
+            filter.Team = user.Team;
+        } else if (user) {
+            filter.User_Code = user.username;
+        } else {
+            return res.status(403).json({ message: 'Bạn không có quyền truy cập!' });
+        }
+
+        if (team) {
+            filter.Team = team;
+        }
+
+        // Sắp xếp
+        if (sortBySalary === 'asc') {
+            sort.Salary = 1;
+        } else if (sortBySalary === 'desc') {
+            sort.Salary = -1;
+        }
+
+        // Tạo cache key
+        const cacheKey = `SortAndFilter:${JSON.stringify(filter)}:${JSON.stringify(sort)}:page=${page}:limit=${limit}`;
+
+        // Kiểm tra cache
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            console.log("Cache hit");
+            return res.status(200).json(JSON.parse(cachedData));
+        }
+
+        console.log("Cache miss");
+
+        // Lấy tổng số nhân viên thỏa mãn filter (trước khi phân trang)
+        const totalEmployees = await EmployeeModel.countDocuments(filter);
+
+        const employees = await EmployeeModel.find(filter)
+            .sort(sort)
+            .skip((page - 1) * limit)
+            .limit(parseInt(limit));
+
+        if (employees.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy nhân viên nào!' });
+        }
+
+        const result = {
+            message: 'Danh sách nhân viên:',
+            totalEmployees: totalEmployees,
+            employees: employees.map(employee => ({
+                First_Name: employee["First Name"] || '',
+                Gender: employee["Gender"] || '',
+                Start_Date: employee["Start Date"] || '',
+                Salary: employee["Salary"] || 0,
+                Bonus: employee["Bonus"] || 0,
+                Senior_Management: employee["Senior Management"] || false,
+                Team: employee["Team"] || '',
+                branch: employee["branch"] || '',
+                Email: employee["Email"] || '',
+                User_Code: employee["User_Code"] || '',
+            })),
+        };
+
+        // Lưu vào cache
+        redisClient.setex(cacheKey, 3600, JSON.stringify(result)); // Lưu cache trong 1 giờ
+
+        return res.status(200).json(result);
+
     } catch (error) {
         console.error('Lỗi:', error);
         return res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });

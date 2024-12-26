@@ -10,6 +10,7 @@ const EditOrderForm = ({ order, onSave, onCancel }) => {
     useEffect(() => {
         form.setFieldsValue({
             'Order ID': order['Order ID'],
+            CustID: order.CustID,
             SKU: order.SKU,
             Qty: order.Qty,
             Date: dayjs(order.Date), // Format lại Date
@@ -45,7 +46,13 @@ const EditOrderForm = ({ order, onSave, onCancel }) => {
             >
                 <Input />
             </Form.Item>
-
+            <Form.Item
+                label="Mã khách hàng"
+                name="CustID"
+                rules={[{ required: true, message: 'Vui lòng nhập mã SKU!' }]}
+            >
+                <Input />
+            </Form.Item>
             <Form.Item
                 label="Số lượng"
                 name="Qty"

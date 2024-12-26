@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const ProductModel = require('./Model/Product');  
 const checkCache = require('./caching/cacheMiddleware');
 const redisClient = require('./caching/redis');
-
+const checkAdmin = require('./middleware/checkAdmin');
 //Trả về toàn bộ sản phẩm
 router.get('/all', checkCache('products'), async (req, res) => {
   try {
@@ -50,62 +50,99 @@ router.get('/all', checkCache('products'), async (req, res) => {
   }
 });
 //Tạo 1 sản phẩm mới
-router.post('/add', async (req, res) => {
+router.post('/add', checkAdmin, async (req, res) => {
     try {
-      console.log("Add new product!!");
-      const productData = req.body;
-      const newProduct = new ProductModel(productData);
-      console.log("newProduct", newProduct);
-      await newProduct.save();
-      res.status(201).json({
-        message: 'Thêm sản phẩm mới thành công',
-        product: newProduct
-      });
+        console.log("Add new product!!");
+        const productData = req.body;
+        const newProduct = new ProductModel(productData);
+        console.log("newProduct", newProduct);
+        await newProduct.save();
+
+        // Xóa cache liên quan đến sản phẩm
+        const keysToDelete = await redisClient.keys('products:*');
+        const filterKeyToDelete = await redisClient.keys('filter:*');
+        if (keysToDelete.length > 0) {
+            await redisClient.del(keysToDelete);
+        }
+        if (filterKeyToDelete.length > 0) {
+            await redisClient.del(filterKeyToDelete);
+        }
+
+        res.status(201).json({
+            message: 'Thêm sản phẩm mới thành công',
+            product: newProduct
+        });
     } catch (err) {
-      res.status(500).json({ message: 'Lỗi xảy ra khi thêm sản phẩm', error: err.message });
+        res.status(500).json({ message: 'Lỗi xảy ra khi thêm sản phẩm', error: err.message });
     }
 });
 
 //Xóa 1 sản phẩm
-router.delete('/delete/:id', async (req, res) => {
+router.delete('/delete/:id', checkAdmin, async (req, res) => {
     try {
-      console.log("Delete product", req.params.id);
-      const productId = req.params.id;
-      const deletedProduct = await ProductModel.findByIdAndDelete(productId);
-      if (!deletedProduct) {
-        return res.status(404).json({ message: 'Sản phẩm không tồn tại' }); 
-      }
-      res.status(200).json({
-        message: 'Xóa thành công!',
-        product: deletedProduct
-      });
+        console.log("Delete product", req.params.id);
+        const productId = req.params.id;
+        const deletedProduct = await ProductModel.findByIdAndDelete(productId);
+        if (!deletedProduct) {
+            return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
+        }
+
+        // Xóa cache liên quan đến sản phẩm
+        const keysToDelete = await redisClient.keys('products:*');
+        const productCacheKey = `product:${deletedProduct['SKU Code']}`; // Key của sản phẩm bị xóa
+        const filterKeyToDelete = await redisClient.keys('filter:*');
+        if (keysToDelete.length > 0) {
+            await redisClient.del(keysToDelete);
+        }
+        await redisClient.del(productCacheKey); // Xóa cache của sản phẩm bị xóa
+        if (filterKeyToDelete.length > 0) {
+            await redisClient.del(filterKeyToDelete);
+        }
+
+        res.status(200).json({
+            message: 'Xóa thành công!',
+            product: deletedProduct
+        });
     } catch (err) {
-      res.status(500).json({ message: 'Đã xảy ra lỗi trong quá trình xóa', error: err.message });
+        res.status(500).json({ message: 'Đã xảy ra lỗi trong quá trình xóa', error: err.message });
     }
 });
 
 // Chỉnh sửa 1 sản phẩm
-router.patch('/update/:id', async (req, res) => {
+router.patch('/update/:id', checkAdmin, async (req, res) => {
     try {
-      console.log("Update product:", req.body);
-      const productId = req.params.id;
-      const updatedData = req.body;
-      const updatedProduct = await ProductModel.findByIdAndUpdate(productId, updatedData, {
-        new: true, 
-        runValidators: true 
-      });
-  
-      if (!updatedProduct) {
-        return res.status(404).json({ message: 'Sản phẩm không tồn tại!' }); 
-      }
-      res.status(200).json({
-        message: 'Chỉnh sửa thành công!',
-        product: updatedProduct
-      });
+        console.log("Update product:", req.body);
+        const productId = req.params.id;
+        const updatedData = req.body;
+        const updatedProduct = await ProductModel.findByIdAndUpdate(productId, updatedData, {
+            new: true,
+            runValidators: true
+        });
+
+        if (!updatedProduct) {
+            return res.status(404).json({ message: 'Sản phẩm không tồn tại!' });
+        }
+
+        // Xóa cache liên quan đến sản phẩm
+        const keysToDelete = await redisClient.keys('products:*');
+        const productCacheKey = `product:${updatedProduct['SKU Code']}`; // Key của sản phẩm bị chỉnh sửa
+        const filterKeyToDelete = await redisClient.keys('filter:*');
+        if (keysToDelete.length > 0) {
+            await redisClient.del(keysToDelete);
+        }
+        await redisClient.del(productCacheKey); // Xóa cache của sản phẩm bị chỉnh sửa
+        if (filterKeyToDelete.length > 0) {
+            await redisClient.del(filterKeyToDelete);
+        }
+
+        res.status(200).json({
+            message: 'Chỉnh sửa thành công!',
+            product: updatedProduct
+        });
     } catch (err) {
-      res.status(500).json({ message: 'Đã xảy ra lỗi trong quá trình cập nhật!', error: err.message });
+        res.status(500).json({ message: 'Đã xảy ra lỗi trong quá trình cập nhật!', error: err.message });
     }
-  });
+});
 
 // Tìm kiếm 1 sản phẩm
 router.get('/id/:skuCode', async (req, res) => {

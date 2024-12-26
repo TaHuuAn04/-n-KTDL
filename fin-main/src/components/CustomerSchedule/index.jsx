@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import classNames from 'classnames/bind';
+import classNames from 'classNames/bind';
 import styles from './PatientSchedule.module.scss';
 const cx = classNames.bind(styles);
 // ... other imports

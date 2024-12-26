@@ -295,8 +295,12 @@ const ProductList = () => {
                 Color: values.Color,
 
             };
-
-            const response = await axios.post('http://localhost:3000/products/add', newProduct);
+            const token = localStorage.getItem('token');
+            const response = await axios.post('http://localhost:3000/products/add', newProduct,{
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
 
 
@@ -373,8 +377,13 @@ const ProductList = () => {
                 // Gửi request DELETE đến API
 
                 console.log('Xóa sản phẩm với id:', _id);
+                const token = localStorage.getItem('token');
 
-                const response = await axios.delete(`http://localhost:3000/products/delete/${_id}`);
+                const response = await axios.delete(`http://localhost:3000/products/delete/${_id}`,{
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
 
                 if (response.status === 200) {
 
@@ -437,8 +446,12 @@ const ProductList = () => {
         try {
 
             // Gọi API để cập nhật sản phẩm trên server
-
-            const response = await axios.patch(`http://localhost:3000/products/update/${editedProduct._id}`, editedProduct);
+            const token = localStorage.getItem('token');
+            const response = await axios.patch(`http://localhost:3000/products/update/${editedProduct._id}`, editedProduct,{
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
 
 

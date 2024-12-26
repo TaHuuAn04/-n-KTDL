@@ -86,6 +86,9 @@ router.post('/employee/login', async (req, res) => {
                 id: admin._id,
                 username: admin.User_Code,
                 role: admin.User_Code,
+                branch: admin.branch,
+                Team: admin.Team,
+                manage: admin["Senior Management"],
                 // Thêm các thông tin cần thiết khác vào payload
             };
 

@@ -1,10 +1,9 @@
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 
-const checkSeniorManagement = (req, res, next) => {
+const checkAdmin = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
-        console.log('Payload token:', authHeader);
         if (!authHeader) {
             return res.status(403).json({ message: 'Token không được cung cấp!' });
         }
@@ -23,9 +22,9 @@ const checkSeniorManagement = (req, res, next) => {
 
             req.user = decoded; // Lưu thông tin người dùng vào req.user
 
-            // Kiểm tra quyền quản lý cấp cao (manage: true)
-            if (!req.user || !req.user.manage) {
-                return res.status(403).json({ message: 'Bạn không có quyền truy cập (không phải quản lý cấp cao)!' });
+            // Kiểm tra role: admin
+            if (!req.user || req.user.role !== 'admin') {
+                return res.status(403).json({ message: 'Bạn không có quyền truy cập (không phải admin)!' });
             }
 
             next(); // Cho phép request tiếp tục
@@ -36,4 +35,4 @@ const checkSeniorManagement = (req, res, next) => {
     }
 };
 
-module.exports = checkSeniorManagement;
+module.exports = checkAdmin;
