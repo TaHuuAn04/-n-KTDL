@@ -414,26 +414,30 @@ router.get('/SalaryHistory/:user_code', async (req, res) => {
 
 router.post('/UpdateTeamSalary', checkSeniorManagement, async (req, res) => {
     try {
-        console.log('ST here');
-        //Lấy thông tin team từ token đã giải mã 
+        
+        
         const { Team, User_Code } = req.user;
-        console.log('ST here', Team);
-        // Lấy danh sách các nhân viên trong team
-        const teamMembers = await EmployeeModel.find({ "Team": Team }).lean().exec(); console.log(teamMembers);
-        console.log(teamMembers);
+        console.log('Cap nhat luong cho team: ', Team);
+        
+        const teamMembers = await EmployeeModel.find({ "Team": Team }).lean().exec();
+        
         if (teamMembers.length === 0) { return res.status(404).json({ message: 'Không tìm thấy nhân viên trong team!' }); }
-        // Lấy thời gian hiện tại 
+        
         const currentDate = new Date();
-        // Cập nhật lương cho các nhân viên trong team 
+        
         const salaryUpdates = teamMembers.map(async (member) => {
-            // Lấy lần cập nhật gần nhất của nhân viên này 
+             
             const lastSalaryUpdate = await SalaryModel.findOne({ "User_Code": member.User_Code }, { sort: { "Date_Update": -1 } });
-            // Tính toán 
-            const numberOfWDs = lastSalaryUpdate ? Math.floor((currentDate - new Date(lastSalaryUpdate.Date_Update)) / (1000 * 60 * 60 * 24)) : 30;
-            // Tạo bản ghi lương mới 
+           
+            let numberOfWDs = 30; // Giá trị mặc định 
+            if (lastSalaryUpdate && lastSalaryUpdate.Date_Update) { 
+                const lastUpdateDate = new Date(lastSalaryUpdate.Date_Update); 
+                if (!isNaN(lastUpdateDate)) 
+                    { numberOfWDs = Math.floor((currentDate - lastUpdateDate) / (1000 * 60 * 60 * 24)); } }
+             
             const newSalary = new SalaryModel({
                 ID: await SalaryModel.countDocuments() + 1,
-                // Tự động tăng dần ID 
+                
                 Team: member.Team, 
                 Number_of_WDs: numberOfWDs, 
                 User_Code: member.User_Code,
@@ -444,7 +448,7 @@ router.post('/UpdateTeamSalary', checkSeniorManagement, async (req, res) => {
              
             await newSalary.save();
         });
-        // Chờ tất cả các bản ghi lương được cập nhật 
+        
         await Promise.all(salaryUpdates); return res.status(200).json({ message: 'Cập nhật lương cho team thành công!' });
     }
     catch (error) {
