@@ -84,16 +84,16 @@ router.get('/Find', async (req, res) => {
     }
 
     try {
-        // const cacheKey = `employee:find:${keywords}`;
+        const cacheKey = `employee:find:${keywords}`;
 
-        // // Kiểm tra cache
-        // const cachedData = await redisClient.get(cacheKey);
-        // if (cachedData) {
-        //     console.log('Cache hit');
-        //     return res.status(200).json(JSON.parse(cachedData));
-        // }
+        // Kiểm tra cache
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            console.log('Cache hit');
+            return res.status(200).json(JSON.parse(cachedData));
+        }
 
-        // console.log('Cache miss: Retrieving data from MongoDB');
+        console.log('Cache miss: Retrieving data from MongoDB');
 
         // Tìm kiếm danh sách nhân viên thỏa điều kiện
         const employees = await EmployeeModel.find({
