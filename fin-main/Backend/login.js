@@ -56,7 +56,18 @@ router.post('/customer/login', async (req, res) => {
     }
 });
 
-// API đăng nhập cho nhân viên
+// API đăng nhập cho nhân 
+// http://localhost:3000/api/employee/login
+/* 
+{
+  "username": "SAL_0036",
+  "password" : "3N)TeT'd"
+}
+  {
+  "username": "CLI_0029",
+  "password" : "b.Cc4VF*"
+}
+*/
 router.post('/employee/login', async (req, res) => {
     const { username, password } = req.body;
     console.log("Employee login with username: ", username);
@@ -79,7 +90,8 @@ router.post('/employee/login', async (req, res) => {
             const payload = {
                 User_Code: admin["User_Code"],
                 IsManager: admin['Senior Management'],
-                Name: admin['First Name']
+                Name: admin['First Name'],
+                Team : admin ['Team']
 
             };
             console.log('Senior Management:', admin['Senior Management']);

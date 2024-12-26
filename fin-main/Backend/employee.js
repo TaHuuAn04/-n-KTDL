@@ -4,11 +4,14 @@
    4. Thêm, sửa, xóa thông tin nhân viên
    5. Trả về thông tin 1 nhân viên
    6. Cập nhật lương nhân viên
+   7. Trả về lịch sử cập nhật lương của nhân viên
+   8. Update lương nhân viên theo phòng ban
 */
 
 const express = require('express');
 const router = express.Router();
 const EmployeeModel = require('./Model/Employee');
+const SalaryModel =require ('./Model/Salary');
 const redisClient = require('./caching/redis');
 const checkSeniorManagement = require('./Middleware/checkManager'); 
 const SHA1 = require('./SHA/SHA1');
@@ -81,25 +84,30 @@ router.get('/Find', async (req, res) => {
     }
 
     try {
-        const cacheKey = `employee:find:${keywords}`;
+        // const cacheKey = `employee:find:${keywords}`;
 
-        const cachedData = await redisClient.get(cacheKey);
-        if (cachedData) {
-            console.log('Cache hit');
-            return res.status(200).json(JSON.parse(cachedData));
-        }
+        // // Kiểm tra cache
+        // const cachedData = await redisClient.get(cacheKey);
+        // if (cachedData) {
+        //     console.log('Cache hit');
+        //     return res.status(200).json(JSON.parse(cachedData));
+        // }
 
-        console.log('Cache miss: Retrieving data from MongoDB');
+        // console.log('Cache miss: Retrieving data from MongoDB');
 
-        let employee = await EmployeeModel.findOne({ "User_Code": keywords });
-        if (!employee) {
-            employee = await EmployeeModel.findOne({ "First Name": keywords });
-        }
+        // Tìm kiếm danh sách nhân viên thỏa điều kiện
+        const employees = await EmployeeModel.find({
+            $or: [
+                { "User_Code": { $regex: keywords, $options: 'i' } }, // Tìm theo mã nhân viên (không phân biệt hoa thường)
+                { "First Name": { $regex: keywords, $options: 'i' } }, 
+            ]
+        });
 
-        if (employee) {
+        if (employees.length > 0) {
             const response = {
-                message: 'Tìm thấy employee!',
-                user: {
+                message: 'Tìm thấy danh sách nhân viên!',
+                totalEmployees: employees.length,
+                employees: employees.map(employee => ({
                     First_Name: employee["First Name"] || '',
                     Gender: employee["Gender"] || '',
                     Start_Date: employee["Start Date"] || '',
@@ -110,20 +118,22 @@ router.get('/Find', async (req, res) => {
                     branch: employee["branch"] || '',
                     Email: employee["Email"] || '',
                     User_Code: employee["User_Code"] || '',
-                },
+                })),
             };
 
-            await redisClient.setex(cacheKey, 3600, JSON.stringify(response));
+            // Lưu kết quả vào cache
+           // await redisClient.setex(cacheKey, 3600, JSON.stringify(response)); // Cache trong 1 giờ (3600 giây)
 
             return res.status(200).json(response);
         }
 
-        return res.status(404).json({ message: 'Không tìm thấy Employee!' });
+        return res.status(404).json({ message: 'Không tìm thấy nhân viên nào thỏa điều kiện!' });
     } catch (error) {
         console.error('Lỗi:', error);
         return res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });
     }
 });
+
 // Lọc theo phòng ban và sort theo lương 
 // http://localhost:3000/employee/SortAndFilter?team=Sales&sortBySalary=asc&page=2&limit=5
 router.get('/SortAndFilter', async (req, res) => {
@@ -370,6 +380,76 @@ router.get('/Information/:user_code', async (req, res) => {
         return res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });
     }
 });
+// http://localhost:3000/employee/SalaryHistory/CLI_0029
+router.get('/SalaryHistory/:user_code', async (req, res) => {
+    const { user_code } = req.params;
 
+    try {
+        const Salary = await SalaryModel.find({ "User_Code": user_code })
+                                        .sort({ "Date_Update": -1 }); // Sắp xếp giảm dần theo Date_Update
 
+        if (Salary.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy lịch sử lương!' });
+        }
+
+        const result = {
+            message: 'Lịch sử lương:',
+            total: Salary.length,
+            Salary_History: Salary.map(salary => ({
+                Team: salary["Team"] || '',
+                Number_of_WDs: salary["Number_of_WDs"] || 30,
+                User_Code: salary["User_Code"] || '',
+                Total_Salary: salary["Total_Salary"] || '',
+                Date_Update: salary["Date_Update"] || '',
+                Updated_By: salary["Updated_By"] || ''
+            })),
+        };
+
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error('Lỗi trong quá trình truy vấn:', error);
+        return res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });
+    }
+});
+
+router.post('/UpdateTeamSalary', checkSeniorManagement, async (req, res) => {
+    try {
+        console.log('ST here');
+        //Lấy thông tin team từ token đã giải mã 
+        const { Team, User_Code } = req.user;
+        console.log('ST here', Team);
+        // Lấy danh sách các nhân viên trong team
+        const teamMembers = await EmployeeModel.find({ "Team": Team }).lean().exec(); console.log(teamMembers);
+        console.log(teamMembers);
+        if (teamMembers.length === 0) { return res.status(404).json({ message: 'Không tìm thấy nhân viên trong team!' }); }
+        // Lấy thời gian hiện tại 
+        const currentDate = new Date();
+        // Cập nhật lương cho các nhân viên trong team 
+        const salaryUpdates = teamMembers.map(async (member) => {
+            // Lấy lần cập nhật gần nhất của nhân viên này 
+            const lastSalaryUpdate = await SalaryModel.findOne({ "User_Code": member.User_Code }, { sort: { "Date_Update": -1 } });
+            // Tính toán 
+            const numberOfWDs = lastSalaryUpdate ? Math.floor((currentDate - new Date(lastSalaryUpdate.Date_Update)) / (1000 * 60 * 60 * 24)) : 30;
+            // Tạo bản ghi lương mới 
+            const newSalary = new SalaryModel({
+                ID: await SalaryModel.countDocuments() + 1,
+                // Tự động tăng dần ID 
+                Team: member.Team, 
+                Number_of_WDs: numberOfWDs, 
+                User_Code: member.User_Code,
+                Total_Salary: member.Salary + (member.Bonus * 100),
+                Date_Update: currentDate, 
+                Updated_By: User_Code
+            });
+             
+            await newSalary.save();
+        });
+        // Chờ tất cả các bản ghi lương được cập nhật 
+        await Promise.all(salaryUpdates); return res.status(200).json({ message: 'Cập nhật lương cho team thành công!' });
+    }
+    catch (error) {
+        console.error('Lỗi trong quá trình cập nhật lương:', error);
+        return res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });
+    }
+});
 module.exports = router;
