@@ -4,7 +4,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 const checkSeniorManagement = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
-        console.log('Payload token:', authHeader);
         if (!authHeader) {
             return res.status(403).json({ message: 'Token không được cung cấp!' });
         }
@@ -16,6 +15,14 @@ const checkSeniorManagement = (req, res, next) => {
 
         // Xác minh và giải mã token
         jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        // Giải mã token trước khi xác minh
+        const decoded = jwt.decode(token);
+        if (!decoded) {
+            return res.status(403).json({ message: 'Token không hợp lệ (giải mã thất bại)!' });
+        }
+
+        // Xác minh token
+        jwt.verify(token, JWT_SECRET, (err, verified) => {
             if (err) {
                 console.error('Lỗi xác minh token:', err.message);
                 return res.status(403).json({ message: 'Token không hợp lệ!' });
@@ -29,6 +36,14 @@ const checkSeniorManagement = (req, res, next) => {
             }
 
             next(); // Cho phép request tiếp tục
+
+            // Kiểm tra quyền quản lý cấp cao
+            if (!verified.IsManager) {
+                return res.status(403).json({ message: 'Bạn không có quyền truy cập!' });
+            }
+
+            req.user = verified;
+            next();
         });
     } catch (error) {
         console.error('Lỗi trong middleware:', error.message);
