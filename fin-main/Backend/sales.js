@@ -3,7 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const SaleModel = require('./Model/Sale');
 const dayjs = require('dayjs');
-
+const redisClient = require('./caching/redis');
 // Trả về toàn bộ lịch sử Sales
 router.get('/all', async (req, res) => {
     try {
@@ -302,5 +302,64 @@ router.patch('/cancelSale/:orderID', async (req, res) => {
         res.status(500).json({ message: 'Server error', error });
     }
 });
+// API tính doanh thu theo tháng (12 tháng gần nhất)
+router.get('/monthly-revenue', async (req, res) => {
+    try {
+        const selectedYear = parseInt(req.query.year);
 
+        if (!selectedYear) {
+            return res.status(400).json({ message: 'Vui lòng chọn năm!' });
+        }
+
+        // Tạo cache key dựa trên năm được chọn
+        const cacheKey = `monthly-revenue:${selectedYear}`;
+
+        // Kiểm tra cache
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            console.log('Cache hit');
+            return res.status(200).json(JSON.parse(cachedData));
+        }
+
+        console.log('Cache miss');
+
+        const months = [];
+        for (let i = 0; i < 12; i++) {
+            months.push(dayjs(`${selectedYear}-${i + 1}`).format('YYYY-MM'));
+        }
+
+        const revenueData = [];
+        for (const month of months) {
+            const startOfMonth = dayjs(month).startOf('month').toDate();
+            const endOfMonth = dayjs(month).endOf('month').toDate();
+
+            const result = await SaleModel.aggregate([
+                {
+                    $match: {
+                        Date: { $gte: startOfMonth, $lte: endOfMonth }
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        revenue: { $sum: '$Amount' }
+                    }
+                }
+            ]);
+
+            revenueData.push({
+                month: dayjs(month).format('MM/YYYY'),
+                revenue: result.length > 0 ? result[0].revenue : 0
+            });
+        }
+
+        // Lưu kết quả vào cache
+        redisClient.setex(cacheKey, 3600, JSON.stringify(revenueData)); // Cache trong 1 giờ (3600 giây)
+
+        res.status(200).json(revenueData);
+    } catch (error) {
+        console.error('Lỗi tính toán doanh thu:', error);
+        res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });
+    }
+});
 module.exports = router;

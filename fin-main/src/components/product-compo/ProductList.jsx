@@ -296,42 +296,30 @@ const ProductList = () => {
 
             };
             const token = localStorage.getItem('token');
-            const response = await axios.post('http://localhost:3000/products/add', newProduct,{
+            const response = await axios.post('http://localhost:3000/products/add', newProduct, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
 
-
-
-            // Xử lý response từ API
-
-            if (response.status === 201) { // 201 Created
-
-                console.log('Response:', response); // In ra toàn bộ response
-
-                console.log('Message:', response.data.message); // In ra message
-
+            if (response.status === 201) {
                 console.log('Thêm sản phẩm thành công:', response.data);
-
-                setProducts([...products, newProduct]); // Cập nhật state products
-
-                setVisible(false); // Đóng modal
-
+                setProducts([...products, newProduct]);
+                setVisible(false);
+                setCurrentPage(1); // Thêm sản phẩm mới thành công, reset về trang 1
             } else {
-
                 console.error('Lỗi khi thêm sản phẩm:', response.data);
-
-                // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
-
+                // Hiển thị thông báo lỗi phân quyền
+                if (response.status === 403) {
+                    alert('Bạn không có quyền thêm sản phẩm!');
+                } else {
+                    alert('Lỗi khi thêm sản phẩm!');
+                }
             }
-
-        }catch (error) {
-
+        } catch (error) {
             console.error('Lỗi khi thêm sản phẩm:', error);
-
-            // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
-
+            // Hiển thị thông báo lỗi chung chung
+            alert('Lỗi khi thêm sản phẩm!');
         }
 
     };
@@ -341,9 +329,7 @@ const ProductList = () => {
 
 
     const showModal = () => {
-
         setVisible(true);
-
     };
 
 
@@ -367,50 +353,41 @@ const ProductList = () => {
 
 
     const handleDelete = async (_id) => {
-
         const confirmed = window.confirm(`Bạn có chắc chắn muốn xóa sản phẩm này không?`);
-
         if (confirmed) {
-
             try {
-
-                // Gửi request DELETE đến API
-
                 console.log('Xóa sản phẩm với id:', _id);
                 const token = localStorage.getItem('token');
-
-                const response = await axios.delete(`http://localhost:3000/products/delete/${_id}`,{
+                const response = await axios.delete(`http://localhost:3000/products/delete/${_id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
                 });
 
                 if (response.status === 200) {
-
                     console.log('Xóa sản phẩm thành công:', response.data);
-
+                    // Cập nhật lại danh sách sản phẩm
                     const updatedProducts = products.filter((product) => product._id !== _id);
-
                     setProducts(updatedProducts);
-
+                    // Nếu xóa thành công và đang ở trang cuối cùng và không còn nhân viên nào, giảm currentPage đi 1
+                    if (currentPage === totalPages && updatedProducts.length === 0 && currentPage > 1) {
+                        setCurrentPage(currentPage - 1);
+                    }
                 } else {
-
                     console.error('Lỗi khi xóa sản phẩm:', response.data);
-
-                    // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
-
+                    // Hiển thị thông báo lỗi phân quyền
+                    if (response.status === 403) {
+                        alert('Bạn không có quyền xóa sản phẩm!');
+                    } else {
+                        alert('Lỗi khi xóa sản phẩm!');
+                    }
                 }
-
             } catch (error) {
-
                 console.error('Lỗi khi xóa sản phẩm:', error);
-
-                // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
-
+                // Hiển thị thông báo lỗi chung chung
+                alert('Lỗi khi xóa sản phẩm!');
             }
-
         }
-
     };
 
 
@@ -442,59 +419,36 @@ const ProductList = () => {
 
 
     const handleSave = async (editedProduct) => {
-
         try {
-
-            // Gọi API để cập nhật sản phẩm trên server
             const token = localStorage.getItem('token');
-            const response = await axios.patch(`http://localhost:3000/products/update/${editedProduct._id}`, editedProduct,{
+            const response = await axios.patch(`http://localhost:3000/products/update/${editedProduct._id}`, editedProduct, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
 
-
-
-            // Xử lý response từ API
-
             if (response.status === 200) {
-
                 console.log('Cập nhật sản phẩm thành công:', response.data);
-
-
-
-                // Cập nhật danh sách sản phẩm ở frontend
-
                 const updatedProducts = products.map((product) =>
-
                     product._id === editedProduct._id ? editedProduct : product
-
                 );
-
                 setProducts(updatedProducts);
-
-
-
                 setVisible(false);
-
                 setEditMode(false);
-
             } else {
-
                 console.error('Lỗi khi cập nhật sản phẩm:', response.data);
-
-                // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
-
+                // Hiển thị thông báo lỗi phân quyền
+                if (response.status === 403) {
+                    alert('Bạn không có quyền cập nhật sản phẩm!');
+                } else {
+                    alert('Lỗi khi cập nhật sản phẩm!');
+                }
             }
-
         } catch (error) {
-
             console.error('Lỗi khi cập nhật sản phẩm:', error);
-
-            // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
-
+            // Hiển thị thông báo lỗi chung chung
+            alert('Lỗi khi cập nhật sản phẩm!');
         }
-
     };
 
 

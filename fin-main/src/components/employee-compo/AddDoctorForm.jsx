@@ -1,338 +1,118 @@
-import React from 'react';
-import {
-  Button,
-  Switch,
-  Cascader,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Mentions,
-  Select,
-  TreeSelect,
-} from 'antd';
-const { RangePicker } = DatePicker;
-const formItemLayout = {
-  labelCol: {
-    xs: {
-      span: 24,
-    },
-    sm: {
-      span: 6,
-    },
-  },
-  wrapperCol: {
-    xs: {
-      span: 24,
-    },
-    sm: {
-      span: 14,
-    },
-  },
-};
-const AddDoctorForm = ({ onAddDoctor}) => {
+import React, { useState, useEffect } from 'react';
+import { Button, Form, Input, Select, DatePicker } from 'antd';
+import { jwtDecode } from 'jwt-decode';
+const { Option } = Select;
+
+const AddDoctorForm = ({ onAddDoctor }) => {
   const [form] = Form.useForm();
-  // const newname = Form.useWatch("id", form);
-  // console.log(newname);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = jwtDecode(token);
+      setUser(decoded);
+      if (decoded.manage) {
+        // Manager: set default values and readOnly for team and branch
+        form.setFieldsValue({
+          branch: decoded.branch,
+          Team: decoded.Team,
+        });
+      }
+    }
+  }, [form]);
 
   const onFinish = (values) => {
-    console.log(values);
-    // Call the onAddMedicine function with the form values
+    values.User_Code = values.email;
     onAddDoctor(values);
-    // Reset form fields by setting form values to an empty object
     form.resetFields();
   };
 
   return (
-    <Form
-      {...formItemLayout}
-      variant="filled"
-      style={{
-        maxWidth: 600,
-      }}
-      form={form}
-      onFinish={onFinish}
+      <Form form={form} onFinish={onFinish} layout="vertical">
+        <Form.Item
+            label="Họ tên"
+            name="First_Name"
+            rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}
+        >
+          <Input />
+        </Form.Item>
 
-      initialValues={{
-        available: true, // Set initial value here
-      }}
-    >
-      {/* <Form.Item
-        label="ID"
-        name="id"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <InputNumber
-          style={{
-            width: '100%',
-          }}
-        />
-      </Form.Item> */}
+        <Form.Item
+            label="Giới tính"
+            name="Gender"
+            rules={[{ required: true, message: 'Vui lòng nhập giới tính!' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+            label="Ngày sinh"
+            name="Date_Of_Birth"
+            rules={[{ required: true, message: 'Vui lòng nhập ngày sinh!' }]}
+        >
+          <Input />
+        </Form.Item>
 
-      <Form.Item
-        label="Họ tên"
-        name="name"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+        <Form.Item
+            label="Ngày bắt đầu làm"
+            name="Start_Date"
+            rules={[{ required: true, message: 'Vui lòng nhập ngày bắt đầu làm việc!' }]}
+        >
+          <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+        </Form.Item>
 
-      <Form.Item
-        label="Năm sinh"
-        name="birthday"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <InputNumber
-          style={{
-            width: '100%',
-          }}
-        />
-      </Form.Item>
+        <Form.Item
+            label="Email"
+            name="Email"
+            rules={[
+              { required: true, message: 'Vui lòng nhập Email!' },
+              { type: 'email', message: 'Email không hợp lệ!' }
+            ]}
+        >
+          <Input />
+        </Form.Item>
 
-      <Form.Item
-        label="Địa chỉ"
-        name="location"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        label="Email"
-        name="email"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        label="SĐT"
-        name="phoneNumber"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        label="Giới tính"
-        name="sex"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
-        label="Số CCCD"
-        name="cccd"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+        <Form.Item
+            label="Chi nhánh"
+            name="branch"
+            rules={[{ required: true, message: 'Vui lòng chọn chi nhánh!' }]}
+        >
+          <Select disabled={user && user.manage && user.role !== 'admin'}>
+            <Option value="1">Chi nhánh 1</Option>
+            <Option value="2">Chi nhánh 2</Option>
+            <Option value="3">Chi nhánh 3</Option>
+            <Option value="4">Chi nhánh 4</Option>
+          </Select>
+        </Form.Item>
 
-      <Form.Item
-        label="Khoa"
-        name="department"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-      
-      <Form.Item
-        label="Chuyên khoa"
-        name="qualifications"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+        <Form.Item
+            label="Team"
+            name="Team"
+            rules={[{ required: true, message: 'Vui lòng chọn team!' }]}
+        >
+          <Select disabled={user && user.manage && user.role !== 'admin'}>
+            <Option value="Client Services">Client Services</Option>
+            <Option value="Distribution">Distribution</Option>
+            <Option value="Engineering">Engineering</Option>
+            <Option value="Finance">Finance</Option>
+            <Option value="Human Resources">Human Resources</Option>
+            <Option value="Legal">Legal</Option>
+            <Option value="Marketing">Marketing</Option>
+            <Option value="Product">Product</Option>
+            <Option value="Sales">Sales</Option>
+          </Select>
+        </Form.Item>
 
-      <Form.Item
-        label="Hiện diện"
-        name="available"
-        valuePropName="checked"
-      >
-        <Switch />
-      </Form.Item>
+        {/* Ẩn các trường không cần thiết */}
+        {/* ... */}
 
-      <Form.Item
-        label="Giờ nghỉ"
-        name="time_off"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-  {/* 
-      <Form.Item
-        label="DatePicker"
-        name="DatePicker"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <DatePicker />
-      </Form.Item>
-
-      <Form.Item
-        label="InputNumber"
-        name="InputNumber"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <InputNumber
-          style={{
-            width: '100%',
-          }}
-        />
-      </Form.Item>
-
-      <Form.Item
-        label="TextArea"
-        name="TextArea"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Input.TextArea />
-      </Form.Item>
-
-      <Form.Item
-        label="Mentions"
-        name="Mentions"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Mentions />
-      </Form.Item>
-
-      <Form.Item
-        label="Select"
-        name="Select"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Select />
-      </Form.Item>
-
-      <Form.Item
-        label="Cascader"
-        name="Cascader"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <Cascader />
-      </Form.Item>
-
-      <Form.Item
-        label="TreeSelect"
-        name="TreeSelect"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <TreeSelect />
-      </Form.Item>
-
-      */}
-
-      {/* <Form.Item
-        label="RangePicker"
-        name="RangePicker"
-        rules={[
-          {
-            required: true,
-            message: 'Please input!',
-          },
-        ]}
-      >
-        <RangePicker />
-      </Form.Item> */}
-
-      <Form.Item
-        wrapperCol={{
-          offset: 6,
-          span: 16,
-        }}
-      >
-        <Button type="primary" htmlType="submit">
-          Lưu
-        </Button>
-      </Form.Item>
-    </Form>
-  )
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            Thêm
+          </Button>
+        </Form.Item>
+      </Form>
+  );
 };
+
 export default AddDoctorForm;

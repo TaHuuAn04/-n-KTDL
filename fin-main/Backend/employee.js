@@ -76,32 +76,64 @@ router.get('/All', async (req, res) => {
 // Cho phép tìm theo tên hoặc mã số nhân viên
 // http://localhost:3000/employee/Find?keywords=Douglas
 router.get('/Find', async (req, res) => {
-    const { keywords } = req.query; // Lấy từ query parameters
+    const { keywords } = req.query;
 
     if (!keywords) {
-        console.log('Query Parameters:', req.query);
         return res.status(400).json({ message: 'Từ khóa rỗng hoặc không hợp lệ' });
     }
 
-    try {
-        const cacheKey = `employee:find:${keywords}`;
+    // Xác thực token và lấy thông tin người dùng (nếu có)
+    const authHeader = req.headers.authorization;
+    let user = null;
+    if (authHeader) {
+        const token = authHeader.split(' ')[1];
+        const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            user = decoded; // { id, username, role, manage, branch, Team }
+        } catch (err) {
+            console.error("Lỗi xác thực token:", err);
+        }
+    }
 
-        // Kiểm tra cache
+    // Kiểm tra quyền truy cập
+    if (!user) {
+        return res.status(403).json({ message: 'Bạn không có quyền truy cập!' });
+    }
+
+    let filter = {
+        $or: [
+            { "User_Code": { $regex: keywords, $options: 'i' } },
+            { "First Name": { $regex: keywords, $options: 'i' } },
+        ]
+    };
+
+    // Áp dụng filter bổ sung dựa trên role
+    if (user.role === 'admin') {
+        // Admin: không cần thêm filter
+    } else if (user.manage) {
+        // Manager: chỉ tìm nhân viên cùng branch và Team
+        filter.branch = user.branch;
+        filter.Team = user.Team;
+    } else {
+        // Không phải admin hay manager: không cho phép tìm kiếm
+        return res.status(403).json({ message: 'Bạn không có quyền truy cập!' });
+    }
+
+    try {
+        const cacheKey = `employee:find:${keywords}:${JSON.stringify(filter)}`;
+
+        // Kiểm tra cache (nếu bạn muốn sử dụng cache)
         const cachedData = await redisClient.get(cacheKey);
         if (cachedData) {
             console.log('Cache hit');
             return res.status(200).json(JSON.parse(cachedData));
         }
 
-        console.log('Cache miss: Retrieving data from MongoDB');
+        console.log('Retrieving data from MongoDB');
 
         // Tìm kiếm danh sách nhân viên thỏa điều kiện
-        const employees = await EmployeeModel.find({
-            $or: [
-                { "User_Code": { $regex: keywords, $options: 'i' } }, // Tìm theo mã nhân viên (không phân biệt hoa thường)
-                { "First Name": { $regex: keywords, $options: 'i' } }, 
-            ]
-        });
+        const employees = await EmployeeModel.find(filter);
 
         if (employees.length > 0) {
             const response = {
@@ -121,8 +153,8 @@ router.get('/Find', async (req, res) => {
                 })),
             };
 
-            // Lưu kết quả vào cache
-           // await redisClient.setex(cacheKey, 3600, JSON.stringify(response)); // Cache trong 1 giờ (3600 giây)
+            // Lưu kết quả vào cache (nếu bạn muốn sử dụng cache)
+            // await redisClient.setex(cacheKey, 3600, JSON.stringify(response));
 
             return res.status(200).json(response);
         }
@@ -138,7 +170,7 @@ router.get('/Find', async (req, res) => {
 // http://localhost:3000/employee/SortAndFilter?team=Sales&sortBySalary=asc&page=2&limit=5
 router.get('/SortAndFilter', async (req, res) => {
     try {
-        const { team, sortBySalary, page = 1, limit = 10 } = req.query;
+        const { team,branch, sortBySalary, page = 1, limit = 10 } = req.query;
 
         // Giải mã token để lấy thông tin người dùng (nếu có)
         const authHeader = req.headers.authorization;
@@ -172,7 +204,9 @@ router.get('/SortAndFilter', async (req, res) => {
         if (team) {
             filter.Team = team;
         }
-
+        if (branch) {
+            filter.branch = branch;
+        }
         // Sắp xếp
         if (sortBySalary === 'asc') {
             sort.Salary = 1;
@@ -343,7 +377,7 @@ router.put('/Update/:User_Code', checkSeniorManagement, async (req, res) => {
     try {
         const { User_Code } = req.params; 
         const { First_Name, Gender, Salary, Bonus, Senior_Management, Team, branch, Email } = req.body;
-
+        console.log("first name", First_Name);
         
         if (!User_Code) {
             return res.status(400).json({ message: 'Vui lòng cung cấp User_Code!' });
@@ -434,9 +468,6 @@ router.get('/SalaryHistory/:user_code', async (req, res) => {
         const Salary = await SalaryModel.find({ "User_Code": user_code })
                                         .sort({ "Date_Update": -1 }); // Sắp xếp giảm dần theo Date_Update
 
-        if (Salary.length === 0) {
-            return res.status(404).json({ message: 'Không tìm thấy lịch sử lương!' });
-        }
 
         const result = {
             message: 'Lịch sử lương:',
@@ -458,48 +489,110 @@ router.get('/SalaryHistory/:user_code', async (req, res) => {
     }
 });
 
-router.post('/UpdateTeamSalary', checkSeniorManagement, async (req, res) => {
+router.post('/UpdateTeamSalary', async (req, res) => {
     try {
-        
-        
-        const { Team, User_Code } = req.user;
-        console.log('Cap nhat luong cho team: ', Team);
-        
-        const teamMembers = await EmployeeModel.find({ "Team": Team }).lean().exec();
-        
-        if (teamMembers.length === 0) { return res.status(404).json({ message: 'Không tìm thấy nhân viên trong team!' }); }
-        
+        const authHeader = req.headers.authorization;
+        let user = null;
+        if (authHeader) {
+            const token = authHeader.split(' ')[1];
+            const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
+            try {
+                const decoded = jwt.verify(token, JWT_SECRET);
+                user = decoded;
+            } catch (err) {
+                console.error("Lỗi xác thực token:", err);
+            }
+        }
+
+        let filter = {};
+        if (user.role === 'admin') {
+            // Admin: Cập nhật lương cho tất cả manager
+            filter = { "Senior Management": true };
+        } else if (user.manage) {
+            // Manager: Cập nhật lương cho nhân viên thường cùng team và chi nhánh
+            filter = {
+                "Team": user.Team,
+                "branch": user.branch,
+                "Senior Management": false // Chỉ cập nhật cho nhân viên thường
+            };
+        } else {
+            return res.status(403).json({ message: 'Bạn không có quyền truy cập!' });
+        }
+
+        const teamMembers = await EmployeeModel.find(filter).lean().exec();
+
+        if (teamMembers.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy nhân viên phù hợp!' });
+        }
+
         const currentDate = new Date();
-        
+
         const salaryUpdates = teamMembers.map(async (member) => {
-             
-            const lastSalaryUpdate = await SalaryModel.findOne({ "User_Code": member.User_Code }, { sort: { "Date_Update": -1 } });
-           
-            let numberOfWDs = 30; // Giá trị mặc định 
-            if (lastSalaryUpdate && lastSalaryUpdate.Date_Update) { 
-                const lastUpdateDate = new Date(lastSalaryUpdate.Date_Update); 
-                if (!isNaN(lastUpdateDate)) 
-                    { numberOfWDs = Math.floor((currentDate - lastUpdateDate) / (1000 * 60 * 60 * 24)); } }
-             
+            const lastSalaryUpdate = await SalaryModel.findOne({ "User_Code": member.User_Code })
+                .sort({ "Date_Update": -1 });
+
+            let numberOfWDs = 30;
+            if (lastSalaryUpdate && lastSalaryUpdate.Date_Update) {
+                const lastUpdateDate = new Date(lastSalaryUpdate.Date_Update);
+                if (!isNaN(lastUpdateDate)) {
+                    numberOfWDs = Math.floor((currentDate - lastUpdateDate) / (1000 * 60 * 60 * 24));
+                }
+            }
+
             const newSalary = new SalaryModel({
                 ID: await SalaryModel.countDocuments() + 1,
-                
-                Team: member.Team, 
-                Number_of_WDs: numberOfWDs, 
+                Team: member.Team,
+                Number_of_WDs: numberOfWDs,
                 User_Code: member.User_Code,
                 Total_Salary: member.Salary + (member.Bonus * 100),
-                Date_Update: currentDate, 
-                Updated_By: User_Code
+                Date_Update: currentDate,
+                Updated_By: user.User_Code // Cập nhật bởi user hiện tại
             });
-             
+
             await newSalary.save();
         });
-        
-        await Promise.all(salaryUpdates); return res.status(200).json({ message: 'Cập nhật lương cho team thành công!' });
-    }
-    catch (error) {
+
+        await Promise.all(salaryUpdates);
+
+        const successMessage = user.role === 'admin'
+            ? 'Cập nhật lương cho tất cả quản lý thành công!'
+            : 'Cập nhật lương cho nhân viên trong team và chi nhánh thành công!';
+
+        return res.status(200).json({ message: successMessage });
+
+    } catch (error) {
         console.error('Lỗi trong quá trình cập nhật lương:', error);
         return res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });
+    }
+});
+
+router.get('/stats', async (req, res) => {
+    try {
+        const totalEmployees = await EmployeeModel.countDocuments();
+
+        const branchStats = await EmployeeModel.aggregate([
+            {
+                $group: {
+                    _id: '$branch',
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    name: '$_id',
+                    count: 1
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            total: totalEmployees,
+            branches: branchStats
+        });
+    } catch (error) {
+        console.error('Lỗi thống kê nhân viên:', error);
+        res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });
     }
 });
 module.exports = router;

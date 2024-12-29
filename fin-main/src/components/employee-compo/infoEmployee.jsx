@@ -6,6 +6,7 @@ import axios from "axios";
 function InfoEmployee() {
     const { id } = useParams(); // Lấy ID nhân viên từ URL
     const [employeeData, setEmployeeData] = useState(null);
+    const [salaryHistory, setSalaryHistory] = useState([]); // Thêm state cho salaryHistory
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -13,11 +14,16 @@ function InfoEmployee() {
         const fetchEmployeeData = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`http://localhost:3000/employee/Information/${id}`);
-                setEmployeeData(response.data.employee);
+                // Lấy thông tin nhân viên
+                const infoResponse = await axios.get(`http://localhost:3000/employee/Information/${id}`);
+                setEmployeeData(infoResponse.data.employee);
+
+                // Lấy lịch sử lương
+                const salaryResponse = await axios.get(`http://localhost:3000/employee/SalaryHistory/${id}`);
+                setSalaryHistory(salaryResponse.data.Salary_History);
             } catch (error) {
-                console.error("Error fetching employee data:", error);
-                setError(error.message || "Failed to fetch employee data.");
+                console.error("Error fetching data:", error);
+                setError(error.message || "Failed to fetch data.");
             } finally {
                 setLoading(false);
             }
@@ -85,33 +91,30 @@ function InfoEmployee() {
                         👤
                     </div>
 
-                    <div className="employee-details" style={{flex: 1}}>
-                        <p style={{margin: "10px 0"}}>
+                    <div className="employee-details" style={{ flex: 1 }}>
+                        <p style={{ margin: "10px 0" }}>
                             <strong>Họ và tên:</strong> {employeeData.First_Name}
                         </p>
-                        <p style={{margin: "10px 0"}}>
+                        <p style={{ margin: "10px 0" }}>
                             <strong>Giới tính:</strong> {employeeData.Gender}
                         </p>
-                        <p style={{margin: "10px 0"}}>
+                        <p style={{ margin: "10px 0" }}>
                             <strong>Bộ phận:</strong> {employeeData.branch}
                         </p>
-                        <p style={{margin: "10px 0"}}>
+                        <p style={{ margin: "10px 0" }}>
                             <strong>Team:</strong> {employeeData.Team}
                         </p>
-                        <p style={{margin: "10px 0"}}>
+                        <p style={{ margin: "10px 0" }}>
                             <strong>Email:</strong>
-                            <br/>
-                            {/*{employeeData.email.map((email, index) => (*/}
-                            {/*    <span key={index}>{email}<br /></span>*/}
-                            {/*))}*/}
+                            <br />
                             {employeeData.Email}
                         </p>
-                        <p style={{margin: "10px 0"}}>
+                        <p style={{ margin: "10px 0" }}>
                             <strong>Ngày vào
                                 làm:</strong> {new Date(employeeData.Start_Date).toLocaleDateString("vi-VN")}
                         </p>
-                        <p style={{margin: "10px 0"}}>
-                            <strong>Số điện thoại:</strong> {employeeData.phone}
+                        <p style={{ margin: "10px 0" }}>
+                            <strong>Bonus Lương:</strong> {employeeData.Bonus}
                         </p>
                     </div>
                 </div>
@@ -139,22 +142,30 @@ function InfoEmployee() {
                         <tr>
                             <th style={{ borderBottom: "2px solid #ccc", padding: "8px" }}>Ngày cập nhật</th>
                             <th style={{ borderBottom: "2px solid #ccc", padding: "8px" }}>Người cập nhật</th>
-                            <th style={{ borderBottom: "2px solid #ccc", padding: "8px" }}>Ngày làm việc</th>
-                            <th style={{ borderBottom: "2px solid #ccc", padding: "8px" }}>Tháng</th>
-                            <th style={{ borderBottom: "2px solid #ccc", padding: "8px" }}>Số tiền</th>
+                            <th style={{ borderBottom: "2px solid #ccc", padding: "8px" }}>Team</th>
+                            <th style={{ borderBottom: "2px solid #ccc", padding: "8px" }}>Số ngày làm việc</th>
+                            <th style={{ borderBottom: "2px solid #ccc", padding: "8px" }}>Tổng lương</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {employeeData.salaryHistory && employeeData.salaryHistory.map((entry, index) => (
+                        {salaryHistory.map((entry, index) => (
                             <tr key={index}>
-                                <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>{entry.dateUpdated}</td>
-                                <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>{entry.perUpdate}</td>
-                                <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>{entry.month}</td>
-                                <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>{entry.numDay}</td>
-                                <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>{entry.amount}</td>
+                                <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
+                                    {new Date(entry.Date_Update).toLocaleDateString("vi-VN")}
+                                </td>
+                                <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>{entry.Updated_By}</td>
+                                <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>{entry.Team}</td>
+                                <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>{entry.Number_of_WDs}</td>
+                                <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
+                                    {entry.Total_Salary.toLocaleString("vi-VN", {
+                                        style: "currency",
+                                        currency: "VND",
+                                    })}
+                                </td>
                             </tr>
                         ))}
                         </tbody>
+
                     </table>
                 </div>
             </div>

@@ -387,6 +387,7 @@ body {
 
 .doctor-header {
     display: grid;
+
     grid-template-columns: auto auto 1fr auto; /* Tổng số bác sĩ và h1 chiếm không gian tự nhiên, thanh tìm kiếm chiếm phần còn lại, nút thêm bác sĩ chiếm không gian tự nhiên */
     align-items: center;
 }
@@ -404,7 +405,7 @@ body {
 .search-input {
     flex: 1;
     width: 80%;
-    height: 25px;
+    height: 10px;
     padding: 4px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -413,6 +414,7 @@ body {
 }
 
 .add-button {
+    margin-left: auto; /* Thêm dòng này */
     padding: 6px 13px;
     background-color: #007bff;
     color: #fff;
@@ -464,6 +466,8 @@ body {
     grid-template-columns: repeat(3, 1fr); /* 4 cột */
     grid-template-rows: repeat(3, 1fr); /* 3 hàng */
     grid-gap: 20px;
+    overflow-y: auto; /* Thêm thuộc tính này */
+    max-height: 400px; /* Chiều cao tối đa, bạn có thể điều chỉnh */
 }
 
 .doctor-card {

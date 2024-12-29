@@ -94,9 +94,7 @@ router.post('/employee/login', async (req, res) => {
             // Tạo JWT token cho nhân viên
             const payload = {
                 User_Code: admin["User_Code"],
-                IsManager: admin['Senior Management'],
                 Name: admin['First Name'],
-                Team : admin ['Team']
                 id: admin._id,
                 username: admin.User_Code,
                 role: admin.User_Code,

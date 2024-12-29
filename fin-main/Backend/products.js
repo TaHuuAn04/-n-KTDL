@@ -5,6 +5,7 @@ const ProductModel = require('./Model/Product');
 const checkCache = require('./caching/cacheMiddleware');
 const redisClient = require('./caching/redis');
 const checkAdmin = require('./middleware/checkAdmin');
+const SaleModel = require('./Model/Sale');
 //Trả về toàn bộ sản phẩm
 router.get('/all', checkCache('products'), async (req, res) => {
   try {
@@ -300,5 +301,37 @@ router.get('/filter', async (req, res) => {
       res.status(500).json({ message: 'Đã xảy ra lỗi!', error: err.message });
   }
 });
+router.get('/stats', async (req, res) => {
+    try {
+        // Tính tổng số lượng sản phẩm hiện có
+        const totalStock = await ProductModel.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    total: {
+                        $sum: {
+                            $add: ["$stock in B1", "$stock in B2", "$stock in B3", "$stock in B4"]
+                        }
+                    }
+                }
+            }
+        ]);
+        const totalSold = await SaleModel.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: '$Qty' }
+                }
+            }
+        ]);
 
+        res.status(200).json({
+            totalStock: totalStock.length > 0 ? totalStock[0].total : 0,
+            totalSold: totalSold.length > 0 ? totalSold[0].total : 0
+        });
+    } catch (error) {
+        console.error('Lỗi thống kê sản phẩm:', error);
+        res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });
+    }
+});
 module.exports = router;  

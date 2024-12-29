@@ -27,9 +27,9 @@ function Sidebar() {
                         <div className={location.pathname === '/order' ? 'active' : ''}>Đơn hàng</div>
                     </li>
                 </Link>
-                <Link to="/medicine" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link to="/summary" style={{ textDecoration: 'none', color: 'inherit' }}>
                     <li className="sidebar-list-item">
-                        <div className={location.pathname === '/medicine' ? 'active' : ''}>Thống kê</div>
+                        <div className={location.pathname === '/summary' ? 'active' : ''}>Thống kê</div>
                     </li>
                 </Link>
             </ul>
