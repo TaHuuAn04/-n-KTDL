@@ -1,0 +1,130 @@
+.cart-wrapper {
+    width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cart-main {
+    display: flex;
+    align-items: center;
+}
+
+.cart-pro-image {
+    flex: 1;
+    border-right: 2px dashed gray;
+}
+
+
+.image-cart-product {
+    margin-left: 10px;
+    width: 250px;
+    height: 250px;
+}
+
+
+.cart-infor-wrap {
+    flex: 3;
+    font-family: montser;
+    font-size: 20px;
+}
+
+.cart-infor-pro ul {
+    display: flex;
+    align-items: center;
+}
+
+.back-gr-cart {
+    background-color: rgb(164, 214, 214);
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 60px;
+}
+
+.cart-infor-pro ul a {
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+.cart-infor-pro ul nav {
+    font-weight: 500;
+}
+
+.cart-remove {
+    display: flex;
+    justify-content: center;
+    height: 40px;
+}
+
+.cart-remove button {
+    border-radius: 20px;
+    background-color: rgb(190, 68, 68);
+    border: none;
+    color: white;
+    font-size: 20px;
+    font-weight: 500;
+    box-shadow: 5px 5px 10px gray;
+}
+
+.your-cart {
+    justify-self: center;
+    margin: 40px;
+}
+
+.cart-total {
+    justify-self: flex-end;
+    background-color: rgb(72, 71, 161);
+    font-size: 30px;
+    font-weight: 500;
+    color: white;
+    border-radius: 20px;
+    font-family: montser;
+}
+
+.cart-total p {
+    padding: 20px;
+}
+
+.clear-all-cart {
+    justify-self: flex-end;
+    font-size: 25px;
+    font-family: montser;
+    margin-bottom: 30px;
+}
+
+.clear-all-cart button {
+    border-radius: 20px;
+    background-color: orange;
+    color: rgb(11, 8, 84);
+    font-weight: 600;
+    border: none;
+    box-shadow: 5px 5px 10px gray;
+    width: 200px;
+    height: 50px;
+}
+
+.buy-cart {
+    justify-self: center;
+    font-size: 25px;
+    font-family: montser;
+    margin-bottom: 20px;
+    margin-top: 30px;
+}
+
+.buy-cart button {
+    border-radius: 20px;
+    background-color: rgb(6, 128, 71);
+    color: rgb(230, 230, 240);
+    font-weight: 600;
+    border: none;
+    box-shadow: 5px 5px 10px gray;
+    width: 230px;
+    height: 50px;
+}
+
+.empty-cart-text {
+    justify-self: center;
+    font-size: 25px;
+    font-family: montser;
+    font-weight: 500;
+    padding: 100px;
+}

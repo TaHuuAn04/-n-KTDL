@@ -1,0 +1,108 @@
+.backgr-register {
+    background-image: url("../assets/images/backgr_login.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    justify-items: center;
+    align-items: center;
+    background-size: cover;
+    margin-left: auto;
+    margin-right: auto;
+    width: 1220px;
+    padding-top: 100px;
+    padding-bottom: 100px;
+}
+
+.register-main {
+    padding-top: 100px;
+    padding-bottom: 100px;
+}
+
+.reg-wrapper {
+    background-color: white;
+    width: 794px;
+    border-radius: 30px;
+    padding-top: 80px;
+    padding-bottom: 50px;
+}
+
+.box-register {
+    justify-items: center;
+    align-items: center;
+}
+
+.box-register nav {
+    border-bottom: 2px dashed black;
+    margin-bottom: 20px;
+}
+
+.input-register {
+    font-family: montser;
+    font-size: 20px;
+    margin-top: 0px;
+    margin-bottom: 20px;
+}
+
+.input-register-s {
+    font-family: montser;
+    font-size: 20px;
+    margin-top: 0px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    width: 200px;
+    padding-top: 10px;
+    align-items: center;
+}
+
+.option-gender {
+    border: none;
+    background-color: #e7daf4;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.input-register input {
+    width: 600px;
+    border-radius: 20px;
+    background-color: #e7daf4;
+    border: none;
+    font-size: 25px;
+    height: 50px;
+    padding-left: 20px;
+}
+
+.input-register p {
+    margin-bottom: 0px;
+}
+
+.box-register form h6 {
+    margin-left: -50px;
+    font-size: 20px;
+    font-family: montser;
+}
+
+.register-button {
+    justify-self: center;
+    font-size: 30px;
+    font-family: unicaone;
+    
+}
+
+.register-button button {
+    background-color: #bf7b7b;
+    border: none;
+    border-radius: 20px;
+    font-weight: 500;
+    color: white;
+    width: 200px;
+    height: 50px;
+    margin-top: 30px;
+}
+
+.register-button button:active {
+    /* transform: translateZ(-20px); */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Thêm bóng dưới button */
+    width: 197px;
+    height: 48px;
+    border-radius: 20px;
+}
