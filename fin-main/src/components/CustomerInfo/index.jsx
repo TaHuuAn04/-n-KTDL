@@ -9,7 +9,7 @@ function CustomerInfo(props) {
     // console.log(patient);
     return (
         <div className={cx('patient-info-wrapper')}>
-            <img className={cx('avatar')} src={props.image}></img>
+            <img className={cx('avatar')} src="../src/assets/avatar.png"></img>
             <div className={cx('body')}>
                 <h3 className={cx('body-title')}>Thông tin chung</h3>
                 <p className={cx('body-content')}>{props.generalInfo}</p>

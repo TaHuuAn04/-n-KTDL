@@ -334,4 +334,72 @@ router.get('/stats', async (req, res) => {
         res.status(500).json({ message: 'Đã xảy ra lỗi trên server!' });
     }
 });
+router.get('/grouped', checkCache('products'), async (req, res) => {
+    try {
+        let { page, limit } = req.query;
+        page = parseInt(page) || 1;
+        limit = parseInt(limit) || 12;
+        const skip = (page - 1) * limit;
+
+        const cacheKey = `products:${page}:${limit}`;
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            console.log('Cache hit');
+            return res.json(JSON.parse(cachedData));
+        } else {
+            console.log("Cache miss: Product retrieved from MongoDB");
+        }
+
+        const results = await ProductModel.aggregate([
+            {
+                $facet: {
+                    groupedProducts: [
+                        {
+                            $group: {
+                                _id: { name: "$Name", category: "$Category" },
+                                products: { $push: "$$ROOT" }
+                            }
+                        },
+                        {
+                            $sort: { "_id.name": 1, "_id.category": 1 }
+                        },
+                        {
+                            $skip: skip
+                        },
+                        {
+                            $limit: limit
+                        }
+                    ],
+                    totalCount: [
+                        {
+                            $group: {
+                                _id: { name: "$Name", category: "$Category" }
+                            }
+                        },
+                        {
+                            $count: "totalCount"
+                        }
+                    ]
+                }
+            }
+        ]);
+
+        const groupedProducts = results[0].groupedProducts;
+        const totalCount = results[0].totalCount.length > 0 ? results[0].totalCount[0].totalCount : 0;
+        const totalPages = Math.ceil(totalCount / limit);
+
+        const response = {
+            page,
+            totalPages,
+            totalCount,
+            groupedProducts,
+        };
+
+        redisClient.setex(cacheKey, 3600, JSON.stringify(response));
+
+        res.json(response);
+    } catch (err) {
+        res.status(500).json({ message: 'An error occurred', error: err.message });
+    }
+});
 module.exports = router;  

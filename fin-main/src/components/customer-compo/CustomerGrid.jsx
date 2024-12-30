@@ -49,11 +49,12 @@ const CustomerGrid = () => {
                 let response, countResponse;
 
                 if (searchVal) {
+                    console.log('Searching for:', searchVal);
                     // Search logic
-                    const encodedSkuCode = encodeURIComponent(searchVal);
+                    const encodedSkuCode = searchVal;
                     response = await axios.get('http://localhost:3000/customers/search', {
                         params: {
-                            custID: encodedSkuCode,
+                            keywords: encodedSkuCode,
                         },
                     });
                     setCustomers([response.data.customer]);

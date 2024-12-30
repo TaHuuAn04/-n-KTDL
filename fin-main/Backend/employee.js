@@ -286,28 +286,46 @@ router.get('/SortAndFilter', async (req, res) => {
 router.post('/Add', checkSeniorManagement, async (req, res) => {
     try {
         // Lấy dữ liệu nhân viên từ body request
-        const { First_Name, Gender, Start_Date, Salary, Bonus, Senior_Management, Team, branch, Email, User_Code, Password } = req.body;
+        const { First_Name, Gender, Start_Date, Salary, Bonus, Senior_Management, Team, branch, Email, Password } = req.body;
 
-        if (!First_Name || !Gender || !Start_Date || !Salary || !Email) {
+        if (!First_Name || !Gender || !Start_Date || !Email) {
             return res.status(400).json({ message: 'Thông tin nhân viên không đủ!' });
         }
+
+        // Tạo User_Code tự động
+        const teamPrefix = Team.substring(0, 3).toUpperCase();
+        const employeeCount = await EmployeeModel.countDocuments();
+        const nextEmployeeId = (employeeCount + 1).toString().padStart(4, '0');
+        const User_Code = `${teamPrefix}_${nextEmployeeId}`;
+
+        // Tạo password tự động
+        const generatedPassword = nextEmployeeId;
+
         const newEmployee = new EmployeeModel({
             "First Name": First_Name,
             "Gender": Gender,
             "Start Date": Start_Date,
             "Salary": Salary,
-            "Bonus": Bonus || 0, // Mặc định Bonus là 0
-            "Senior Management": Senior_Management || false, // Mặc định là false
-            "Team": Team || '', // để trống
-            "branch": branch || '', // để trống
+            "Bonus": Bonus || 0,
+            "Senior Management": Senior_Management || false,
+            "Team": Team || '',
+            "branch": branch || '',
             "Email": Email,
-            "User_Code": User_Code || '' , // để trống,
-            "password" : SHA1(Password) || ''
+            "User_Code": User_Code,
+            "password": SHA1(generatedPassword)
         });
 
         const savedEmployee = await newEmployee.save();
+        // Xóa các cache liên quan
+        const keysToDelete = await redisClient.keys('employees:*');
+        keysToDelete.push(...(await redisClient.keys('employee:find:*')));
+        keysToDelete.push(...(await redisClient.keys('SortAndFilter:*')));
+        // Có thể không cần xóa `employee:${User_Code}` vì user này vừa mới được tạo
 
-        
+        if (keysToDelete.length > 0) {
+            await redisClient.del(keysToDelete);
+            console.log('Cache đã xóa:', keysToDelete);
+        }
         return res.status(201).json({
             message: 'Nhân viên đã được thêm thành công!',
             employee: {
@@ -347,21 +365,29 @@ router.get('/count', async (req, res) => {
 // API xóa nhân viên
 router.delete('/Delete/:User_Code', checkSeniorManagement, async (req, res) => {
     try {
-        const { User_Code } = req.params; 
+        const { User_Code } = req.params;
 
         if (!User_Code) {
             return res.status(400).json({ message: 'Vui lòng cung cấp User_Code!' });
         }
 
-        
         const employee = await EmployeeModel.findOne({ "User_Code": User_Code });
 
         if (!employee) {
             return res.status(404).json({ message: 'Không tìm thấy nhân viên!' });
         }
 
-        
         await EmployeeModel.deleteOne({ "User_Code": User_Code });
+
+        // Xóa cache liên quan
+        const keysToDelete = await redisClient.keys('employees:*');
+        keysToDelete.push(...(await redisClient.keys(`employee:find:*`)));
+        keysToDelete.push(...(await redisClient.keys(`SortAndFilter:*`)));
+        keysToDelete.push(`employee:${User_Code}`); // Xóa cache của nhân viên bị xóa
+
+        if (keysToDelete.length > 0) {
+            await redisClient.del(keysToDelete);
+        }
 
         return res.status(200).json({
             message: 'Nhân viên đã được xóa thành công!',
@@ -375,27 +401,24 @@ router.delete('/Delete/:User_Code', checkSeniorManagement, async (req, res) => {
 
 router.put('/Update/:User_Code', checkSeniorManagement, async (req, res) => {
     try {
-        const { User_Code } = req.params; 
+        const { User_Code } = req.params;
         const { First_Name, Gender, Salary, Bonus, Senior_Management, Team, branch, Email } = req.body;
         console.log("first name", First_Name);
-        
+
         if (!User_Code) {
             return res.status(400).json({ message: 'Vui lòng cung cấp User_Code!' });
         }
 
-        
         if (!First_Name && !Gender && !Salary && !Bonus && !Senior_Management && !Team && !branch && !Email) {
             return res.status(400).json({ message: 'Không có thông tin cần sửa!' });
         }
 
-        
         const employee = await EmployeeModel.findOne({ "User_Code": User_Code });
 
         if (!employee) {
             return res.status(404).json({ message: 'Không tìm thấy nhân viên!' });
         }
 
-        
         if (First_Name) employee["First Name"] = First_Name;
         if (Gender) employee.Gender = Gender;
         if (Salary) employee.Salary = Salary;
@@ -405,8 +428,17 @@ router.put('/Update/:User_Code', checkSeniorManagement, async (req, res) => {
         if (branch) employee.branch = branch;
         if (Email) employee.Email = Email;
 
-        
         const updatedEmployee = await employee.save();
+
+        // Xóa cache liên quan
+        const keysToDelete = await redisClient.keys('employees:*');
+        keysToDelete.push(...(await redisClient.keys(`employee:find:*`)));
+        keysToDelete.push(...(await redisClient.keys(`SortAndFilter:*`)));
+        keysToDelete.push(`employee:${User_Code}`); // Xóa cache của nhân viên bị cập nhật
+
+        if (keysToDelete.length > 0) {
+            await redisClient.del(keysToDelete);
+        }
 
         return res.status(200).json({
             message: 'Thông tin nhân viên đã được cập nhật thành công!',

@@ -9,10 +9,9 @@ import EditProductForm from './EditProductForm.jsx';
 import Filter from './Filter';
 
 import axios from 'axios';
-
+import { jwtDecode } from 'jwt-decode';
 import SimplePagination from './Button_Page.jsx';
 //Khai báo danh sách thuốc
-
 
 
 const ProductList = () => {
@@ -24,7 +23,7 @@ const ProductList = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(true);
     const [editMode, setEditMode] = useState(false);
-
+    const [user, setUser] = useState(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
 
     const [error, setError] = useState(null);
@@ -112,9 +111,11 @@ const ProductList = () => {
 
 
     useEffect(() => {
-
-
-
+        const token = localStorage.getItem('token');
+        if (token) {
+            const decoded = jwtDecode(token);
+            setUser(decoded);
+        }
         const fetchData = async () => {
 
             try {
@@ -484,11 +485,11 @@ const ProductList = () => {
 
                 {/* <button onClick={handleClick}>Sửa</button> */}
 
-                <button className="delete-btn" onClick={() => handleDelete(product._id)}>
-
-                    Xoá
-
-                </button>
+                {user && user.role === 'admin' && (
+                    <button className="delete-btn" onClick={() => handleDelete(product._id)}>
+                        Xoá
+                    </button>
+                )}
 
             </td>
 
@@ -554,11 +555,11 @@ const ProductList = () => {
 
 
 
-                    <Button className="add-button" type="primary" onClick={showModal}>
-
-                        <span className="roboto-font">Thêm sản phẩm</span>
-
-                    </Button>
+                    {user && user.role === 'admin' && (
+                        <Button className="add-button" type="primary" onClick={showModal}>
+                            <span className="roboto-font">Thêm sản phẩm</span>
+                        </Button>
+                    )}
 
                 </strong>
 

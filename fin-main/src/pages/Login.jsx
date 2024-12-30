@@ -99,7 +99,7 @@ const Login = () => {
                     <div className="isAdminCheck">
                         <input type="checkbox" id="isAdmin"/>
                         <label htmlFor="isAdmin">
-                            Bạn là Admin của <span className="UnifrakturCook Bold">Closet</span>?
+                            Bạn là nhân viên của <span className="UnifrakturCook Bold">Closet</span>?
                         </label>
                     </div>
                     <button className="login-btn" type="submit">

@@ -14,7 +14,7 @@ function UserInfo({ handleLogout }) {
                         <img className={cx('avatar-image')} src="src/assets/avatar.png" alt="Avatar" />
                     </div>
                     <div className={cx('info')}>
-                        <h4 className={cx('name')}>Nguyễn Quốc A</h4>
+                        <h4 className={cx('name')}>Admin</h4>
                         <p className={cx('department')}>Admin</p>
                     </div>
                 </div>

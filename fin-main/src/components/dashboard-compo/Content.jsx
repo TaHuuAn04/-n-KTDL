@@ -117,6 +117,13 @@ function Content() {
         fetchCustomerCount();
         fetchProductStats();
     }, [selectedYear]);
+    // Hàm format số
+    const formatNumber = (value) => {
+        if (value >= 1000) {
+            return (value / 1000).toFixed(1) + 'k'; // Chia cho 1000 và thêm 'k'
+        }
+        return value.toString();
+    };
 
     return (
         <div className="content-wrapper" style={{
@@ -162,7 +169,10 @@ function Content() {
                     <ComposedChart data={revenueData}>
                         <CartesianGrid strokeDasharray="3 3"/>
                         <XAxis dataKey="month" label={{value: 'Tháng', position: 'insideBottom', offset: -5}}/>
-                        <YAxis label={{value: '', angle: -90, position: 'insideLeft'}}/>
+                        <YAxis
+                            label={{ value: 'Doanh thu', angle: -90, position: 'insideLeft' }}
+                            tickFormatter={formatNumber} // Sử dụng hàm formatNumber cho tick
+                        />
                         <Tooltip/>
                         <Legend/>
                         <Area type="monotone" dataKey="revenue" fill="#8884d8" stroke="#8884d8"/>

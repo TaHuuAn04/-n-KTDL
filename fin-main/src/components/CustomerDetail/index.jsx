@@ -26,7 +26,7 @@ function CustomerDetail() {
     useEffect(() => {
         const fetchCustomerInfo = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/customers/search?custID=${customerId}`);
+                const response = await axios.get(`http://localhost:3000/customers/search?keywords=${customerId}`);
                 setCustomerInfo(response.data.customer);
                 console.log('Customer info:', response.data);
             } catch (error) {

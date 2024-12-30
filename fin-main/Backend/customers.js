@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const CustomerModel = require('./Model/Customer');
 const SHA1 = require('./SHA/SHA1');
+const redisClient = require('./caching/redis');
 //Trả về toàn bộ khách hàng
 // API ví dụ: http://localhost:3000/customers/all?page=2&limit=10
 router.get('/all', async (req, res) => {
@@ -197,19 +198,48 @@ router.get('/filter', async (req, res) => {
 // http://localhost:3000/customers/search?custID=1217856
 router.get('/search', async (req, res) => {
     try {
-        const { custID } = req.query;
-        if (!custID) {
-            return res.status(400).json({ message: 'Vui lòng điền mã khách hàng!' })
+        const { keywords } = req.query; // Đổi custID thành keywords
+        console.log("hi",keywords);
+        if (!keywords) {
+            return res.status(400).json({ message: 'Vui lòng điền từ khóa tìm kiếm!' });
         }
-        const customer = await CustomerModel.findOne({ 'Cust ID': custID });
+
+        const cacheKey = `customer:search:${keywords}`;
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+            console.log('Cache hit');
+            return res.status(200).json(JSON.parse(cachedData));
+        }
+
+        // Tìm kiếm theo First Name, Last Name, rồi đến Cust ID (không phân biệt hoa thường)
+        let customer;
+        const custIdNumber = parseInt(keywords); // Thử chuyển đổi keywords thành số
+
+        if (!isNaN(custIdNumber)) {
+            // Nếu chuyển đổi thành công, tìm kiếm theo Cust ID
+            customer = await CustomerModel.findOne({ "Cust ID": custIdNumber });
+        } else {
+            // Nếu không chuyển đổi được, tìm kiếm theo First Name hoặc Last Name
+            customer = await CustomerModel.findOne({
+                $or: [
+                    { "First Name": { $regex: keywords, $options: 'i' } },
+                    { "Last Name": { $regex: keywords, $options: 'i' } }
+                ]
+            });
+        }
 
         if (!customer) {
             return res.status(404).json({ message: 'Khách hàng không tồn tại!' });
         }
-        res.json({
+
+        const response = {
             message: 'Tìm kiếm thành công!',
             customer: customer
-        });
+        };
+
+        redisClient.setex(cacheKey, 3600, JSON.stringify(response)); // Lưu cache trong 1 giờ
+
+        res.status(200).json(response);
     } catch (error) {
         console.error('Đã xảy ra lỗi!', error);
         res.status(500).json({ message: 'Đã xảy ra lỗi!' });

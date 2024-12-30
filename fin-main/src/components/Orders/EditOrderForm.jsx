@@ -10,10 +10,10 @@ const EditOrderForm = ({ order, onSave, onCancel }) => {
     useEffect(() => {
         form.setFieldsValue({
             'Order ID': order['Order ID'],
-            CustID: order.CustID,
+            'Cust ID': order['Cust ID'],
             SKU: order.SKU,
             Qty: order.Qty,
-            Date: dayjs(order.Date), // Format lại Date
+            Date: order.Date, // Format lại Date
             Status: order.Status,
             'ship-city': order['ship-city'],
             'ship-state': order['ship-state'],
@@ -28,7 +28,6 @@ const EditOrderForm = ({ order, onSave, onCancel }) => {
         const updatedOrder = {
             ...order,
             ...values,
-            Date: values.Date.format("MM/DD/YYYY"), // Format lại Date sang MM/DD/YYYY
         };
         onSave(updatedOrder);
     };
@@ -48,7 +47,7 @@ const EditOrderForm = ({ order, onSave, onCancel }) => {
             </Form.Item>
             <Form.Item
                 label="Mã khách hàng"
-                name="CustID"
+                name="Cust ID"
                 rules={[{ required: true, message: 'Vui lòng nhập mã SKU!' }]}
             >
                 <Input />
@@ -66,7 +65,7 @@ const EditOrderForm = ({ order, onSave, onCancel }) => {
                 name="Date"
                 rules={[{ required: true, message: 'Vui lòng chọn ngày đặt hàng!' }]}
             >
-                <DatePicker style={{ width: '100%' }}  />
+                <Input />
             </Form.Item>
 
             <Form.Item

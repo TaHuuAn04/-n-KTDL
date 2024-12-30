@@ -6,6 +6,7 @@ import EditDoctorForm from './EditDoctorForm';
 import { jwtDecode } from 'jwt-decode';
 import { Link, useNavigate } from 'react-router-dom';
 import SimplePagination from '../product-compo/Button_Page';
+import AddProductForm from "../product-compo/AddProductForm.jsx";
 const { Option } = Select; // Destructure Option từ Select
 
 
@@ -279,6 +280,7 @@ const DoctorGrid = () => {
   const handleEdit = (doctor) => {
     setSelectedDoctor(doctor);
     setEditMode(true);
+    console.log('editmode', editMode);
   };
 
   const handleCancelEdit = () => {
@@ -350,6 +352,9 @@ const DoctorGrid = () => {
           >
             Sửa
           </button>
+          {/*<EditDoctorForm>*/}
+
+          {/*</EditDoctorForm>*/}
           <button
               className="delete-btn"
               onClick={(e) => {
@@ -429,14 +434,37 @@ const DoctorGrid = () => {
             <Button type="primary" onClick={handleSearch}>
               Tìm kiếm
             </Button>
-          </div>
 
+          </div>
+          {editMode && selectedDoctor && (
+              <Modal
+                  title="Chỉnh sửa thông tin nhân viên"
+                  visible={editMode}
+                  onCancel={handleCancelEdit}
+                  footer={null}
+              >
+                <EditDoctorForm
+                    doctor={selectedDoctor}
+                    onSave={handleSave}
+                    onCancel={() => setVisible(false)}
+                />
+              </Modal>
+          )}
           {/* Nút thêm nhân viên */}
           {user && (user.role === 'admin' || user.manage) && (
               <Button className="add-button" type="primary" onClick={showModal}>
                 Thêm nhân viên
               </Button>
           )}
+          <Modal
+              title="Thêm nhân viên mới"
+              visible={visible}
+              onOk={handleOk}
+              onCancel={handleCancel}
+              footer={null}
+          >
+            <AddDoctorForm onAddDoctor={handleAddDoctor}/>
+          </Modal>
         </div>
 
         {/* Modal và các phần tử khác giữ nguyên */}

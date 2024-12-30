@@ -2,8 +2,11 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const SaleModel = require('./Model/Sale');
-const dayjs = require('dayjs');
+const ProductModel = require('./Model/Product');
 const redisClient = require('./caching/redis');
+const dayjs = require('dayjs');
+const customParseFormat = require('dayjs/plugin/customParseFormat');
+dayjs.extend(customParseFormat);
 // Trả về toàn bộ lịch sử Sales
 router.get('/all', async (req, res) => {
     try {
@@ -73,32 +76,108 @@ router.get('/find/:orderID', async (req, res) => {
     }
 });
 
-//API sửa dựa trên id của lịch sử tìm kiếm
 router.patch('/update/:orderID', async (req, res) => {
     try {
-        console.log("Update sale:", req.body);
         const orderID = req.params.orderID;
-        const updatedData = req.body;
+        console.log("orderID", orderID);
+
+        // Lấy thông tin đơn hàng cũ từ database
+        const oldSale = await SaleModel.findOne({ 'Order ID': orderID });
+
+        // Lấy các trường từ req.body và validate
+        const {
+            'Cust ID': custID,
+            SKU,
+            Qty,
+            Amount,
+            Status,
+            Date,
+            'ship-city': shipCity,
+            'ship-state': shipState,
+            'ship-postal-code': shipPostalCode,
+            'ship-country': shipCountry
+        } = req.body;
+
+        const updatedData = {};
+
+        // Validate và cập nhật các trường
+        if (custID) updatedData['Cust ID'] = custID;
+        if (SKU) updatedData.SKU = SKU;
+
+        if (Qty) {
+            if (typeof Qty !== 'number' || Qty < 0) {
+                return res.status(400).json({ message: "Qty phải là số nguyên dương!" });
+            }
+            updatedData.Qty = Qty;
+        }
+
+        if (Amount) {
+            if (typeof Amount !== 'number' || Amount < 0) {
+                return res.status(400).json({ message: "Amount phải là số dương!" });
+            }
+            updatedData.Amount = Amount;
+        }
+
+        if (Status) updatedData.Status = Status;
+
+        if (Date) {
+            const dateObject = dayjs(Date, 'DD/MM/YYYY');
+            if (!dateObject.isValid()) {
+                return res.status(400).json({ message: "Ngày không hợp lệ, sử dụng định dạng DD/MM/YYYY" });
+            }
+            updatedData.Date = dateObject.toDate();
+        }
+
+        if (shipCity) updatedData['ship-city'] = shipCity;
+        if (shipState) updatedData['ship-state'] = shipState;
+
+        if (shipPostalCode) {
+            const postalCodeNumber = parseInt(shipPostalCode, 10);
+            if (isNaN(postalCodeNumber)) {
+                return res.status(400).json({ message: "'ship-postal-code' phải là số hợp lệ!" });
+            }
+            updatedData['ship-postal-code'] = postalCodeNumber;
+        }
+
+        if (shipCountry) updatedData['ship-country'] = shipCountry;
+
+        // Kiểm tra xem có trường nào được cập nhật không
+        if (Object.keys(updatedData).length === 0) {
+            return res.status(400).json({ message: 'Không có thông tin cần cập nhật!' });
+        }
+
+        // Tìm và cập nhật đơn hàng
         const updatedSale = await SaleModel.findOneAndUpdate(
-            { 'Order ID': orderID },    // Tìm theo saleId
-            updatedData,            // Cập nhật với updatedData
+            { 'Order ID': orderID },
+            updatedData,
             {
-                new: true,            // Trả về đối tượng đã cập nhật
-                runValidators: true   // Chạy validation trước khi lưu
+                new: true,
+                runValidators: true
             }
         );
 
         if (!updatedSale) {
             return res.status(404).json({ message: 'Lịch sử mua hàng không tồn tại!' });
         }
+
+
+
         res.status(200).json({
             message: 'Chỉnh sửa thành công!',
             sale: updatedSale
         });
     } catch (err) {
+        console.error("Lỗi cập nhật đơn hàng:", err);
+
+        if (err.name === 'ValidationError') {
+            const message = Object.values(err.errors).map(val => val.message).join(', ');
+            return res.status(400).json({ message: message });
+        }
+
         res.status(500).json({ message: 'Đã xảy ra lỗi trong quá trình cập nhật!', error: err.message });
     }
 });
+
 
 // Thêm lịch sử bán hàng
 router.post('/add', async (req, res) => {
@@ -184,9 +263,8 @@ router.get('/filter', async (req, res) => {
 
         // Format lại dữ liệu sales trước khi trả về
         const formattedSales = sales.map((sale, index) => ({
-            stt: (page - 1) * limit + index + 1, // Tính stt dựa trên page và limit
             'Order ID': sale['Order ID'], // Giữ nguyên Order ID
-            CustID: sale['Cust ID'],
+            'Cust ID': sale['Cust ID'],
             Date: dayjs(sale.Date).format('DD/MM/YYYY'), // Format Date
             'ship-city': sale['ship-city'],
             'ship-state': sale['ship-state'],
@@ -248,29 +326,104 @@ router.patch('/changeStatus/:orderID', async (req, res) => {
             return res.status(404).json({ message: 'Not found' });
         }
 
-        // Kiểm tra trạng thái hiện tại và chuyển sang trạng thái tiếp theo
-        switch (order.Status) {
-            case 'Pending':
-                order.Status = 'Processing';
-                break;
-            case 'Processing':
-                order.Status = 'Delivering';
-                break;
-            case 'Delivering':
-                order.Status = 'Delivered';
-                break;
-            case 'Delivered':
-                order.Status = 'Cancelled';
-                break;
-            case 'Cancelled':
-                order.Status = 'Pending';
-                break;
-            default:
-                return res.status(400).json({ message: 'Invalid order status transition' });
+        const oldStatus = order.Status; // Lưu lại trạng thái cũ
+        const orderDate = order.Date;
+
+        // Chỉ xử lý khi chuyển từ Pending sang Processing
+        if (order.Status === 'Pending') {
+            order.Status = 'Processing';
+
+            // Lấy thông tin sản phẩm từ đơn hàng (giả sử đơn hàng chỉ có 1 sản phẩm)
+            const skuCode = order.SKU; // SKU Code của sản phẩm
+            const quantityToSubtract = order.Qty; // Số lượng cần trừ
+
+            // Tìm sản phẩm cần cập nhật
+            const product = await ProductModel.findOne({ 'SKU Code': skuCode });
+
+            if (!product) {
+                return res.status(404).json({ message: `Product with SKU Code ${skuCode} not found` });
+            }
+
+            // Trừ tồn kho theo thứ tự ưu tiên B1 -> B2 -> B3 -> B4
+            let remainingQuantity = quantityToSubtract;
+
+            const branches = ['stock in B1', 'stock in B2', 'stock in B3', 'stock in B4'];
+            for (const branch of branches) {
+                if (remainingQuantity <= 0) break; // Đã trừ đủ, thoát vòng lặp
+
+                const currentStock = product[branch];
+                if (currentStock > 0) {
+                    const subtractAmount = Math.min(remainingQuantity, currentStock);
+                    product[branch] -= subtractAmount;
+                    remainingQuantity -= subtractAmount;
+                }
+            }
+
+            // Kiểm tra xem đã trừ đủ số lượng cần thiết chưa
+            if (remainingQuantity > 0) {
+                return res.status(400).json({ message: `Not enough stock for product ${skuCode}` });
+            }
+
+            // Cập nhật tổng tồn kho (Stock)
+            product.Stock = product['stock in B1'] + product['stock in B2'] + product['stock in B3'] + product['stock in B4'];
+
+            // Lưu thay đổi vào database
+            await product.save();
+            await order.save();
+
+            // Xóa cache liên quan
+            const keysToDelete = [];
+            keysToDelete.push(`sale:${orderID}`);
+            keysToDelete.push(...(await redisClient.keys('sale:*')));
+            keysToDelete.push(...(await redisClient.keys('filter:*')));
+            keysToDelete.push(`product:${skuCode}`); // Xóa cache của sản phẩm liên quan
+
+            if (keysToDelete.length > 0) {
+                await redisClient.del(keysToDelete);
+            }
+
+            return res.status(200).json({ message: 'Order status updated successfully', order });
+        } else {
+            // Nếu trạng thái hiện tại không phải là 'Pending', chỉ cập nhật trạng thái đơn hàng
+            switch (order.Status) {
+                case 'Processing':
+                    order.Status = 'Delivering';
+                    break;
+                case 'Delivering':
+                    order.Status = 'Delivered';
+                    break;
+                case 'Delivered':
+                    order.Status = 'Cancelled';
+                    break;
+                case 'Cancelled':
+                    order.Status = 'Pending';
+                    break;
+                default:
+                    return res.status(400).json({ message: 'Invalid order status transition' });
+            }
+
+            const updatedOrder = await order.save();
+
+            // Xóa cache liên quan
+            const keysToDelete = [];
+            keysToDelete.push(`sale:${orderID}`);
+            keysToDelete.push(...(await redisClient.keys('sale:*')));
+            keysToDelete.push(...(await redisClient.keys('filter:*')));
+
+            // Xóa cache doanh thu theo tháng (nếu là Delivered -> Cancelled)
+            if (oldStatus === 'Delivered' && order.Status === 'Cancelled') {
+                const year = new Date(orderDate).getFullYear();
+                keysToDelete.push(`monthly-revenue:${year}`);
+            }
+
+            if (keysToDelete.length > 0) {
+                await redisClient.del(keysToDelete);
+            }
+
+            return res.status(200).json({ message: 'Order status updated successfully', order: updatedOrder });
         }
-        await order.save();
-        return res.status(200).json({ message: 'Order status updated successfully', order });
     } catch (error) {
+        console.error('Error:', error);
         return res.status(500).json({ message: 'Server error', error });
     }
 });

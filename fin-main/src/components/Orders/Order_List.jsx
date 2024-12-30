@@ -49,7 +49,7 @@ function OrderList() {
             }
 
             const response = await axios.patch(
-                `http://localhost:3000/sales/update/orderID/${editedOrder['Order ID']}`,
+                `http://localhost:3000/sales/update/${editedOrder['Order ID']}`,
                 editedOrder,
                 {
                     headers: {
@@ -58,12 +58,13 @@ function OrderList() {
                 }
             );
 
-            console.log('Update order response:', response.data);
+
 
             const updatedOrders = orders.map((o) =>
                 o['Order ID'] === editedOrder['Order ID'] ? response.data.order : o
             );
             setOrders(updatedOrders);
+            console.log('order', orders);
             setIsEditModalVisible(false);
         } catch (error) {
             console.error('Error updating order:', error);
@@ -146,7 +147,7 @@ function OrderList() {
                 setTotalPages(Math.ceil(totalOrders / itemsPerPage));
 
             } catch (error) {
-                console.error("Error fetching order counts:", error);
+                console.error("Error fetching order counts:", error)
             }
         };
 
@@ -243,6 +244,7 @@ function OrderList() {
                 o['Order ID'] === orderID ? { ...o, Status: response.data.order.Status } : o
             );
             setOrders(updatedOrders);
+            console.log('Updated orders:', updatedOrders);
 
         } catch (error) {
             console.error('Error updating order status:', error);
@@ -380,10 +382,10 @@ function OrderList() {
                         ) : orders.length > 0 ? (
                             orders.map((order) => (
                                 <tr key={order["Order ID"]}>
-                                    <td style={cellStyle}>{order["Order ID"]}</td>
+                                    <td style={cellStyle}>{order['Order ID']}</td>
                                     <td style={cellStyle}>{order.SKU}</td>
                                     <td style={cellStyle}>{order.Qty}</td>
-                                    <td style={cellStyle}>{new Date(order.Date).toLocaleDateString("vi-VN")}</td>
+                                    <td style={cellStyle}>{order.Date}</td>
                                     <td style={cellStyle}>{order.Status}</td>
                                     <td style={cellStyle}>{order["ship-postal-code"]}</td>
                                     <td style={cellStyle}>{order.Amount}</td>

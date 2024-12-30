@@ -45,13 +45,6 @@ const AddDoctorForm = ({ onAddDoctor }) => {
         >
           <Input />
         </Form.Item>
-        <Form.Item
-            label="Ngày sinh"
-            name="Date_Of_Birth"
-            rules={[{ required: true, message: 'Vui lòng nhập ngày sinh!' }]}
-        >
-          <Input />
-        </Form.Item>
 
         <Form.Item
             label="Ngày bắt đầu làm"
