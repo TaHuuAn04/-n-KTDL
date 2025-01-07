@@ -20,6 +20,10 @@
     height: 100%;
     margin-left: auto;
     margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .login-main .backgr .wrapper {
@@ -83,7 +87,7 @@
     display: flex;
     justify-items: center;
     align-items: center;
-    justify-content: space-between;
+    justify-content: end;
 }
 
 .login-main .backgr .wrapper .box-login .account a {
@@ -110,4 +114,21 @@
     background-color: #bf7b7b;
     border: none;
     margin-top: 30px;
+}
+
+.input-box input {
+    padding-left: 20px;
+    font-size: 25px;
+}
+
+.account a, .account Link {
+    color: blue;
+}
+
+.input-register p {
+    font-weight: 500;
+}
+
+.input-field::placeholder {
+    color: black;
 }
